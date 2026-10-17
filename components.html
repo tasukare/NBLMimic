@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Lab — Component Library & Design System</title>
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg-primary:    #FAFAF9;
+  --bg-secondary:  #F5F5F4;
+  --bg-tertiary:   #E7E5E4;
+  --text-primary:   #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary:  #A8A29E;
+  --border:        #E7E5E4;
+  --border-strong: #D6D3D1;
+  --accent:        #2563EB;
+  --accent-hover:  #1D4ED8;
+  --accent-light:  #EFF6FF;
+  --accent-subtle: rgba(37,99,235,0.08);
+  --success:       #059669;
+  --success-light: #ECFDF5;
+  --warning:       #D97706;
+  --warning-light: #FFFBEB;
+  --danger:        #DC2626;
+  --danger-light:  #FEF2F2;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  --radius-xs:  4px;
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 9999px;
+  --font-ui:    'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-prose: 'Charter', 'Georgia', 'Iowan Old Style', 'Times New Roman', serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  --text-h1:    2rem;
+  --text-h2:    1.5rem;
+  --text-h3:    1.125rem;
+  --text-body:  0.9375rem;
+  --text-small: 0.8125rem;
+  --text-tiny:  0.6875rem;
+  --transition-fast:   100ms ease-out;
+  --transition-normal: 150ms ease-out;
+  --transition-slow:   200ms ease-out;
+}
+[data-theme="dark"] {
+  --bg-primary:    #1C1917;
+  --bg-secondary:  #292524;
+  --bg-tertiary:   #3F3F46;
+  --text-primary:   #FAFAF9;
+  --text-secondary: #D6D3D1;
+  --text-tertiary:  #78716C;
+  --border:        #3F3F46;
+  --border-strong: #52525B;
+  --accent-light:  rgba(37,99,235,0.15);
+  --accent-subtle: rgba(37,99,235,0.12);
+  --success-light: rgba(5,150,105,0.12);
+  --warning-light: rgba(217,119,6,0.12);
+  --danger-light:  rgba(220,38,38,0.12);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.20);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.28);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.32);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.40);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  padding: 40px 24px;
+}
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.header-title { font-size: var(--text-h1); font-weight: 600; letter-spacing: -0.02em; }
+.header-desc { font-size: var(--text-small); color: var(--text-secondary); margin-top: 4px; }
+.section {
+  margin-bottom: 48px;
+}
+.section-title {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.section-desc {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.component-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.component-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+.component-label { font-size: var(--text-small); font-weight: 600; color: var(--text-primary); }
+.component-tag { font-family: var(--font-mono); font-size: var(--text-tiny); color: var(--text-tertiary); }
+.component-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit; font-size: var(--text-small); font-weight: 500;
+  border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast);
+  white-space: nowrap; border: none;
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-primary { height: 36px; padding: 0 16px; background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-secondary { height: 36px; padding: 0 14px; background: transparent; color: var(--text-primary); border: 1.5px solid var(--border); }
+.btn-secondary:hover { background: var(--bg-tertiary); border-color: var(--border-strong); }
+.btn-ghost { height: 36px; padding: 0 12px; background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.btn-danger { height: 36px; padding: 0 14px; background: var(--danger-light); color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: var(--text-tiny); }
+.btn-disabled, .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+.btn-icon {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--bg-primary);
+  color: var(--text-secondary); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.btn-icon:hover { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--border-strong); }
+
+/* INPUTS */
+.input-text {
+  height: 40px; padding: 0 12px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--bg-primary);
+  font-size: var(--text-small); color: var(--text-primary); width: 100%;
+  outline: none; transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+.input-text:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle); }
+
+/* TOGGLE */
+.toggle { position: relative; width: 38px; height: 22px; display: inline-block; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: var(--bg-tertiary); border-radius: var(--radius-full); cursor: pointer; transition: background var(--transition-slow); }
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-thumb { position: absolute; width: 16px; height: 16px; background: #fff; border-radius: var(--radius-full); top: 3px; left: 3px; transition: transform var(--transition-slow); }
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: var(--radius-full); font-size: var(--text-tiny); font-weight: 500; font-variant-numeric: tabular-nums; }
+.badge-blue   { background: var(--accent-light); color: var(--accent); }
+.badge-green  { background: var(--success-light); color: var(--success); }
+.badge-yellow { background: var(--warning-light); color: var(--warning); }
+.badge-red    { background: var(--danger-light); color: var(--danger); }
+.badge-gray   { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+/* CHAT BUBBLE PREVIEW */
+.chat-preview-box { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.msg-user-box { align-self: flex-end; background: var(--accent); color: #fff; padding: 10px 14px; border-radius: 12px 12px 2px 12px; font-size: var(--text-small); max-width: 85%; }
+.msg-ai-box { align-self: flex-start; background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); padding: 12px 16px; border-radius: 12px 12px 12px 2px; font-size: var(--text-small); max-width: 90%; }
+
+/* SOURCE PILL */
+.source-pill {
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px;
+  background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-full);
+  font-size: 11px; font-weight: 500; color: var(--text-secondary); cursor: pointer;
+}
+.source-pill:hover { border-color: var(--accent); color: var(--accent); }
+.source-num { width: 16px; height: 16px; border-radius: var(--radius-full); background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+
+/* SKELETON */
+.skel-bar { height: 12px; background: var(--bg-tertiary); border-radius: var(--radius-xs); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header-row">
+    <div>
+      <h1 class="header-title">Research Lab Component Library</h1>
+      <p class="header-desc">Complete design tokens, atomic components, and micro-interaction states.</p>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a href="index.html" class="btn btn-secondary btn-sm" style="text-decoration:none;">Launch Full App →</a>
+      <button class="btn btn-primary btn-sm" onclick="toggleTheme()" id="theme-btn">Toggle Dark Mode</button>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="section">
+    <h2 class="section-title">Buttons & Interactive States</h2>
+    <p class="section-desc">Primary actions, secondary alternatives, ghost buttons, icon actions, and disabled states.</p>
+    <div class="preview-grid">
+      <div class="component-card">
+        <div class="component-meta">
+          <span class="component-label">Button Variants</span>
+          <span class="component-tag">.btn-{variant}</span>
+        </div>
+        <div class="component-stage">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-danger">Danger</button>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-meta">
+          <span class="component-label">Sizes & States</span>
+          <span class="component-tag">.btn-sm, :disabled</span>
+        </div>
+        <div class="component-stage">
+          <button class="btn btn-primary btn-sm">Small Action</button>
+          <button class="btn btn-secondary btn-sm">Small Alt</button>
+          <button class="btn btn-primary btn-disabled" disabled>Disabled</button>
+          <button class="btn-icon" title="Settings icon" aria-label="Settings">⚙️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM CONTROLS -->
+  <div class="section">
+    <h2 class="section-title">Form Controls & Inputs</h2>
+    <p class="section-desc">Consistent 40px base inputs with active focus rings and micro-transitions.</p>
+    <div class="preview-grid">
+      <div class="component-card">
+        <div class="component-meta">
+          <span class="component-label">Text Inputs</span>
+          <span class="component-tag">.input-text</span>
+        </div>
+        <input class="input-text" type="text" placeholder="Search or query sources...">
+        <input class="input-text" type="text" value="https://arxiv.org/abs/2301.00000" readonly>
+      </div>
+
+      <div class="component-card">
+        <div class="component-meta">
+          <span class="component-label">Toggles & Status</span>
+          <span class="component-tag">.toggle, .badge</span>
+        </div>
+        <div class="component-stage" style="justify-content:space-between; width:100%;">
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+          <span class="badge badge-green">8 active sources</span>
+          <span class="badge badge-blue">Ollama Local</span>
+          <span class="badge badge-yellow">Indexing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT & CITATIONS -->
+  <div class="section">
+    <h2 class="section-title">Chat & Source Citations</h2>
+    <p class="section-desc">Asymmetric message bubbles with verified source references and click-throughs.</p>
+    <div class="preview-grid">
+      <div class="component-card" style="grid-column: 1 / -1;">
+        <div class="component-meta">
+          <span class="component-label">Conversation Flow & Inline References</span>
+          <span class="component-tag">.msg-user-box, .msg-ai-box, .source-pill</span>
+        </div>
+        <div class="chat-preview-box">
+          <div class="msg-user-box">
+            What are the primary findings in chapter 4 regarding carbon leakage?
+          </div>
+          <div class="msg-ai-box">
+            <p>Chapter 4 documents that unilateral carbon pricing mechanisms without border adjustment mechanisms can induce up to <strong>15–25% carbon leakage</strong> in energy-intensive heavy manufacturing.</p>
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+              <div class="source-pill">
+                <span class="source-num">1</span> IPCC AR6 WG3 · Ch. 4, p. 112
+              </div>
+              <div class="source-pill">
+                <span class="source-num">2</span> Stiglitz et al. 2024 · §4.2
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKELETONS & EMPTY STATES -->
+  <div class="section">
+    <h2 class="section-title">Loading States & Feedback</h2>
+    <p class="section-desc">Pulsing skeletons tailored to document layouts without disruptive spinner flashes.</p>
+    <div class="preview-grid">
+      <div class="component-card">
+        <div class="component-meta">
+          <span class="component-label">Skeleton Card</span>
+          <span class="component-tag">.skel-bar</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="skel-bar" style="width: 40%; height: 16px;"></div>
+          <div class="skel-bar" style="width: 100%;"></div>
+          <div class="skel-bar" style="width: 85%;"></div>
+          <div class="skel-bar" style="width: 60%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+}
+</script>
+</body>
+</html>

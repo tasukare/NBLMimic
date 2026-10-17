@@ -1,0 +1,122 @@
+/* ============================================================
+   RESEARCH LAB — DESIGN TOKENS
+   Private NotebookLM Interface
+   ============================================================ */
+
+:root {
+  /* ── Backgrounds ── */
+  --bg-primary:    #FAFAF9;
+  --bg-secondary:  #F5F5F4;
+  --bg-tertiary:   #E7E5E4;
+
+  /* ── Text ── */
+  --text-primary:   #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary:  #A8A29E;
+
+  /* ── Borders ── */
+  --border:        #E7E5E4;
+  --border-strong: #D6D3D1;
+
+  /* ── Accent / Semantic ── */
+  --accent:        #2563EB;
+  --accent-hover:  #1D4ED8;
+  --accent-light:  #EFF6FF;
+  --accent-subtle: rgba(37, 99, 235, 0.08);
+  --success:       #059669;
+  --success-light: #ECFDF5;
+  --warning:       #D97706;
+  --warning-light: #FFFBEB;
+  --danger:        #DC2626;
+  --danger-light:  #FEF2F2;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+
+  /* ── Radii ── */
+  --radius-xs:  4px;
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 9999px;
+
+  /* ── Typography — Fonts ── */
+  --font-ui:    'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-prose: 'Charter', 'Georgia', 'Iowan Old Style', 'Times New Roman', serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+
+  /* ── Typography — Scale ── */
+  --text-h1:    2rem;
+  --text-h2:    1.5rem;
+  --text-h3:    1.125rem;
+  --text-body:  0.9375rem;
+  --text-small: 0.8125rem;
+  --text-tiny:  0.6875rem;
+
+  /* ── Typography — Weights ── */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+
+  /* ── Spacing (8px base) ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Layout ── */
+  --header-height:   56px;
+  --sidebar-width:   240px;
+  --sidepanel-width: 320px;
+
+  /* ── Transitions ── */
+  --transition-fast:   100ms ease-out;
+  --transition-normal: 150ms ease-out;
+  --transition-slow:   200ms ease-out;
+
+  /* ── Z-index ── */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-overlay: 100;
+  --z-modal:   200;
+  --z-toast:   300;
+}
+
+[data-theme="dark"] {
+  --bg-primary:    #1C1917;
+  --bg-secondary:  #292524;
+  --bg-tertiary:   #3F3F46;
+
+  --text-primary:   #FAFAF9;
+  --text-secondary: #D6D3D1;
+  --text-tertiary:  #78716C;
+
+  --border:        #3F3F46;
+  --border-strong: #52525B;
+
+  --accent-light:  rgba(37, 99, 235, 0.15);
+  --accent-subtle: rgba(37, 99, 235, 0.12);
+  --success-light: rgba(5, 150, 105, 0.12);
+  --warning-light: rgba(217, 119, 6, 0.12);
+  --danger-light:  rgba(220, 38, 38, 0.12);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.20);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.40);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

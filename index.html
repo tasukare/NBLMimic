@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-view="library">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Lab</title>
+<style>
+/* ════════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════════ */
+:root {
+  --bg-primary:    #FAFAF9;
+  --bg-secondary:  #F5F5F4;
+  --bg-tertiary:   #E7E5E4;
+  --text-primary:   #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary:  #A8A29E;
+  --border:        #E7E5E4;
+  --border-strong: #D6D3D1;
+  --accent:        #2563EB;
+  --accent-hover:  #1D4ED8;
+  --accent-light:  #EFF6FF;
+  --accent-subtle: rgba(37,99,235,0.08);
+  --success:       #059669;
+  --success-light: #ECFDF5;
+  --warning:       #D97706;
+  --warning-light: #FFFBEB;
+  --danger:        #DC2626;
+  --danger-light:  #FEF2F2;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  --radius-xs:  4px;
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 9999px;
+  --font-ui:    'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-prose: 'Charter', 'Georgia', 'Iowan Old Style', 'Times New Roman', serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  --text-h1:    2rem;
+  --text-h2:    1.5rem;
+  --text-h3:    1.125rem;
+  --text-body:  0.9375rem;
+  --text-small: 0.8125rem;
+  --text-tiny:  0.6875rem;
+  --header-height:   56px;
+  --sidebar-width:   240px;
+  --sidepanel-width: 320px;
+  --transition-fast:   100ms ease-out;
+  --transition-normal: 150ms ease-out;
+  --transition-slow:   200ms ease-out;
+}
+[data-theme="dark"] {
+  --bg-primary:    #1C1917;
+  --bg-secondary:  #292524;
+  --bg-tertiary:   #3F3F46;
+  --text-primary:   #FAFAF9;
+  --text-secondary: #D6D3D1;
+  --text-tertiary:  #78716C;
+  --border:        #3F3F46;
+  --border-strong: #52525B;
+  --accent-light:  rgba(37,99,235,0.15);
+  --accent-subtle: rgba(37,99,235,0.12);
+  --success-light: rgba(5,150,105,0.12);
+  --warning-light: rgba(217,119,6,0.12);
+  --danger-light:  rgba(220,38,38,0.12);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.20);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.28);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.32);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.40);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  line-height: 1.6;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button { cursor: pointer; font-family: inherit; }
+input, textarea { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; flex-shrink: 0; }
+
+/* ════════════════════════════════════════════════
+   LAYOUT SHELL
+════════════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-rows: var(--header-height) 1fr;
+  grid-template-columns: var(--sidebar-width) 1fr var(--sidepanel-width);
+  height: 100dvh;
+  transition: grid-template-columns var(--transition-slow);
+}
+.app.sidepanel-collapsed {
+  grid-template-columns: var(--sidebar-width) 1fr 0px;
+}
+.app.sidebar-collapsed {
+  grid-template-columns: 0px 1fr var(--sidepanel-width);
+}
+
+/* ════════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════════ */
+.header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: var(--header-height);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  position: relative;
+}
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  min-width: fit-content;
+  user-select: none;
+}
+.logo-mark {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-mark svg { color: #fff; }
+.header-search {
+  flex: 1;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  height: 36px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 12px 0 34px;
+  font-size: var(--text-small);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
+}
+.search-input::placeholder { color: var(--text-tertiary); }
+.search-input:focus {
+  border-color: var(--accent);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.search-kbd {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  padding: 1px 5px;
+  pointer-events: none;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.btn-icon {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.btn-icon:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.btn-icon:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn-new {
+  display: flex; align-items: center; gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small);
+  font-weight: 500;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+.btn-new:hover { background: var(--accent-hover); }
+.btn-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════ */
+.sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: width var(--transition-slow);
+}
+.sidebar-inner {
+  width: var(--sidebar-width);
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.sidebar-section {
+  padding: 16px 12px 4px;
+}
+.sidebar-section-label {
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 4px;
+  margin-bottom: 4px;
+}
+.sidebar-nav { padding: 4px 0; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 16px 6px 12px;
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-item svg { flex-shrink: 0; }
+.nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.nav-item.active {
+  border-left-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 500;
+}
+.nav-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.nav-item-count {
+  margin-left: auto;
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 12px;
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.storage-indicator {
+  padding: 12px 16px;
+}
+.storage-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-tiny);
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.storage-bar {
+  height: 3px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.storage-fill {
+  height: 100%;
+  width: 34%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+}
+
+/* ════════════════════════════════════════════════
+   MAIN CONTENT
+════════════════════════════════════════════════ */
+.main {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+/* ── View Panels ── */
+.view { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+.view.active { display: flex; }
+
+/* ════════════════════════════════════════════════
+   LIBRARY VIEW
+════════════════════════════════════════════════ */
+.library-header {
+  padding: 24px 32px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.library-title {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.library-subtitle {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.library-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px 0;
+  flex-shrink: 0;
+}
+.filter-btn {
+  display: flex; align-items: center; gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.filter-btn.active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.filter-sep { width: 1px; height: 16px; background: var(--border); margin: 0 2px; }
+.sort-select {
+  margin-left: auto;
+  height: 28px;
+  padding: 0 8px;
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+}
+.library-grid {
+  padding: 16px 32px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+.doc-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal), transform var(--transition-normal);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: card-in 200ms ease-out both;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.doc-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+.doc-card:hover .doc-card-actions { opacity: 1; }
+.doc-card-header { display: flex; align-items: flex-start; gap: 10px; }
+.doc-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+.doc-icon.pdf   { background: var(--danger-light);   color: var(--danger); }
+.doc-icon.web   { background: var(--accent-light);   color: var(--accent); }
+.doc-icon.txt   { background: var(--success-light);  color: var(--success); }
+.doc-icon.epub  { background: var(--warning-light);  color: var(--warning); }
+.doc-icon.note  { background: var(--bg-tertiary);    color: var(--text-secondary); }
+.doc-card-meta { flex: 1; min-width: 0; }
+.doc-card-title {
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.doc-card-source {
+  font-size: var(--text-tiny);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doc-card-excerpt {
+  font-size: var(--text-tiny);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.doc-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+.doc-tag {
+  display: inline-flex; align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.doc-date {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.doc-card-actions {
+  position: absolute;
+  top: 10px; right: 10px;
+  opacity: 0;
+  display: flex; gap: 2px;
+  transition: opacity var(--transition-fast);
+}
+.doc-card-actions .btn-icon {
+  width: 26px; height: 26px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── Skeleton cards ── */
+.skeleton { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.skeleton-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.skel-block {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-xs);
+}
+.skel-icon  { width: 36px; height: 36px; border-radius: var(--radius-sm); }
+.skel-line  { height: 12px; }
+.skel-short { width: 60%; }
+.skel-med   { width: 80%; }
+.skel-long  { width: 100%; }
+
+/* ════════════════════════════════════════════════
+   CHAT VIEW
+════════════════════════════════════════════════ */
+.chat-view { flex-direction: column; }
+.chat-notebook-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.chat-notebook-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+}
+.chat-notebook-info { flex: 1; min-width: 0; }
+.chat-notebook-name {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-notebook-count {
+  font-size: var(--text-tiny);
+  color: var(--text-secondary);
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+.msg-group { display: flex; flex-direction: column; gap: 4px; }
+.msg-group.user { align-items: flex-end; }
+.msg-group.ai   { align-items: flex-start; }
+.msg-sender {
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  padding: 0 4px;
+  margin-bottom: 4px;
+}
+.msg-bubble {
+  max-width: 680px;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  word-break: break-word;
+}
+.msg-group.user .msg-bubble {
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: var(--radius-xs);
+}
+.msg-group.ai .msg-bubble {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-bottom-left-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+}
+.msg-bubble p + p { margin-top: 8px; }
+.msg-bubble strong { font-weight: 600; }
+.msg-bubble code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: rgba(0,0,0,0.08);
+  padding: 1px 5px;
+  border-radius: var(--radius-xs);
+}
+.msg-group.user .msg-bubble code { background: rgba(255,255,255,0.2); }
+.msg-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.source-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+.source-pill:hover { border-color: var(--accent); color: var(--accent); }
+.source-pill-num {
+  width: 16px; height: 16px;
+  border-radius: var(--radius-full);
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.msg-actions {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.msg-group:hover .msg-actions { opacity: 1; }
+.msg-action-btn {
+  height: 24px;
+  padding: 0 6px;
+  font-size: var(--text-tiny);
+  color: var(--text-tertiary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.msg-action-btn:hover { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+/* ── AI typing indicator ── */
+.typing-indicator {
+  display: flex; align-items: center; gap: 4px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-xs);
+  width: fit-content;
+}
+.typing-dot {
+  width: 6px; height: 6px;
+  background: var(--text-tertiary);
+  border-radius: var(--radius-full);
+  animation: typing 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(1); opacity: 0.5; }
+  40%           { transform: scale(1.3); opacity: 1; }
+}
+
+/* ── Chat Input ── */
+.chat-input-area {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chat-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 8px 8px 8px 14px;
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+.chat-input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+  background: var(--bg-primary);
+}
+.chat-textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  min-height: 24px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.chat-textarea::placeholder { color: var(--text-tertiary); }
+.chat-send-btn {
+  width: 34px; height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.chat-send-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+.chat-send-btn:active { transform: scale(0.96); }
+.chat-input-hint {
+  margin-top: 6px;
+  font-size: var(--text-tiny);
+  color: var(--text-tertiary);
+  display: flex; align-items: center; gap: 12px;
+}
+.chat-input-hint kbd {
+  font-family: var(--font-mono);
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 10px;
+}
+
+/* ════════════════════════════════════════════════
+   SIDE PANEL
+════════════════════════════════════════════════ */
+.sidepanel {
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--transition-slow);
+}
+.sidepanel-inner {
+  width: var(--sidepanel-width);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidepanel-tabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding: 0 4px;
+  flex-shrink: 0;
+  height: 44px;
+}
+.sidepanel-tab {
+  height: 44px;
+  padding: 0 12px;
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.sidepanel-tab:hover { color: var(--text-primary); }
+.sidepanel-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+.sidepanel-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sidepanel-close {
+  margin-left: auto;
+}
+.sidepanel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+.sp-section { margin-bottom: 20px; }
+.sp-section-title {
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.source-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border: 1px solid transparent;
+}
+.source-item:hover { background: var(--bg-primary); border-color: var(--border); }
+.source-item-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+.source-item-body { flex: 1; min-width: 0; }
+.source-item-title {
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.source-item-meta {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+.source-check {
+  width: 16px; height: 16px;
+  border-radius: var(--radius-xs);
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  margin-top: 2px;
+}
+.source-check.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.source-check.checked::after {
+  content: '';
+  width: 9px; height: 6px;
+  border-left: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.insight-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.insight-card-type {
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+.insight-card-text {
+  font-size: var(--text-small);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.insight-card-quote {
+  font-family: var(--font-prose);
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+  margin-top: 6px;
+}
+
+/* ════════════════════════════════════════════════
+   SETTINGS VIEW
+════════════════════════════════════════════════ */
+.settings-view { overflow-y: auto; }
+.settings-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.settings-title {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.settings-subtitle {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+.settings-section {
+  margin-bottom: 32px;
+}
+.settings-section-title {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-info { flex: 1; }
+.settings-row-label {
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.settings-row-desc {
+  font-size: var(--text-tiny);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.toggle {
+  position: relative;
+  width: 38px; height: 22px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background var(--transition-slow);
+}
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-thumb {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: var(--radius-full);
+  top: 3px; left: 3px;
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--transition-slow);
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+.toggle:focus-within .toggle-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.settings-input {
+  height: 36px;
+  padding: 0 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  font-size: var(--text-small);
+  color: var(--text-primary);
+  font-family: inherit;
+  width: 200px;
+  outline: none;
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+.settings-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.theme-picker {
+  display: flex; gap: 6px;
+}
+.theme-option {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  transition: border-color var(--transition-fast);
+}
+.theme-option:hover { border-color: var(--border-strong); }
+.theme-option.active { border-color: var(--accent); }
+.theme-option.light { background: #FAFAF9; }
+.theme-option.dark  { background: #1C1917; }
+.theme-option.system { background: linear-gradient(135deg, #FAFAF9 50%, #1C1917 50%); }
+
+/* ════════════════════════════════════════════════
+   UPLOAD MODAL
+════════════════════════════════════════════════ */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-slow);
+}
+.modal-backdrop.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 520px;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.96);
+  transition: transform var(--transition-slow);
+  overflow: hidden;
+}
+.modal-backdrop.open .modal { transform: scale(1); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+}
+.modal-body { padding: 24px; }
+.upload-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+}
+.upload-tab {
+  flex: 1;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.upload-tab.active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-weight: 500;
+  box-shadow: var(--shadow-xs);
+}
+.dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+.dropzone:hover, .dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.dropzone-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  color: var(--text-tertiary);
+}
+.dropzone-title {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.dropzone-subtitle {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+.dropzone-hint {
+  margin-top: 12px;
+  font-size: var(--text-tiny);
+  color: var(--text-tertiary);
+}
+.url-input-wrap {
+  position: relative;
+}
+.url-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 36px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  font-size: var(--text-small);
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
+}
+.url-input:focus {
+  border-color: var(--accent);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.url-input::placeholder { color: var(--text-tertiary); }
+.url-icon {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.modal-footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+.upload-progress {
+  margin-top: 16px;
+  display: none;
+}
+.upload-progress.visible { display: block; }
+.upload-file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+.upload-file-name {
+  font-size: var(--text-small);
+  color: var(--text-primary);
+  flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.upload-file-progress {
+  height: 3px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  margin-top: 4px;
+  overflow: hidden;
+}
+.upload-file-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width 300ms ease-out;
+}
+
+/* ════════════════════════════════════════════════
+   BUTTONS (Global)
+════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+  font-size: var(--text-small);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  border: none;
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-primary {
+  height: 36px; padding: 0 16px;
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary {
+  height: 36px; padding: 0 14px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { background: var(--bg-secondary); border-color: var(--border-strong); }
+.btn-ghost {
+  height: 36px; padding: 0 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid transparent;
+}
+.btn-ghost:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.btn-danger {
+  height: 36px; padding: 0 14px;
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1.5px solid transparent;
+}
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: var(--text-tiny); }
+
+/* ════════════════════════════════════════════════
+   BADGE / TAG
+════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center;
+  height: 20px; padding: 0 7px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.badge-blue   { background: var(--accent-light);   color: var(--accent); }
+.badge-green  { background: var(--success-light);  color: var(--success); }
+.badge-yellow { background: var(--warning-light);  color: var(--warning); }
+.badge-red    { background: var(--danger-light);   color: var(--danger); }
+.badge-gray   { background: var(--bg-tertiary);    color: var(--text-secondary); }
+
+/* ════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+════════════════════════════════════════════════ */
+.toast-stack {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 300;
+  pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-small);
+  font-weight: 400;
+  box-shadow: var(--shadow-lg);
+  pointer-events: all;
+  animation: toast-in 200ms ease-out both;
+  max-width: 320px;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.toast-icon { flex-shrink: 0; }
+.toast-success .toast-icon { color: #34D399; }
+.toast-error   .toast-icon { color: #F87171; }
+.toast-info    .toast-icon { color: #60A5FA; }
+
+/* ════════════════════════════════════════════════
+   EMPTY STATE
+════════════════════════════════════════════════ */
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  flex: 1;
+}
+.empty-icon {
+  width: 64px; height: 64px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+.empty-title {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.empty-text {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  max-width: 320px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ════════════════════════════════════════════════
+   SCROLLBARS
+════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* ════════════════════════════════════════════════
+   MOBILE RESPONSIVE
+════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .app {
+    grid-template-rows: var(--header-height) 1fr auto;
+    grid-template-columns: 1fr !important;
+  }
+  .sidebar {
+    position: fixed;
+    left: 0; top: var(--header-height); bottom: 0;
+    width: 80vw; max-width: 300px;
+    z-index: 150;
+    transform: translateX(-100%);
+    transition: transform var(--transition-slow);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .sidebar-inner { width: 100%; }
+  .sidepanel {
+    position: fixed;
+    right: 0; top: var(--header-height); bottom: 0;
+    width: 90vw; max-width: var(--sidepanel-width);
+    z-index: 150;
+    transform: translateX(100%);
+    transition: transform var(--transition-slow);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidepanel.mobile-open {
+    transform: translateX(0);
+  }
+  .sidepanel-inner { width: 100%; }
+  .library-header, .library-grid { padding-left: 16px; padding-right: 16px; }
+  .filter-bar { padding-left: 16px; padding-right: 16px; overflow-x: auto; flex-wrap: nowrap; }
+  .library-grid { grid-template-columns: 1fr; }
+  .chat-messages { padding: 16px; }
+  .chat-input-area { padding: 12px 16px; }
+  .search-kbd { display: none; }
+  .btn-new span { display: none; }
+  .btn-new { padding: 0 10px; }
+  .mobile-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 140;
+    display: none;
+  }
+  .mobile-overlay.visible { display: block; }
+}
+
+/* ════════════════════════════════════════════════
+   FOCUS VISIBLE GLOBAL
+════════════════════════════════════════════════ */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+*:focus:not(:focus-visible) { outline: none; }
+
+/* ════════════════════════════════════════════════
+   SELECTION
+════════════════════════════════════════════════ */
+::selection { background: var(--accent-light); color: var(--accent); }
+[data-theme="dark"] ::selection { background: rgba(37,99,235,0.25); color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ═══════════════════ HEADER ═══════════════════ -->
+  <header class="header">
+    <button class="btn-icon" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="3.5" width="14" height="1.5" rx=".75" fill="currentColor"/>
+        <rect x="2" y="8.25" width="14" height="1.5" rx=".75" fill="currentColor"/>
+        <rect x="2" y="13" width="14" height="1.5" rx=".75" fill="currentColor"/>
+      </svg>
+    </button>
+    <div class="header-logo">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 2h7l3 3v9H3V2z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M10 2v3h3" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 7.5h5M5.5 10h3" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Research Lab
+    </div>
+
+    <div class="header-search">
+      <div class="search-input-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <input class="search-input" type="search" placeholder="Search documents, notes, chats…" aria-label="Search">
+        <span class="search-kbd" aria-hidden="true">⌘K</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-new" id="btn-upload" aria-label="Add document">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span>Add Source</span>
+      </button>
+      <button class="btn-icon" id="theme-toggle" aria-label="Toggle theme">
+        <svg id="icon-sun" width="17" height="17" viewBox="0 0 17 17" fill="none" style="display:none">
+          <circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M8.5 1v2M8.5 14v2M1 8.5h2M14 8.5h2M3.1 3.1l1.4 1.4M12.5 12.5l1.4 1.4M3.1 13.9l1.4-1.4M12.5 4.5l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <svg id="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 9A6 6 0 016.5 2c0-.19.01-.37.03-.56A6.5 6.5 0 108.5 15c3.15 0 5.8-2.24 6.47-5.44z" fill="currentColor" opacity=".15"/>
+          <path d="M14 9A6 6 0 016.5 2c0-.19.01-.37.03-.56A6.5 6.5 0 108.5 15c3.15 0 5.8-2.24 6.47-5.44z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn-icon" id="btn-settings-open" aria-label="Settings">
+        <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+          <circle cx="8.5" cy="8.5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M8.5 1.5v1.2M8.5 14.3v1.2M1.5 8.5h1.2M14.3 8.5h1.2M3.56 3.56l.85.85M12.59 12.59l.85.85M3.56 13.44l.85-.85M12.59 4.41l.85-.85" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="avatar" title="Your account" role="img" aria-label="User avatar">N</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-inner">
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="library" onclick="switchView('library', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.3"/>
+            <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.3"/>
+            <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.3"/>
+            <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          All Documents
+          <span class="nav-item-count">24</span>
+        </button>
+        <button class="nav-item" data-view="chat" onclick="switchView('chat', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8.5c0 3.038-2.686 5.5-6 5.5a6.47 6.47 0 01-2.928-.69L2 14.5l1.165-2.783A5.265 5.265 0 012 8.5C2 5.462 4.686 3 8 3s6 2.462 6 5.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+          Research Chat
+        </button>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Notebooks</div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item" onclick="switchView('chat', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Climate Policy Analysis
+        </button>
+        <button class="nav-item" onclick="switchView('chat', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          ML Literature Review
+        </button>
+        <button class="nav-item" onclick="switchView('chat', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Thesis — Chapter 3
+        </button>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Tags</div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="3" fill="currentColor" opacity=".3"/>
+            <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          research
+          <span class="nav-item-count">12</span>
+        </button>
+        <button class="nav-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="3" fill="#059669" opacity=".25"/>
+            <circle cx="7" cy="7" r="3" stroke="#059669" stroke-width="1.2"/>
+          </svg>
+          reading-list
+          <span class="nav-item-count">7</span>
+        </button>
+        <button class="nav-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="3" fill="#D97706" opacity=".25"/>
+            <circle cx="7" cy="7" r="3" stroke="#D97706" stroke-width="1.2"/>
+          </svg>
+          citations
+          <span class="nav-item-count">5</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <nav class="sidebar-nav">
+          <button class="nav-item" id="btn-settings" onclick="switchView('settings', this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M8 1.5v1M8 13.5v1M1.5 8h1M13.5 8h1M3.4 3.4l.7.7M11.9 11.9l.7.7M3.4 12.6l.7-.7M11.9 4.1l.7-.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Settings
+          </button>
+        </nav>
+        <div class="storage-indicator">
+          <div class="storage-label">
+            <span>Local Storage</span>
+            <span>3.4 GB / 10 GB</span>
+          </div>
+          <div class="storage-bar">
+            <div class="storage-fill"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
+  <main class="main" id="main">
+
+    <!-- ─── LIBRARY VIEW ─── -->
+    <div class="view active" id="view-library">
+
+      <div class="library-header">
+        <div>
+          <h1 class="library-title">All Documents</h1>
+          <p class="library-subtitle">24 sources across 3 notebooks</p>
+        </div>
+        <div class="library-actions">
+          <button class="btn btn-secondary btn-sm" aria-label="List view">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1.5 3h11M1.5 7h11M1.5 11h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Import
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">PDF</button>
+        <button class="filter-btn">Web</button>
+        <button class="filter-btn">Notes</button>
+        <button class="filter-btn">EPUB</button>
+        <div class="filter-sep"></div>
+        <select class="sort-select" aria-label="Sort documents">
+          <option>Recently added</option>
+          <option>Alphabetical</option>
+          <option>File size</option>
+          <option>Date modified</option>
+        </select>
+      </div>
+
+      <div class="library-grid" id="doc-grid">
+        <!-- Cards injected by JS -->
+      </div>
+
+    </div>
+
+    <!-- ─── CHAT VIEW ─── -->
+    <div class="view chat-view" id="view-chat">
+
+      <div class="chat-notebook-header">
+        <div class="chat-notebook-icon" aria-hidden="true">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+            <path d="M2.5 2.5h12v12h-12z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M5 6h7M5 9h5M5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="chat-notebook-info">
+          <div class="chat-notebook-name">Climate Policy Analysis</div>
+          <div class="chat-notebook-count">8 sources · 14 exchanges</div>
+        </div>
+        <span class="badge badge-green">All sources active</span>
+        <button class="btn-icon" onclick="toggleSidepanel()" aria-label="Toggle sources panel">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+            <rect x="1.5" y="1.5" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M11 1.5v14" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+
+        <div class="msg-group ai">
+          <div class="msg-sender">Research Lab</div>
+          <div class="msg-bubble">
+            <p>I've analyzed your 8 sources on climate policy. The corpus spans 2018–2024, covering IPCC reports, EU Green Deal documentation, and three peer-reviewed meta-analyses.</p>
+            <p>What would you like to explore? I can help synthesize arguments, trace policy evolution, identify gaps, or compare positions across sources.</p>
+          </div>
+          <div class="msg-actions">
+            <button class="msg-action-btn">Copy</button>
+            <button class="msg-action-btn">Regenerate</button>
+          </div>
+        </div>
+
+        <div class="msg-group user">
+          <div class="msg-sender" style="text-align:right">You</div>
+          <div class="msg-bubble">
+            How does the EU Green Deal's carbon pricing mechanism compare to the IPCC's recommended approach from the AR6 report?
+          </div>
+        </div>
+
+        <div class="msg-group ai">
+          <div class="msg-sender">Research Lab</div>
+          <div class="msg-bubble">
+            <p>The comparison reveals meaningful alignment in principle but divergence in implementation pace.</p>
+            <p><strong>IPCC AR6 recommendation</strong> calls for carbon prices reaching $135–$5,500/tCO₂ by 2030 for 1.5°C pathways — a wide range reflecting model uncertainty and equity considerations.</p>
+            <p>The <strong>EU ETS reform (2023)</strong> sets a current price floor of ~€60/tCO₂, with the Carbon Border Adjustment Mechanism (CBAM) extending pricing to imports from 2026. This falls below the lower IPCC bound by roughly half.</p>
+            <p>Key divergences: the IPCC recommends accompanying revenue recycling to low-income households, which the EU partially addresses through the Social Climate Fund. The IPCC also emphasizes global coordination — the EU's unilateral approach risks carbon leakage despite CBAM.</p>
+          </div>
+          <div class="msg-sources">
+            <button class="source-pill" onclick="openSourcePanel(1)">
+              <span class="source-pill-num">1</span> IPCC AR6 WG3 — Ch. 13
+            </button>
+            <button class="source-pill" onclick="openSourcePanel(2)">
+              <span class="source-pill-num">2</span> EU ETS Reform 2023
+            </button>
+            <button class="source-pill" onclick="openSourcePanel(3)">
+              <span class="source-pill-num">3</span> Stiglitz et al. 2024
+            </button>
+          </div>
+          <div class="msg-actions">
+            <button class="msg-action-btn">Copy</button>
+            <button class="msg-action-btn">Save note</button>
+            <button class="msg-action-btn">Regenerate</button>
+          </div>
+        </div>
+
+        <div class="msg-group user">
+          <div class="msg-sender" style="text-align:right">You</div>
+          <div class="msg-bubble">
+            What does Stiglitz et al. say about carbon leakage specifically?
+          </div>
+        </div>
+
+        <div class="msg-group ai" id="typing-group" style="display:none">
+          <div class="msg-sender">Research Lab</div>
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <div class="msg-group ai" id="last-ai-msg" style="display:none">
+          <div class="msg-sender">Research Lab</div>
+          <div class="msg-bubble">
+            <p>Stiglitz et al. (2024) devote Section 4.2 to carbon leakage, arguing that CBAM is a <strong>necessary but insufficient</strong> remedy. Their core claim: leakage rates under unilateral pricing without border adjustment can reach 15–25% in energy-intensive sectors, erasing a meaningful share of domestic abatement.</p>
+            <p>Their proposed remedy goes beyond CBAM — they advocate for a <strong>"climate club"</strong> model (building on Nordhaus 2015) where a coalition of large emitters agrees on a minimum floor price (~$75/tCO₂ by 2025) and applies tariffs to non-members. This they argue is superior to unilateral border adjustment both economically and diplomatically.</p>
+          </div>
+          <div class="msg-sources">
+            <button class="source-pill" onclick="openSourcePanel(3)">
+              <span class="source-pill-num">3</span> Stiglitz et al. 2024 · §4.2
+            </button>
+          </div>
+          <div class="msg-actions">
+            <button class="msg-action-btn">Copy</button>
+            <button class="msg-action-btn">Save note</button>
+            <button class="msg-action-btn">Regenerate</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-wrap">
+          <textarea
+            class="chat-textarea"
+            id="chat-input"
+            rows="1"
+            placeholder="Ask about your sources…"
+            aria-label="Message input"
+            onkeydown="handleChatKey(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+          <button class="chat-send-btn" onclick="sendMessage()" aria-label="Send message">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M14 8L2 2l2 6-2 6 12-6z" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chat-input-hint">
+          <span>Press <kbd>↵</kbd> to send, <kbd>⇧↵</kbd> for new line</span>
+          <span>·</span>
+          <span>8 sources in context</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── SETTINGS VIEW ─── -->
+    <div class="view settings-view" id="view-settings">
+      <div class="settings-inner">
+        <h2 class="settings-title">Settings</h2>
+        <p class="settings-subtitle">Manage your Research Lab preferences</p>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Appearance</div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Theme</div>
+              <div class="settings-row-desc">Choose your preferred color scheme</div>
+            </div>
+            <div class="theme-picker">
+              <button class="theme-option light active" onclick="setTheme('light')" title="Light" aria-label="Light mode">☀️</button>
+              <button class="theme-option dark" onclick="setTheme('dark')" title="Dark" aria-label="Dark mode">🌙</button>
+              <button class="theme-option system" onclick="setTheme('system')" title="System" aria-label="System theme">⚙️</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Compact density</div>
+              <div class="settings-row-desc">Reduce spacing to fit more content</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" aria-label="Compact density">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Reduce motion</div>
+              <div class="settings-row-desc">Disable animations and transitions</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" aria-label="Reduce motion">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">AI Model</div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Model endpoint</div>
+              <div class="settings-row-desc">Local Ollama or remote API endpoint</div>
+            </div>
+            <input class="settings-input" type="text" value="http://localhost:11434" placeholder="http://localhost:11434">
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Model name</div>
+              <div class="settings-row-desc">e.g. llama3.1, mistral, gemma2</div>
+            </div>
+            <input class="settings-input" type="text" value="llama3.1:70b" placeholder="llama3.1">
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Context window</div>
+              <div class="settings-row-desc">Token limit per request</div>
+            </div>
+            <input class="settings-input" type="number" value="32768" placeholder="32768">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Privacy</div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Offline mode only</div>
+              <div class="settings-row-desc">Block all external network requests</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked aria-label="Offline mode">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Encrypt local storage</div>
+              <div class="settings-row-desc">AES-256 encryption at rest</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked aria-label="Encrypt storage">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Clear conversation history</div>
+              <div class="settings-row-desc">Permanently delete all chat logs</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="showToast('History cleared', 'success')">Clear history</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Storage</div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Data directory</div>
+              <div class="settings-row-desc">Where documents and indexes are stored</div>
+            </div>
+            <input class="settings-input" type="text" value="~/.research-lab" placeholder="~/.research-lab" style="font-family: var(--font-mono); font-size: 12px;">
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Auto-backup</div>
+              <div class="settings-row-desc">Create daily snapshots of your data</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" aria-label="Auto backup">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn btn-secondary" onclick="showToast('Settings saved', 'success')">Save changes</button>
+          <button class="btn btn-ghost" onclick="switchView('library')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════ SIDE PANEL ═══════════════════ -->
+  <aside class="sidepanel" id="sidepanel" aria-label="Sources and context">
+    <div class="sidepanel-inner">
+      <div class="sidepanel-tabs" role="tablist">
+        <button class="sidepanel-tab active" role="tab" aria-selected="true" onclick="switchSPTab(this, 'sp-sources')">Sources</button>
+        <button class="sidepanel-tab" role="tab" aria-selected="false" onclick="switchSPTab(this, 'sp-context')">Context</button>
+        <button class="sidepanel-tab" role="tab" aria-selected="false" onclick="switchSPTab(this, 'sp-notes')">Notes</button>
+        <button class="btn-icon sidepanel-close" onclick="toggleSidepanel()" aria-label="Close panel">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidepanel-content">
+
+        <!-- SOURCES TAB -->
+        <div id="sp-sources">
+          <div class="sp-section">
+            <div class="sp-section-title">Active Sources (8)</div>
+
+            <div class="source-item">
+              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
+              <div class="source-item-icon doc-icon pdf">📄</div>
+              <div class="source-item-body">
+                <div class="source-item-title">IPCC AR6 Working Group III — Chapter 13</div>
+                <div class="source-item-meta">PDF · 87 pages · Added Jan 2024</div>
+              </div>
+            </div>
+
+            <div class="source-item">
+              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
+              <div class="source-item-icon doc-icon web">🌐</div>
+              <div class="source-item-body">
+                <div class="source-item-title">EU ETS Reform 2023 — Official Text</div>
+                <div class="source-item-meta">Web · eur-lex.europa.eu · Mar 2024</div>
+              </div>
+            </div>
+
+            <div class="source-item">
+              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
+              <div class="source-item-icon doc-icon pdf">📄</div>
+              <div class="source-item-body">
+                <div class="source-item-title">Stiglitz, Stern, et al. — Carbon Pricing After Paris</div>
+                <div class="source-item-meta">PDF · 54 pages · Feb 2024</div>
+              </div>
+            </div>
+
+            <div class="source-item">
+              <div class="source-check" role="checkbox" aria-checked="false" tabindex="0"></div>
+              <div class="source-item-icon doc-icon txt">📝</div>
+              <div class="source-item-body">
+                <div class="source-item-title">IEA Net Zero by 2050 — Executive Summary</div>
+                <div class="source-item-meta">TXT · 12 pages · Jan 2024</div>
+              </div>
+            </div>
+
+            <div class="source-item">
+              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
+              <div class="source-item-icon doc-icon epub">📚</div>
+              <div class="source-item-body">
+                <div class="source-item-title">The New Climate Economy — Full Report</div>
+                <div class="source-item-meta">EPUB · 340 pages · Dec 2023</div>
+              </div>
+            </div>
+
+          </div>
+
+          <button class="btn btn-secondary btn-sm" style="width:100%; margin-top:4px;" onclick="openModal()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Add source
+          </button>
+        </div>
+
+        <!-- CONTEXT TAB (hidden by default) -->
+        <div id="sp-context" style="display:none">
+          <div class="sp-section">
+            <div class="sp-section-title">Referenced in last response</div>
+
+            <div class="insight-card">
+              <div class="insight-card-type">Citation</div>
+              <div class="insight-card-text">IPCC AR6 WG3, Chapter 13 · Page 47</div>
+              <div class="insight-card-quote">
+                "Effective carbon prices in the range of USD 135–5500 per tCO₂ are required by 2030 for 1.5°C-consistent pathways."
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-card-type">Citation</div>
+              <div class="insight-card-text">Stiglitz et al. 2024 · Section 4.2 · Page 28</div>
+              <div class="insight-card-quote">
+                "Carbon leakage under unilateral pricing regimes may erode 15–25% of domestic abatement in energy-intensive sectors absent border adjustment mechanisms."
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-card-type">Inference</div>
+              <div class="insight-card-text">Current EU ETS price (~€60/tCO₂) falls below the lower IPCC recommended bound by approximately 55%, based on cross-referencing sources 1 and 2.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTES TAB (hidden by default) -->
+        <div id="sp-notes" style="display:none">
+          <div class="sp-section">
+            <div class="sp-section-title">Your notes</div>
+            <textarea
+              placeholder="Capture thoughts, hypotheses, questions…"
+              style="width:100%; min-height:180px; border:1.5px solid var(--border); border-radius:var(--radius-md); padding:12px; font-family:var(--font-ui); font-size:var(--text-small); color:var(--text-primary); background:var(--bg-primary); resize:vertical; outline:none; line-height:1.6; transition: border-color var(--transition-normal), box-shadow var(--transition-normal);"
+              onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 0 3px var(--accent-subtle)'"
+              onblur="this.style.borderColor=''; this.style.boxShadow=''">The EU's CBAM approach is interesting but Stiglitz's climate club model seems more theoretically robust. Need to check whether any WTO challenges have been filed.</textarea>
+            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+              <button class="btn btn-primary btn-sm" onclick="showToast('Note saved', 'success')">Save note</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /app -->
+
+<!-- Mobile overlay -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobilePanels()"></div>
+
+<!-- ═══════════════════ UPLOAD MODAL ═══════════════════ -->
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-title">Import Sources</h3>
+      <button class="btn-icon" onclick="closeModal()" aria-label="Close dialog">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-tabs">
+        <button class="upload-tab active" onclick="switchUploadTab(this, 'tab-file')">Upload file</button>
+        <button class="upload-tab" onclick="switchUploadTab(this, 'tab-url')">Import URL</button>
+        <button class="upload-tab" onclick="switchUploadTab(this, 'tab-text')">Paste text</button>
+      </div>
+
+      <div id="tab-file">
+        <div class="dropzone" id="dropzone"
+          ondragover="event.preventDefault(); this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleDrop(event)"
+          onclick="document.getElementById('file-input').click()">
+          <div class="dropzone-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 16V8M8 12l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="dropzone-title">Drop files here or click to browse</div>
+          <div class="dropzone-subtitle">PDF, EPUB, TXT, Markdown, DOCX</div>
+          <div class="dropzone-hint">Max 100 MB per file · Multiple files supported</div>
+        </div>
+        <input type="file" id="file-input" multiple accept=".pdf,.epub,.txt,.md,.docx" style="display:none" onchange="handleFileSelect(this)">
+
+        <div class="upload-progress" id="upload-progress">
+          <div class="upload-file-item" id="upload-file-1" style="display:none">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--danger); flex-shrink:0">
+              <rect x="2" y="1" width="10" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M4.5 5h5M4.5 8h3.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+            <div style="flex:1; min-width:0">
+              <div class="upload-file-name" id="upload-file-name">document.pdf</div>
+              <div class="upload-file-progress">
+                <div class="upload-file-fill" id="upload-file-fill" style="width:0%"></div>
+              </div>
+            </div>
+            <span style="font-size:var(--text-tiny); color:var(--text-tertiary); font-variant-numeric:tabular-nums" id="upload-pct">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-url" style="display:none">
+        <div class="url-input-wrap">
+          <svg class="url-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M6.5 8.5a4 4 0 005.657 0l1.414-1.414a4 4 0 00-5.657-5.657L6.5 2.843M8.5 6.5a4 4 0 00-5.657 0L1.429 7.914a4 4 0 005.657 5.657L8.5 12.157" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <input class="url-input" type="url" placeholder="https://example.com/article" id="url-input">
+        </div>
+        <p style="margin-top:12px; font-size:var(--text-tiny); color:var(--text-tertiary)">
+          Supports: articles, Wikipedia pages, arXiv papers, blog posts, documentation sites
+        </p>
+      </div>
+
+      <div id="tab-text" style="display:none">
+        <textarea
+          placeholder="Paste your text, notes, or markdown here…"
+          style="width:100%; height:160px; border:1.5px solid var(--border); border-radius:var(--radius-md); padding:12px; font-family:var(--font-ui); font-size:var(--text-small); color:var(--text-primary); background:var(--bg-secondary); resize:none; outline:none; line-height:1.6; transition: border-color var(--transition-normal), box-shadow var(--transition-normal);"
+          onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 0 3px var(--accent-subtle)'; this.style.background='var(--bg-primary)';"
+          onblur="this.style.borderColor=''; this.style.boxShadow=''; this.style.background='';"></textarea>
+        <input style="margin-top:8px; width:100%;" class="settings-input" type="text" placeholder="Title (optional)" style="width:100%">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="simulateUpload()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TOAST STACK ═══════════════════ -->
+<div class="toast-stack" id="toast-stack" aria-live="polite" aria-label="Notifications"></div>
+
+<!-- ═══════════════════ SCRIPT ═══════════════════ -->
+<script>
+/* ════ DOCUMENT DATA ════ */
+const DOCS = [
+  {
+    id: 1, type: 'pdf', icon: '📄',
+    title: 'IPCC Sixth Assessment Report — Working Group III: Mitigation of Climate Change',
+    source: 'ipcc.ch', excerpt: 'Provides updated global assessments of climate mitigation policies, pathways, and the costs of delayed action across sectors.',
+    tags: ['research', 'climate'], date: '2 Jan'
+  },
+  {
+    id: 2, type: 'web', icon: '🌐',
+    title: 'EU ETS Reform 2023 — Regulation (EU) 2023/956 Carbon Border Adjustment Mechanism',
+    source: 'eur-lex.europa.eu', excerpt: 'The Carbon Border Adjustment Mechanism prevents carbon leakage by pricing imports on their embedded carbon emissions.',
+    tags: ['policy', 'EU'], date: '15 Mar'
+  },
+  {
+    id: 3, type: 'pdf', icon: '📄',
+    title: 'Carbon Pricing After Paris: Towards a Consistent International Framework',
+    source: 'Stiglitz, Stern et al.', excerpt: 'Argues for coordinated global carbon pricing through a "climate club" architecture to address leakage and competitiveness concerns.',
+    tags: ['research', 'citations'], date: '3 Feb'
+  },
+  {
+    id: 4, type: 'epub', icon: '📚',
+    title: 'The New Climate Economy: Better Growth, Better Climate',
+    source: 'Global Commission', excerpt: 'Economic analysis demonstrating that ambitious climate action is consistent with strong growth through system-level transitions.',
+    tags: ['research'], date: '12 Dec'
+  },
+  {
+    id: 5, type: 'txt', icon: '📝',
+    title: 'IEA Net Zero by 2050 — A Roadmap for the Global Energy Sector (Executive Summary)',
+    source: 'iea.org', excerpt: 'Outlines the pathway to net-zero CO₂ emissions from the global energy sector by 2050, requiring immediate, deep, and broad clean energy transitions.',
+    tags: ['reading-list'], date: '8 Jan'
+  },
+  {
+    id: 6, type: 'pdf', icon: '📄',
+    title: 'Transforming Our World: The 2030 Agenda for Sustainable Development',
+    source: 'United Nations', excerpt: 'A plan of action for people, planet and prosperity establishing 17 Sustainable Development Goals and 169 targets.',
+    tags: ['policy'], date: '20 Nov'
+  },
+  {
+    id: 7, type: 'note', icon: '✏️',
+    title: 'Research Notes — CBAM vs. Carbon Club Comparison',
+    source: 'Personal note', excerpt: 'Key distinctions between unilateral border adjustment (CBAM) and multilateral climate club approaches. WTO challenge risk analysis.',
+    tags: ['citations'], date: '1 day ago'
+  },
+  {
+    id: 8, type: 'web', icon: '🌐',
+    title: 'The Social Cost of Carbon: Advances in Long-Term Probabilistic Projections',
+    source: 'Nature Climate Change', excerpt: 'Updated estimates of the social cost of carbon accounting for tipping point risks, inequality aversion, and discount rate uncertainty.',
+    tags: ['research', 'citations'], date: '5 Mar'
+  },
+];
+
+/* ════ RENDER LIBRARY ════ */
+function renderLibrary() {
+  const grid = document.getElementById('doc-grid');
+  grid.innerHTML = '';
+
+  // Skeleton cards for visual interest during "load"
+  for (let i = 0; i < 3; i++) {
+    const sk = document.createElement('div');
+    sk.className = 'skeleton-card skeleton';
+    sk.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div class="skel-block skel-icon"></div>
+        <div style="flex:1">
+          <div class="skel-block skel-line skel-long" style="margin-bottom:6px"></div>
+          <div class="skel-block skel-line skel-short"></div>
+        </div>
+      </div>
+      <div class="skel-block skel-line skel-med"></div>
+      <div class="skel-block skel-line skel-long"></div>
+    `;
+    grid.appendChild(sk);
+  }
+
+  setTimeout(() => {
+    grid.innerHTML = '';
+    DOCS.forEach((doc, i) => {
+      const card = document.createElement('div');
+      card.className = 'doc-card';
+      card.style.animationDelay = `${i * 30}ms`;
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', doc.title);
+      card.onclick = () => { switchView('chat'); };
+      card.onkeydown = (e) => { if (e.key === 'Enter') card.click(); };
+      const tags = doc.tags.map(t => `<span class="doc-tag">${t}</span>`).join('');
+      card.innerHTML = `
+        <div class="doc-card-header">
+          <div class="doc-icon ${doc.type}">${doc.icon}</div>
+          <div class="doc-card-meta">
+            <div class="doc-card-title">${doc.title}</div>
+            <div class="doc-card-source">${doc.source}</div>
+          </div>
+        </div>
+        <div class="doc-card-excerpt">${doc.excerpt}</div>
+        <div class="doc-card-footer">
+          ${tags}
+          <span class="doc-date">${doc.date}</span>
+        </div>
+        <div class="doc-card-actions">
+          <button class="btn-icon" title="Open chat" aria-label="Open in chat" onclick="event.stopPropagation(); switchView('chat')">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="btn-icon" title="More options" aria-label="More options" onclick="event.stopPropagation(); showToast('Options menu', 'info')">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="6.5" cy="2.5" r="1" fill="currentColor"/>
+              <circle cx="6.5" cy="6.5" r="1" fill="currentColor"/>
+              <circle cx="6.5" cy="10.5" r="1" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }, 600);
+}
+
+/* ════ VIEW SWITCHING ════ */
+function switchView(viewId, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + viewId);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll(`.nav-item[data-view="${viewId}"]`).forEach(n => n.classList.add('active'));
+  }
+
+  closeMobilePanels();
+}
+
+/* ════ SIDEBAR TOGGLE ════ */
+function toggleSidebar() {
+  const app = document.getElementById('app');
+  const sidebar = document.getElementById('sidebar');
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    sidebar.classList.toggle('mobile-open');
+    document.getElementById('mobile-overlay').classList.toggle('visible', sidebar.classList.contains('mobile-open'));
+  } else {
+    app.classList.toggle('sidebar-collapsed');
+  }
+}
+
+function closeMobilePanels() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidepanel').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('visible');
+}
+
+/* ════ SIDE PANEL TOGGLE ════ */
+function toggleSidepanel() {
+  const app = document.getElementById('app');
+  const sp = document.getElementById('sidepanel');
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    sp.classList.toggle('mobile-open');
+    document.getElementById('mobile-overlay').classList.toggle('visible', sp.classList.contains('mobile-open'));
+  } else {
+    app.classList.toggle('sidepanel-collapsed');
+  }
+}
+
+function openSourcePanel(num) {
+  const app = document.getElementById('app');
+  app.classList.remove('sidepanel-collapsed');
+  switchSPTab(document.querySelector('.sidepanel-tab'), 'sp-context');
+}
+
+/* ════ SIDE PANEL TABS ════ */
+function switchSPTab(btn, contentId) {
+  document.querySelectorAll('.sidepanel-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  ['sp-sources', 'sp-context', 'sp-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === contentId ? 'block' : 'none';
+  });
+}
+
+/* ════ THEME ════ */
+function setTheme(mode) {
+  const html = document.documentElement;
+  let theme = mode;
+  if (mode === 'system') {
+    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  html.setAttribute('data-theme', theme);
+  document.getElementById('icon-sun').style.display = theme === 'dark' ? 'block' : 'none';
+  document.getElementById('icon-moon').style.display = theme === 'dark' ? 'none' : 'block';
+  document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+  const opt = document.querySelector(`.theme-option.${mode}`);
+  if (opt) opt.classList.add('active');
+}
+
+document.getElementById('theme-toggle').onclick = () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  setTheme(current === 'dark' ? 'light' : 'dark');
+};
+
+/* ════ MODAL ════ */
+function openModal() {
+  const m = document.getElementById('modal');
+  m.classList.add('open');
+  m.addEventListener('click', function bgClick(e) {
+    if (e.target === m) { closeModal(); m.removeEventListener('click', bgClick); }
+  });
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('upload-progress').classList.remove('visible');
+  document.getElementById('upload-file-1').style.display = 'none';
+  document.getElementById('upload-file-fill').style.width = '0%';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+document.getElementById('btn-upload').onclick = openModal;
+
+/* ════ UPLOAD TABS ════ */
+function switchUploadTab(btn, tabId) {
+  document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['tab-file','tab-url','tab-text'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+/* ════ FILE HANDLING ════ */
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files);
+  if (files.length) simulateFileProgress(files[0].name);
+}
+function handleFileSelect(input) {
+  if (input.files.length) simulateFileProgress(input.files[0].name);
+}
+function simulateUpload() {
+  simulateFileProgress('document.pdf');
+}
+function simulateFileProgress(name) {
+  const progress = document.getElementById('upload-progress');
+  const fileItem = document.getElementById('upload-file-1');
+  const fill = document.getElementById('upload-file-fill');
+  const pct = document.getElementById('upload-pct');
+  const fname = document.getElementById('upload-file-name');
+
+  fname.textContent = name;
+  progress.classList.add('visible');
+  fileItem.style.display = 'flex';
+  let p = 0;
+  const interval = setInterval(() => {
+    p = Math.min(p + Math.random() * 18, 100);
+    fill.style.width = p + '%';
+    pct.textContent = Math.round(p) + '%';
+    if (p >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        closeModal();
+        showToast(`"${name}" imported successfully`, 'success');
+      }, 400);
+    }
+  }, 120);
+}
+
+/* ════ CHAT ════ */
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 180) + 'px';
+}
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const messages = document.getElementById('chat-messages');
+
+  const userGroup = document.createElement('div');
+  userGroup.className = 'msg-group user';
+  userGroup.innerHTML = `
+    <div class="msg-sender" style="text-align:right">You</div>
+    <div class="msg-bubble">${text}</div>
+  `;
+  messages.appendChild(userGroup);
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  const typing = document.getElementById('typing-group');
+  typing.style.display = 'flex';
+  messages.scrollTop = messages.scrollHeight;
+
+  setTimeout(() => {
+    typing.style.display = 'none';
+    const lastMsg = document.getElementById('last-ai-msg');
+    lastMsg.style.display = 'flex';
+    messages.scrollTop = messages.scrollHeight;
+  }, 1800);
+
+  switchView('chat');
+}
+
+/* ════ TOAST ════ */
+function showToast(message, type = 'info') {
+  const stack = document.getElementById('toast-stack');
+  const icons = {
+    success: `<svg class="toast-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#34D399" stroke-width="1.3"/><path d="M5 8l2.5 2.5L11 5.5" stroke="#34D399" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    error:   `<svg class="toast-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#F87171" stroke-width="1.3"/><path d="M10 6L6 10M6 6l4 4" stroke="#F87171" stroke-width="1.4" stroke-linecap="round"/></svg>`,
+    info:    `<svg class="toast-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#60A5FA" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  };
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `${icons[type] || icons.info}<span>${message}</span>`;
+  stack.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(4px)';
+    toast.style.transition = 'opacity 200ms, transform 200ms';
+    setTimeout(() => toast.remove(), 200);
+  }, 3200);
+}
+
+/* ════ SIDEBAR TOGGLE BUTTON ════ */
+document.getElementById('sidebar-toggle').onclick = toggleSidebar;
+
+/* ════ SETTINGS BUTTON ════ */
+document.getElementById('btn-settings-open').onclick = () => {
+  switchView('settings');
+};
+
+/* ════ FILTER BUTTONS ════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+/* ════ SOURCE CHECKBOXES (keyboard) ════ */
+document.querySelectorAll('.source-check').forEach(check => {
+  check.addEventListener('click', function() {
+    this.classList.toggle('checked');
+    this.setAttribute('aria-checked', this.classList.contains('checked'));
+  });
+  check.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      this.click();
+    }
+  });
+});
+
+/* ════ INIT ════ */
+renderLibrary();
+
+// Detect system dark mode preference on load
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  setTheme('dark');
+}
+</script>
+</body>
+</html>

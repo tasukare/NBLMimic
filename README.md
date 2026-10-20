@@ -17,8 +17,9 @@ Instead of relying on proprietary cloud databases, NBLMimic stores your document
   - **Right:** Notes, synthesis, and research workspace.
 - **🎙️ Gemini 3.8 Live Real-Time Voice:** Interactive spoken audio conversations over WebSockets (`wss://...BidiGenerateContent`) with ultra-low latency, natural voice personas (Aoede, Puck, Charon, Kore, Fenrir), real-time waveform visualizer, and dual-channel live transcription.
 - **🎧 Audio Overview (NotebookLM Podcast):** One-click spoken deep dive synthesis analyzing all active research sources with natural conversation flow.
-- **🧠 Grounded AI Research Partner:** Powered by `gemini-3.8-flash` with strict source grounding and interactive [1], [2] citation pills.
-- **🔒 Privacy-First & Secure:** Zero-leak credential architecture. Keeps your Gemini API key safe in `.env` (ignored by git), with zero external npm dependencies.
+- **🧠 Grounded AI Research Partner:** Powered by `gemini-3.5-flash` with strict source grounding, interactive [1], [2] citation pills, and an instant **in-chat model switcher** (`gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-4-argon`, `gemini-3.1-pro-preview`).
+- **🛡️ Smart Quota & High Demand Fallback:** Automatically detects model rate limits or temporary traffic spikes on Google's servers, informing you with one-click instant switches to alternative available models (`gemini-3.5-flash-lite`).
+- **🔒 Privacy-First & Flexible:** Works directly in the browser via localStorage or via local `.env` protection with zero npm dependencies.
 - **🎨 Beautiful Design System:** Built with an 8px grid, typography-first layout (Inter + Charter), and full Light/Dark mode support.
 - **⚡ Super Lightweight:** Pure HTML5, modern CSS, and vanilla JavaScript. No complicated build tools or heavy installations required!
 

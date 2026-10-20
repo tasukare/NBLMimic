@@ -1498,6 +1498,144 @@ svg { display: block; flex-shrink: 0; }
   background: var(--accent-subtle);
 }
 
+/* Model Selector Dropdown in Chat Header */
+.chat-model-selector-wrap {
+  position: relative;
+  display: inline-block;
+}
+.chat-model-selector-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.chat-model-selector-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+.chat-model-icon {
+  font-size: 13px;
+}
+.chat-model-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+.chat-model-chevron {
+  opacity: 0.6;
+  transition: transform var(--transition-fast);
+}
+.chat-model-selector-wrap.open .chat-model-chevron {
+  transform: rotate(180deg);
+}
+
+.chat-model-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 310px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chat-model-dropdown-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  padding: 6px 10px 4px;
+}
+.chat-model-option {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.chat-model-option:hover {
+  background: var(--bg-secondary);
+}
+.chat-model-option.active {
+  background: var(--accent-subtle);
+  border-left: 3px solid var(--accent);
+}
+.chat-model-option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-model-opt-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.chat-model-opt-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* Quota / Demand Alert Box in Chat */
+.quota-alert-card {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-top: 8px;
+}
+.quota-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #D97706;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.quota-buttons-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.btn-quota-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-quota-switch:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 /* Live Voice Modal */
 .live-modal-backdrop {
   position: fixed; inset: 0;
@@ -2096,7 +2234,60 @@ svg { display: block; flex-shrink: 0; }
           <div class="chat-notebook-name" id="chat-notebook-title">Research Lab Agent</div>
           <div class="chat-notebook-count" id="chat-notebook-meta">Grounded in active sources · Powered by Gemini 3.8 Flash</div>
         </div>
-        <span class="badge badge-blue" id="agent-model-badge">gemini-3.8-flash</span>
+        <!-- Interactive Model Selector Dropdown -->
+        <div class="chat-model-selector-wrap" id="chat-model-selector-wrap">
+          <button class="chat-model-selector-btn" id="chat-model-btn" onclick="toggleModelDropdown(event)" title="Click to change Gemini model">
+            <span class="chat-model-icon">⚡</span>
+            <span class="chat-model-name" id="chat-model-name">gemini-3.5-flash</span>
+            <svg class="chat-model-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2.5 4.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          
+          <div class="chat-model-dropdown" id="chat-model-dropdown" style="display:none;">
+            <div class="chat-model-dropdown-header">Switch Gemini Model</div>
+            
+            <div class="chat-model-option active" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')">
+              <div class="chat-model-option-top">
+                <span class="chat-model-opt-name">gemini-3.5-flash</span>
+                <span class="badge badge-green">Recommended</span>
+              </div>
+              <div class="chat-model-opt-desc">Highest quota & reliability, 1M context, fast synthesis</div>
+            </div>
+            
+            <div class="chat-model-option" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')">
+              <div class="chat-model-option-top">
+                <span class="chat-model-opt-name">gemini-3.5-flash-lite</span>
+                <span class="badge badge-blue">Ultra Fast</span>
+              </div>
+              <div class="chat-model-opt-desc">High availability fallback when other models hit quota limits</div>
+            </div>
+
+            <div class="chat-model-option" data-model="gemini-3.8-flash" onclick="selectChatModel('gemini-3.8-flash')">
+              <div class="chat-model-option-top">
+                <span class="chat-model-opt-name">gemini-3.8-flash</span>
+                <span class="badge badge-amber">Preview</span>
+              </div>
+              <div class="chat-model-opt-desc">Latest generation model (may experience temporary demand spikes)</div>
+            </div>
+
+            <div class="chat-model-option" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')">
+              <div class="chat-model-option-top">
+                <span class="chat-model-opt-name">gemini-4-argon</span>
+                <span class="badge badge-purple">Deep Reasoning</span>
+              </div>
+              <div class="chat-model-opt-desc">Extended reasoning for complex document analysis</div>
+            </div>
+
+            <div class="chat-model-option" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')">
+              <div class="chat-model-option-top">
+                <span class="chat-model-opt-name">gemini-3.1-pro-preview</span>
+                <span class="badge badge-gray">Pro</span>
+              </div>
+              <div class="chat-model-opt-desc">High precision synthesis for complex research comparisons</div>
+            </div>
+          </div>
+        </div>
         <button class="btn-audio-overview" id="btn-audio-overview" onclick="startAudioOverview()" title="Generate Spoken Audio Overview of Active Sources (NotebookLM Style)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
@@ -2241,12 +2432,14 @@ svg { display: block; flex-shrink: 0; }
           <div class="settings-row" id="row-gemini-model">
             <div class="settings-row-info">
               <div class="settings-row-label">Gemini Model</div>
-              <div class="settings-row-desc">Gemini 3.8 Flash provides fast, balanced research synthesis (1M tokens)</div>
+              <div class="settings-row-desc">Select AI model for research synthesis. You can also switch on the fly in Research Chat!</div>
             </div>
-            <select class="settings-input" id="setting-gemini-model" style="width:230px; cursor:pointer;">
-              <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Recommended)</option>
+            <select class="settings-input" id="setting-gemini-model" style="width:230px; cursor:pointer;" onchange="syncModelSelection(this.value)">
+              <option value="gemini-3.5-flash" selected>gemini-3.5-flash (Recommended · High Quota)</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Fast · Max Availability)</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash (Preview)</option>
               <option value="gemini-4-argon">gemini-4-argon (Deep Reasoning)</option>
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Fast)</option>
+              <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Pro Synthesis)</option>
             </select>
           </div>
 
@@ -2745,7 +2938,7 @@ const SETTINGS = (() => {
   const defaults = {
     provider: 'gemini',
     gemini_api_key: '',
-    gemini_model: 'gemini-3.8-flash',
+    gemini_model: 'gemini-3.5-flash',
     live_voice: 'Aoede',
     live_model: 'gemini-3.8-live',
     ollama_endpoint: 'http://localhost:11434',
@@ -2762,6 +2955,13 @@ const SETTINGS = (() => {
 })();
 
 /* ════ SETTINGS MANAGEMENT ════ */
+function handleApiKeyInput(val) {
+  const cleanKey = val.trim();
+  SETTINGS.gemini_api_key = cleanKey;
+  localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+  updateApiKeyBanner();
+}
+
 function initSettingsUI() {
   const providerEl = document.getElementById('setting-provider');
   const keyEl = document.getElementById('setting-gemini-key');
@@ -2774,7 +2974,10 @@ function initSettingsUI() {
   const instructionsEl = document.getElementById('setting-agent-instructions');
 
   if (providerEl) providerEl.value = SETTINGS.provider;
-  if (keyEl) keyEl.value = SETTINGS.gemini_api_key;
+  if (keyEl) {
+    keyEl.value = SETTINGS.gemini_api_key;
+    keyEl.oninput = (e) => handleApiKeyInput(e.target.value);
+  }
   if (geminiModelEl) geminiModelEl.value = SETTINGS.gemini_model;
   if (liveVoiceEl && SETTINGS.live_voice) liveVoiceEl.value = SETTINGS.live_voice;
   if (liveModelEl && SETTINGS.live_model) liveModelEl.value = SETTINGS.live_model;
@@ -2851,17 +3054,79 @@ function updateApiKeyBanner() {
   banner.style.display = (isGemini && !hasClientKey && !hasServerKey) ? 'flex' : 'none';
 }
 
+/* ════ MODEL SELECTOR CONTROLS ════ */
+function toggleModelDropdown(e) {
+  if (e) e.stopPropagation();
+  const dropdown = document.getElementById('chat-model-dropdown');
+  const wrap = document.getElementById('chat-model-selector-wrap');
+  if (!dropdown) return;
+  const isCurrentlyOpen = dropdown.style.display !== 'none';
+  dropdown.style.display = isCurrentlyOpen ? 'none' : 'flex';
+  if (wrap) wrap.classList.toggle('open', !isCurrentlyOpen);
+}
+
+// Close model dropdown on document click
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('chat-model-selector-wrap');
+  const dropdown = document.getElementById('chat-model-dropdown');
+  if (wrap && dropdown && !wrap.contains(e.target)) {
+    dropdown.style.display = 'none';
+    wrap.classList.remove('open');
+  }
+});
+
+function selectChatModel(modelName) {
+  SETTINGS.gemini_model = modelName;
+  localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+
+  updateModelBadge();
+
+  const dropdown = document.getElementById('chat-model-dropdown');
+  const wrap = document.getElementById('chat-model-selector-wrap');
+  if (dropdown) dropdown.style.display = 'none';
+  if (wrap) wrap.classList.remove('open');
+
+  const settingModelEl = document.getElementById('setting-gemini-model');
+  if (settingModelEl) settingModelEl.value = modelName;
+
+  showToast(`Switched active model to ${modelName}`, 'info');
+}
+
+function syncModelSelection(modelName) {
+  selectChatModel(modelName);
+}
+
 function updateModelBadge() {
-  const badge = document.getElementById('agent-model-badge');
-  if (!badge) return;
-  const isGemini = SETTINGS.provider === 'gemini';
-  badge.textContent = isGemini ? SETTINGS.gemini_model : `ollama: ${SETTINGS.ollama_model}`;
+  const currentModel = SETTINGS.provider === 'gemini' ? (SETTINGS.gemini_model || 'gemini-3.5-flash') : SETTINGS.ollama_model;
+  const nameEl = document.getElementById('chat-model-name');
+  if (nameEl) nameEl.textContent = currentModel;
+
+  // Sync active item in dropdown
+  document.querySelectorAll('.chat-model-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.model === currentModel);
+  });
+}
+
+function switchAndRetryModel(newModel) {
+  selectChatModel(newModel);
+  // Find last user prompt
+  const lastUserMsg = [...CHAT_HISTORY].reverse().find(m => m.role === 'user');
+  if (lastUserMsg) {
+    // Remove the error response from CHAT_HISTORY so conversation remains clean
+    if (CHAT_HISTORY.length && CHAT_HISTORY[CHAT_HISTORY.length - 1].role === 'model') {
+      CHAT_HISTORY.pop();
+    }
+    const input = document.getElementById('chat-input');
+    if (input) input.value = lastUserMsg.text;
+    showToast(`Switched to ${newModel}. Retrying query…`, 'info');
+    sendMessage();
+  }
 }
 
 function saveSettings() {
   SETTINGS.provider = document.getElementById('setting-provider')?.value || 'gemini';
   SETTINGS.gemini_api_key = document.getElementById('setting-gemini-key')?.value.trim() || '';
-  SETTINGS.gemini_model = document.getElementById('setting-gemini-model')?.value || 'gemini-3.8-flash';
+  SETTINGS.gemini_model = document.getElementById('setting-gemini-model')?.value || 'gemini-3.5-flash';
   SETTINGS.live_voice = document.getElementById('setting-live-voice')?.value || 'Aoede';
   SETTINGS.live_model = document.getElementById('setting-live-model')?.value || 'gemini-3.8-live';
   SETTINGS.ollama_endpoint = document.getElementById('setting-ollama-endpoint')?.value.trim() || 'http://localhost:11434';
@@ -2876,29 +3141,66 @@ function saveSettings() {
 }
 
 async function testGeminiKey() {
-  const key = document.getElementById('setting-gemini-key')?.value.trim() || SETTINGS.gemini_api_key;
+  const key = (document.getElementById('setting-gemini-key')?.value || SETTINGS.gemini_api_key || '').trim();
   if (!key) {
     showToast('Please enter an API key first', 'error');
     return;
   }
   showToast('Testing Gemini API key…', 'info');
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${key}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: 'Respond with the single word: READY' }] }]
-      })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
+
+  const modelsToTest = [SETTINGS.gemini_model || 'gemini-3.5-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+  const uniqueModels = [...new Set(modelsToTest)];
+
+  let testPassed = false;
+  let lastErrorMessage = '';
+  let workingModel = '';
+
+  for (const m of uniqueModels) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Respond with READY' }] }]
+        })
+      });
+      if (res.ok) {
+        testPassed = true;
+        workingModel = m;
+        break;
+      } else {
+        const err = await res.json().catch(() => ({}));
+        lastErrorMessage = err.error?.message || `HTTP ${res.status}`;
+        if (res.status === 400 && lastErrorMessage.toLowerCase().includes('api_key_invalid')) {
+          break; // Stop immediately if key itself is invalid
+        }
+      }
+    } catch (err) {
+      lastErrorMessage = err.message;
     }
-    const data = await res.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    showToast('✅ Gemini API Key is valid and active!', 'success');
-  } catch (err) {
-    showToast(`Key error: ${err.message}`, 'error');
+  }
+
+  if (testPassed) {
+    SETTINGS.gemini_api_key = key;
+    if (workingModel && workingModel !== SETTINGS.gemini_model) {
+      SETTINGS.gemini_model = workingModel;
+    }
+    localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+    updateApiKeyBanner();
+    updateModelBadge();
+    showToast(`✅ Gemini API Key is valid and active on ${workingModel}!`, 'success');
+  } else {
+    if (lastErrorMessage.toLowerCase().includes('high demand') || lastErrorMessage.toLowerCase().includes('503')) {
+      showToast('⚠️ Key is valid! Model had temporary high demand. Switched to gemini-3.5-flash.', 'info');
+      selectChatModel('gemini-3.5-flash');
+      SETTINGS.gemini_api_key = key;
+      localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+      updateApiKeyBanner();
+    } else if (lastErrorMessage.toLowerCase().includes('quota') || lastErrorMessage.toLowerCase().includes('exhausted') || lastErrorMessage.toLowerCase().includes('429')) {
+      showToast('⚠️ Quota limit reached on this model. Try switching to gemini-3.5-flash-lite!', 'info');
+    } else {
+      showToast(`Key error: ${lastErrorMessage}`, 'error');
+    }
   }
 }
 
@@ -3027,14 +3329,14 @@ function askPreset(promptText) {
 
 /* ════ AI CALL (GEMINI / OLLAMA) ════ */
 async function callGemini(messagesHistory, userPrompt, activeSources) {
-  const apiKey = SETTINGS.gemini_api_key.trim();
+  const apiKey = (SETTINGS.gemini_api_key || document.getElementById('setting-gemini-key')?.value || '').trim();
   const hasServer = SERVER_STATUS.baseUrl && SERVER_STATUS.hasKey;
 
   if (!apiKey && !hasServer) {
     throw new Error('MISSING_API_KEY');
   }
 
-  const model = SETTINGS.gemini_model || 'gemini-3.8-flash';
+  const model = SETTINGS.gemini_model || 'gemini-3.5-flash';
   const mode = SETTINGS.agent_mode || 'strict';
   const customInst = SETTINGS.agent_instructions.trim();
 
@@ -3178,7 +3480,10 @@ async function sendMessage() {
   }
 
   // Check API Key (either client-side key or backend server key in .env)
-  if (SETTINGS.provider === 'gemini' && !SETTINGS.gemini_api_key.trim() && !SERVER_STATUS.hasKey) {
+  const currentKey = (SETTINGS.gemini_api_key || document.getElementById('setting-gemini-key')?.value || '').trim();
+  const hasKey = currentKey || SERVER_STATUS.hasKey;
+
+  if (SETTINGS.provider === 'gemini' && !hasKey) {
     updateApiKeyBanner();
     CHAT_HISTORY.push({
       role: 'model',
@@ -3222,11 +3527,42 @@ async function sendMessage() {
     renderChat();
   } catch (err) {
     if (typing) typing.style.display = 'none';
-    const errorMsg = `❌ **Error querying ${SETTINGS.provider === 'gemini' ? 'Gemini API' : 'Ollama'}:** ${err.message}\n\nPlease verify your API key and connection in [Settings](javascript:switchView("settings")).`;
+    const errText = err.message || '';
+    const isHighDemand = errText.includes('503') || errText.toLowerCase().includes('high demand');
+    const isQuotaExceeded = errText.includes('429') || errText.toLowerCase().includes('resource_exhausted') || errText.toLowerCase().includes('quota') || errText.toLowerCase().includes('limit');
+    const isModelNotFound = errText.includes('404') || errText.toLowerCase().includes('not found') || errText.toLowerCase().includes('no longer available');
+
+    let errorMsg = '';
+
+    if (isHighDemand) {
+      errorMsg = `⚠️ **Temporary High Demand on \`${SETTINGS.gemini_model}\`**\n\n` +
+        `Google's servers for \`${SETTINGS.gemini_model}\` are currently experiencing a temporary traffic spike. Your Gemini API key is valid and working!\n\n` +
+        `**⚡ Switch to an available model with instant capacity:**\n` +
+        `- [⚡ Switch to gemini-3.5-flash (Recommended)](javascript:switchAndRetryModel('gemini-3.5-flash'))\n` +
+        `- [🚀 Switch to gemini-3.5-flash-lite (Ultra High Availability)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
+        `- [🔮 Switch to gemini-4-argon (Deep Reasoning)](javascript:switchAndRetryModel('gemini-4-argon'))`;
+    } else if (isQuotaExceeded) {
+      errorMsg = `⚠️ **Request / Quota Limit Reached on \`${SETTINGS.gemini_model}\`**\n\n` +
+        `You have used your rate or weekly request quota for \`${SETTINGS.gemini_model}\` on this API key.\n\n` +
+        `**💡 Other models on your key with separate quotas you can use right now:**\n` +
+        `- [⚡ Switch to gemini-3.5-flash (High Quota)](javascript:switchAndRetryModel('gemini-3.5-flash'))\n` +
+        `- [🚀 Switch to gemini-3.5-flash-lite (Highest Free Tier Quota)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
+        `- [🔮 Switch to gemini-4-argon](javascript:switchAndRetryModel('gemini-4-argon'))\n` +
+        `- [💎 Switch to gemini-3.1-pro-preview](javascript:switchAndRetryModel('gemini-3.1-pro-preview'))`;
+    } else if (isModelNotFound) {
+      errorMsg = `⚠️ **Model \`${SETTINGS.gemini_model}\` is Not Available**\n\n` +
+        `This model ID is not available for this API key.\n\n` +
+        `**Available models you can switch to:**\n` +
+        `- [⚡ Switch to gemini-3.5-flash (Recommended)](javascript:switchAndRetryModel('gemini-3.5-flash'))\n` +
+        `- [🚀 Switch to gemini-3.5-flash-lite](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))`;
+    } else {
+      errorMsg = `❌ **Error querying ${SETTINGS.provider === 'gemini' ? 'Gemini API' : 'Ollama'}:** ${err.message}\n\nPlease check your key and connection in [Settings](javascript:switchView("settings")).`;
+    }
+
     CHAT_HISTORY.push({ role: 'model', text: errorMsg });
     localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
     renderChat();
-    showToast(`AI query failed: ${err.message}`, 'error');
+    showToast(isHighDemand ? 'Model high demand. Click suggestion to switch.' : (isQuotaExceeded ? 'Quota limit reached on this model.' : `AI query failed: ${err.message}`), 'error');
   }
 }
 

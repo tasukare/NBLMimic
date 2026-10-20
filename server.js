@@ -67,7 +67,7 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'ok',
       hasServerKey: hasKey,
-      defaultModel: 'gemini-3.8-flash'
+      defaultModel: 'gemini-3.5-flash'
     }));
     return;
   }
@@ -100,7 +100,7 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        const model = payload.model || 'gemini-3.8-flash';
+        const model = payload.model || 'gemini-3.5-flash';
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
         // Forward to Google Gemini API using native fetch

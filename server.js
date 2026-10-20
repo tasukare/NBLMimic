@@ -72,6 +72,17 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // 1b. Live API Config Endpoint
+  if (pathname === '/api/live-config' && req.method === 'GET') {
+    const key = process.env.GEMINI_API_KEY || '';
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      apiKey: key,
+      liveModel: 'gemini-3.8-live'
+    }));
+    return;
+  }
+
   // 2. Secure Gemini Chat Proxy Endpoint
   if (pathname === '/api/chat' && req.method === 'POST') {
     let body = '';
@@ -92,36 +103,23 @@ const server = http.createServer(async (req, res) => {
         const model = payload.model || 'gemini-3.8-flash';
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-        // Forward to Google Gemini API
-        const geminiReq = https.request(geminiUrl, {
+        // Forward to Google Gemini API using native fetch
+        const geminiRes = await fetch(geminiUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, geminiRes => {
-          let geminiBody = '';
-          geminiRes.on('data', chunk => { geminiBody += chunk; });
-          geminiRes.on('end', () => {
-            res.writeHead(geminiRes.statusCode, { 'Content-Type': 'application/json' });
-            res.end(geminiBody);
-          });
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: payload.system_instruction,
+            contents: payload.contents,
+            generationConfig: payload.generationConfig
+          })
         });
 
-        geminiReq.on('error', err => {
-          res.writeHead(502, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: { message: `Gateway error: ${err.message}` } }));
-        });
-
-        geminiReq.write(JSON.stringify({
-          system_instruction: payload.system_instruction,
-          contents: payload.contents,
-          generationConfig: payload.generationConfig
-        }));
-        geminiReq.end();
-
+        const geminiData = await geminiRes.text();
+        res.writeHead(geminiRes.status, { 'Content-Type': 'application/json' });
+        res.end(geminiData);
       } catch (err) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: { message: `Invalid request payload: ${err.message}` } }));
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: { message: `Server error: ${err.message}` } }));
       }
     });
     return;

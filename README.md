@@ -15,7 +15,10 @@ Instead of relying on proprietary cloud databases, NBLMimic stores your document
   - **Left:** Source Library (manage uploaded documents, research papers, notes).
   - **Center:** Distraction-Free Document & Citation Reader.
   - **Right:** Notes, synthesis, and research workspace.
-- **🔒 Privacy-First:** Your documents stay in your own Google Drive.
+- **🎙️ Gemini 3.8 Live Real-Time Voice:** Interactive spoken audio conversations over WebSockets (`wss://...BidiGenerateContent`) with ultra-low latency, natural voice personas (Aoede, Puck, Charon, Kore, Fenrir), real-time waveform visualizer, and dual-channel live transcription.
+- **🎧 Audio Overview (NotebookLM Podcast):** One-click spoken deep dive synthesis analyzing all active research sources with natural conversation flow.
+- **🧠 Grounded AI Research Partner:** Powered by `gemini-3.8-flash` with strict source grounding and interactive [1], [2] citation pills.
+- **🔒 Privacy-First & Secure:** Zero-leak credential architecture. Keeps your Gemini API key safe in `.env` (ignored by git), with zero external npm dependencies.
 - **🎨 Beautiful Design System:** Built with an 8px grid, typography-first layout (Inter + Charter), and full Light/Dark mode support.
 - **⚡ Super Lightweight:** Pure HTML5, modern CSS, and vanilla JavaScript. No complicated build tools or heavy installations required!
 
@@ -86,8 +89,11 @@ git push
 - [x] UI component library (`components.html`)
 - [x] Design guide & AI agent rules (`STYLEGUIDE.md`, `AGENTS.md`)
 - [x] Google Gemini API integration (`gemini-3.8-flash`) with Grounded Research Agent & Interactive Citations
+- [x] Google Gemini 3.8 Live API real-time bidirectional voice & audio streaming (`gemini-3.8-live`)
+- [x] Spoken "Audio Overview" deep-dive generator (NotebookLM podcast style)
+- [x] Real-time audio waveform visualizer and live transcription
+- [x] Secure local proxy server with `.env` secret protection & zero npm dependencies
 - [x] Local Ollama AI fallback support
 - [x] Dynamic source ingestion (file uploads, notes, active source toggles)
 - [x] Live search, type filtering, and notes auto-saving
 - [ ] Connect Google Drive API for cloud sync & storage
-- [ ] Audio overview / synthesized notes generator

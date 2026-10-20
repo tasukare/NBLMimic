@@ -1538,6 +1538,48 @@ svg { display: block; flex-shrink: 0; }
   transform: rotate(180deg);
 }
 
+/* Quick Model Buttons inside Research Chat */
+.chat-model-quickbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  padding: 0 2px;
+}
+.chat-quickbar-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 2px;
+}
+.chat-quick-model-btn {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.chat-quick-model-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+.chat-quick-model-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
 .chat-model-dropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -2304,15 +2346,6 @@ svg { display: block; flex-shrink: 0; }
       </div>
 
       <div class="chat-messages" id="chat-messages">
-        <!-- API Key banner shown when Gemini key is missing -->
-        <div class="api-key-banner" id="api-key-banner" style="display:none;">
-          <div class="api-key-banner-text">
-            <span>🔑</span>
-            <span><strong>Gemini API Key required:</strong> Enter your Google Gemini API key to activate the Research Lab Agent.</span>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="switchView('settings')">Open Settings</button>
-        </div>
-
         <!-- Dynamic chat history rendered by JavaScript -->
       </div>
 
@@ -2328,6 +2361,16 @@ svg { display: block; flex-shrink: 0; }
       </div>
 
       <div class="chat-input-area">
+        <!-- Quick Model Switching Buttons directly inside the Research Chat -->
+        <div class="chat-model-quickbar" id="chat-model-quickbar">
+          <span class="chat-quickbar-label">Model:</span>
+          <button type="button" class="chat-quick-model-btn active" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')" title="Fast, high quota, recommended for research">⚡ 3.5 Flash</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')" title="Ultra fast fallback with highest availability">🚀 3.5 Lite</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.8-flash" onclick="selectChatModel('gemini-3.8-flash')" title="Next-generation preview model">✨ 3.8 Flash</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')" title="Extended deep reasoning model">🔮 4 Argon</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')" title="Pro level multi-document analytical synthesis">💎 3.1 Pro</button>
+        </div>
+
         <div class="chat-input-wrap">
           <textarea
             class="chat-textarea"
@@ -3024,7 +3067,15 @@ async function checkServerBackend() {
           const data = await res.json();
           if (data.status === 'ok') {
             SERVER_STATUS = { checked: true, hasKey: Boolean(data.hasServerKey), baseUrl: url };
-            updateApiKeyBanner();
+            
+            // Automatically sync API key from .env file to browser!
+            if (data.apiKey && data.apiKey.trim()) {
+              SETTINGS.gemini_api_key = data.apiKey.trim();
+              localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+              const keyInput = document.getElementById('setting-gemini-key');
+              if (keyInput) keyInput.value = data.apiKey.trim();
+            }
+
             updateServerStatusBadge();
             return;
           }
@@ -3033,25 +3084,19 @@ async function checkServerBackend() {
     }
   } catch (err) {}
   SERVER_STATUS.checked = true;
-  updateApiKeyBanner();
 }
 
 function updateServerStatusBadge() {
   if (SERVER_STATUS.hasKey) {
     const desc = document.querySelector('#row-gemini-key .settings-row-desc');
     if (desc) {
-      desc.innerHTML = '<span style="color:var(--success); font-weight:600;">🔒 Secure Server Key Active (.env file)</span> · Stored safely on your computer';
+      desc.innerHTML = '<span style="color:var(--success); font-weight:600;">🔒 Auto-Synced with .env File</span> · Loaded securely from your local system';
     }
   }
 }
 
 function updateApiKeyBanner() {
-  const banner = document.getElementById('api-key-banner');
-  if (!banner) return;
-  const isGemini = (document.getElementById('setting-provider')?.value || SETTINGS.provider) === 'gemini';
-  const hasClientKey = Boolean(SETTINGS.gemini_api_key && SETTINGS.gemini_api_key.trim());
-  const hasServerKey = Boolean(SERVER_STATUS.hasKey);
-  banner.style.display = (isGemini && !hasClientKey && !hasServerKey) ? 'flex' : 'none';
+  // Banner removed per user request: .env auto-syncs seamlessly!
 }
 
 /* ════ MODEL SELECTOR CONTROLS ════ */
@@ -3104,6 +3149,11 @@ function updateModelBadge() {
   // Sync active item in dropdown
   document.querySelectorAll('.chat-model-option').forEach(opt => {
     opt.classList.toggle('active', opt.dataset.model === currentModel);
+  });
+
+  // Sync active item in research chat quick buttons
+  document.querySelectorAll('.chat-quick-model-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.model === currentModel);
   });
 }
 
@@ -3329,11 +3379,21 @@ function askPreset(promptText) {
 
 /* ════ AI CALL (GEMINI / OLLAMA) ════ */
 async function callGemini(messagesHistory, userPrompt, activeSources) {
-  const apiKey = (SETTINGS.gemini_api_key || document.getElementById('setting-gemini-key')?.value || '').trim();
-  const hasServer = SERVER_STATUS.baseUrl && SERVER_STATUS.hasKey;
+  let apiKey = (SETTINGS.gemini_api_key || document.getElementById('setting-gemini-key')?.value || '').trim();
 
-  if (!apiKey && !hasServer) {
-    throw new Error('MISSING_API_KEY');
+  // If apiKey not yet in client, attempt quick auto-sync from server backend (.env)
+  if (!apiKey && SERVER_STATUS.baseUrl) {
+    try {
+      const hRes = await fetch(`${SERVER_STATUS.baseUrl}/api/health`);
+      if (hRes.ok) {
+        const hData = await hRes.json();
+        if (hData.apiKey) {
+          apiKey = hData.apiKey.trim();
+          SETTINGS.gemini_api_key = apiKey;
+          localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+        }
+      }
+    } catch (e) {}
   }
 
   const model = SETTINGS.gemini_model || 'gemini-3.5-flash';
@@ -3393,29 +3453,38 @@ ${sourcesSection}`;
     }
   };
 
-  // If local secure proxy server is running (with key in .env), use it!
-  if (SERVER_STATUS.baseUrl && (SERVER_STATUS.hasKey || !apiKey)) {
-    const response = await fetch(`${SERVER_STATUS.baseUrl}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: model,
-        system_instruction: payload.system_instruction,
-        contents: payload.contents,
-        generationConfig: payload.generationConfig,
-        apiKey: apiKey
-      })
-    });
+  // If local server proxy is available, forward through proxy (it automatically injects .env key!)
+  if (SERVER_STATUS.baseUrl) {
+    try {
+      const response = await fetch(`${SERVER_STATUS.baseUrl}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: model,
+          system_instruction: payload.system_instruction,
+          contents: payload.contents,
+          generationConfig: payload.generationConfig,
+          apiKey: apiKey
+        })
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+      if (response.ok) {
+        const data = await response.json();
+        const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (outputText) return outputText;
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        if (!apiKey) {
+          throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+        }
+      }
+    } catch (proxyErr) {
+      if (!apiKey) throw proxyErr;
     }
+  }
 
-    const data = await response.json();
-    const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!outputText) throw new Error('Received an empty response from Gemini via proxy server.');
-    return outputText;
+  if (!apiKey) {
+    throw new Error('No API key detected. Please add GEMINI_API_KEY to your .env file or enter it in Settings.');
   }
 
   // Direct client-side fetch (browser-to-API with client key)
@@ -3479,21 +3548,6 @@ async function sendMessage() {
     input.style.height = 'auto';
   }
 
-  // Check API Key (either client-side key or backend server key in .env)
-  const currentKey = (SETTINGS.gemini_api_key || document.getElementById('setting-gemini-key')?.value || '').trim();
-  const hasKey = currentKey || SERVER_STATUS.hasKey;
-
-  if (SETTINGS.provider === 'gemini' && !hasKey) {
-    updateApiKeyBanner();
-    CHAT_HISTORY.push({
-      role: 'model',
-      text: '⚠️ **Gemini API Key Required:** To receive AI-grounded research answers, please enter your Gemini API key in [Settings](javascript:switchView("settings")). You can generate a free key at [Google AI Studio](https://aistudio.google.com/).'
-    });
-    localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
-    renderChat();
-    return;
-  }
-
   // Show typing indicator
   const typing = document.getElementById('typing-group');
   const typingStatus = document.getElementById('typing-status');
@@ -3501,7 +3555,7 @@ async function sendMessage() {
     typing.style.display = 'flex';
     if (typingStatus) {
       typingStatus.textContent = SETTINGS.provider === 'gemini'
-        ? `Research Lab Agent (${SETTINGS.gemini_model}) is synthesizing sources…`
+        ? `Research Lab Agent (${SETTINGS.gemini_model || 'gemini-3.5-flash'}) is synthesizing sources…`
         : `Ollama (${SETTINGS.ollama_model}) is reasoning…`;
     }
   }

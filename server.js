@@ -60,14 +60,16 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
 
-  // 1. Backend Health Check
+  // 1. Backend Health Check & Auto-Sync with .env
   if (pathname === '/api/health' && req.method === 'GET') {
-    const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
+    const key = process.env.GEMINI_API_KEY || '';
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       status: 'ok',
-      hasServerKey: hasKey,
-      defaultModel: 'gemini-3.5-flash'
+      hasServerKey: Boolean(key.trim()),
+      apiKey: key.trim(),
+      defaultModel: 'gemini-3.5-flash',
+      liveModel: 'gemini-3.8-live'
     }));
     return;
   }

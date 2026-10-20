@@ -80,6 +80,9 @@ git push
 - [x] Base 3-panel UI & design tokens (`index.html`, `tokens.css`)
 - [x] UI component library (`components.html`)
 - [x] Design guide & AI agent rules (`STYLEGUIDE.md`, `AGENTS.md`)
-- [ ] Connect Google Drive API for reading & storing notes
-- [ ] Document search & tagging system
+- [x] Google Gemini API integration (`gemini-3.8-flash`) with Grounded Research Agent & Interactive Citations
+- [x] Local Ollama AI fallback support
+- [x] Dynamic source ingestion (file uploads, notes, active source toggles)
+- [x] Live search, type filtering, and notes auto-saving
+- [ ] Connect Google Drive API for cloud sync & storage
 - [ ] Audio overview / synthesized notes generator

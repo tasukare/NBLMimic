@@ -714,6 +714,88 @@ svg { display: block; flex-shrink: 0; }
   40%           { transform: scale(1.3); opacity: 1; }
 }
 
+/* ── Typing Status ── */
+.typing-status {
+  font-size: var(--text-tiny);
+  color: var(--text-secondary);
+  margin-left: 8px;
+}
+
+/* ── Rich Markdown and Agent Elements ── */
+.msg-bubble h1, .msg-bubble h2, .msg-bubble h3, .msg-bubble h4 {
+  margin: 10px 0 6px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.msg-bubble h1 { font-size: 1.15rem; }
+.msg-bubble h2 { font-size: 1.05rem; }
+.msg-bubble h3 { font-size: 0.95rem; }
+.msg-bubble ul, .msg-bubble ol {
+  margin: 6px 0 6px 20px;
+}
+.msg-bubble li {
+  margin-bottom: 4px;
+}
+.msg-bubble pre {
+  margin: 8px 0;
+  padding: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+.msg-bubble pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.85em;
+}
+.msg-bubble blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+  margin: 8px 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.api-key-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: var(--text-small);
+  color: var(--text-primary);
+}
+.api-key-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.prompt-chip {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  font-size: var(--text-tiny);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.prompt-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
 /* ── Chat Input ── */
 .chat-input-area {
   padding: 16px 24px;
@@ -1632,10 +1714,10 @@ svg { display: block; flex-shrink: 0; }
           </svg>
         </div>
         <div class="chat-notebook-info">
-          <div class="chat-notebook-name">Climate Policy Analysis</div>
-          <div class="chat-notebook-count">8 sources · 14 exchanges</div>
+          <div class="chat-notebook-name" id="chat-notebook-title">Research Lab Agent</div>
+          <div class="chat-notebook-count" id="chat-notebook-meta">Grounded in active sources · Powered by Gemini 3.8 Flash</div>
         </div>
-        <span class="badge badge-green">All sources active</span>
+        <span class="badge badge-blue" id="agent-model-badge">gemini-3.8-flash</span>
         <button class="btn-icon" onclick="toggleSidepanel()" aria-label="Toggle sources panel">
           <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
             <rect x="1.5" y="1.5" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/>
@@ -1645,86 +1727,27 @@ svg { display: block; flex-shrink: 0; }
       </div>
 
       <div class="chat-messages" id="chat-messages">
-
-        <div class="msg-group ai">
-          <div class="msg-sender">Research Lab</div>
-          <div class="msg-bubble">
-            <p>I've analyzed your 8 sources on climate policy. The corpus spans 2018–2024, covering IPCC reports, EU Green Deal documentation, and three peer-reviewed meta-analyses.</p>
-            <p>What would you like to explore? I can help synthesize arguments, trace policy evolution, identify gaps, or compare positions across sources.</p>
+        <!-- API Key banner shown when Gemini key is missing -->
+        <div class="api-key-banner" id="api-key-banner" style="display:none;">
+          <div class="api-key-banner-text">
+            <span>🔑</span>
+            <span><strong>Gemini API Key required:</strong> Enter your Google Gemini API key to activate the Research Lab Agent.</span>
           </div>
-          <div class="msg-actions">
-            <button class="msg-action-btn">Copy</button>
-            <button class="msg-action-btn">Regenerate</button>
-          </div>
+          <button class="btn btn-primary btn-sm" onclick="switchView('settings')">Open Settings</button>
         </div>
 
-        <div class="msg-group user">
-          <div class="msg-sender" style="text-align:right">You</div>
-          <div class="msg-bubble">
-            How does the EU Green Deal's carbon pricing mechanism compare to the IPCC's recommended approach from the AR6 report?
-          </div>
-        </div>
+        <!-- Dynamic chat history rendered by JavaScript -->
+      </div>
 
-        <div class="msg-group ai">
-          <div class="msg-sender">Research Lab</div>
-          <div class="msg-bubble">
-            <p>The comparison reveals meaningful alignment in principle but divergence in implementation pace.</p>
-            <p><strong>IPCC AR6 recommendation</strong> calls for carbon prices reaching $135–$5,500/tCO₂ by 2030 for 1.5°C pathways — a wide range reflecting model uncertainty and equity considerations.</p>
-            <p>The <strong>EU ETS reform (2023)</strong> sets a current price floor of ~€60/tCO₂, with the Carbon Border Adjustment Mechanism (CBAM) extending pricing to imports from 2026. This falls below the lower IPCC bound by roughly half.</p>
-            <p>Key divergences: the IPCC recommends accompanying revenue recycling to low-income households, which the EU partially addresses through the Social Climate Fund. The IPCC also emphasizes global coordination — the EU's unilateral approach risks carbon leakage despite CBAM.</p>
-          </div>
-          <div class="msg-sources">
-            <button class="source-pill" onclick="openSourcePanel(1)">
-              <span class="source-pill-num">1</span> IPCC AR6 WG3 — Ch. 13
-            </button>
-            <button class="source-pill" onclick="openSourcePanel(2)">
-              <span class="source-pill-num">2</span> EU ETS Reform 2023
-            </button>
-            <button class="source-pill" onclick="openSourcePanel(3)">
-              <span class="source-pill-num">3</span> Stiglitz et al. 2024
-            </button>
-          </div>
-          <div class="msg-actions">
-            <button class="msg-action-btn">Copy</button>
-            <button class="msg-action-btn">Save note</button>
-            <button class="msg-action-btn">Regenerate</button>
-          </div>
+      <!-- Typing Indicator -->
+      <div class="msg-group ai" id="typing-group" style="display:none; padding: 0 24px 12px;">
+        <div class="msg-sender">Research Lab Agent</div>
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <span class="typing-status" id="typing-status">Analyzing sources & synthesizing response...</span>
         </div>
-
-        <div class="msg-group user">
-          <div class="msg-sender" style="text-align:right">You</div>
-          <div class="msg-bubble">
-            What does Stiglitz et al. say about carbon leakage specifically?
-          </div>
-        </div>
-
-        <div class="msg-group ai" id="typing-group" style="display:none">
-          <div class="msg-sender">Research Lab</div>
-          <div class="typing-indicator">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
-        </div>
-
-        <div class="msg-group ai" id="last-ai-msg" style="display:none">
-          <div class="msg-sender">Research Lab</div>
-          <div class="msg-bubble">
-            <p>Stiglitz et al. (2024) devote Section 4.2 to carbon leakage, arguing that CBAM is a <strong>necessary but insufficient</strong> remedy. Their core claim: leakage rates under unilateral pricing without border adjustment can reach 15–25% in energy-intensive sectors, erasing a meaningful share of domestic abatement.</p>
-            <p>Their proposed remedy goes beyond CBAM — they advocate for a <strong>"climate club"</strong> model (building on Nordhaus 2015) where a coalition of large emitters agrees on a minimum floor price (~$75/tCO₂ by 2025) and applies tariffs to non-members. This they argue is superior to unilateral border adjustment both economically and diplomatically.</p>
-          </div>
-          <div class="msg-sources">
-            <button class="source-pill" onclick="openSourcePanel(3)">
-              <span class="source-pill-num">3</span> Stiglitz et al. 2024 · §4.2
-            </button>
-          </div>
-          <div class="msg-actions">
-            <button class="msg-action-btn">Copy</button>
-            <button class="msg-action-btn">Save note</button>
-            <button class="msg-action-btn">Regenerate</button>
-          </div>
-        </div>
-
       </div>
 
       <div class="chat-input-area">
@@ -1733,12 +1756,12 @@ svg { display: block; flex-shrink: 0; }
             class="chat-textarea"
             id="chat-input"
             rows="1"
-            placeholder="Ask about your sources…"
+            placeholder="Ask Research Lab Agent about your sources…"
             aria-label="Message input"
             onkeydown="handleChatKey(event)"
             oninput="autoResize(this)"
           ></textarea>
-          <button class="chat-send-btn" onclick="sendMessage()" aria-label="Send message">
+          <button class="chat-send-btn" id="btn-chat-send" onclick="sendMessage()" aria-label="Send message">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M14 8L2 2l2 6-2 6 12-6z" fill="currentColor"/>
             </svg>
@@ -1747,7 +1770,7 @@ svg { display: block; flex-shrink: 0; }
         <div class="chat-input-hint">
           <span>Press <kbd>↵</kbd> to send, <kbd>⇧↵</kbd> for new line</span>
           <span>·</span>
-          <span>8 sources in context</span>
+          <span id="chat-sources-count">8 sources in context</span>
         </div>
       </div>
 
@@ -1797,27 +1820,76 @@ svg { display: block; flex-shrink: 0; }
         </div>
 
         <div class="settings-section">
-          <div class="settings-section-title">AI Model</div>
+          <div class="settings-section-title">Google Gemini Agent & AI Engine</div>
+          
           <div class="settings-row">
             <div class="settings-row-info">
-              <div class="settings-row-label">Model endpoint</div>
-              <div class="settings-row-desc">Local Ollama or remote API endpoint</div>
+              <div class="settings-row-label">AI Engine Provider</div>
+              <div class="settings-row-desc">Select Google Gemini API (Recommended) or local Ollama</div>
             </div>
-            <input class="settings-input" type="text" value="http://localhost:11434" placeholder="http://localhost:11434">
+            <select class="settings-input" id="setting-provider" onchange="updateProviderVisibility()" style="width:230px; cursor:pointer;">
+              <option value="gemini" selected>Google Gemini API (Recommended)</option>
+              <option value="ollama">Local Ollama (Offline)</option>
+            </select>
           </div>
-          <div class="settings-row">
+
+          <div class="settings-row" id="row-gemini-key">
             <div class="settings-row-info">
-              <div class="settings-row-label">Model name</div>
+              <div class="settings-row-label">Gemini API Key</div>
+              <div class="settings-row-desc">Get a free key from Google AI Studio. Stored privately in localStorage.</div>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <input class="settings-input" id="setting-gemini-key" type="password" placeholder="AIzaSy..." style="width:220px;">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="testGeminiKey()">Test</button>
+            </div>
+          </div>
+
+          <div class="settings-row" id="row-gemini-model">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Gemini Model</div>
+              <div class="settings-row-desc">Gemini 3.8 Flash provides fast, balanced research synthesis (1M tokens)</div>
+            </div>
+            <select class="settings-input" id="setting-gemini-model" style="width:230px; cursor:pointer;">
+              <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Recommended)</option>
+              <option value="gemini-4-argon">gemini-4-argon (Deep Reasoning)</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Fast)</option>
+            </select>
+          </div>
+
+          <div class="settings-row" id="row-ollama-endpoint" style="display:none;">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Ollama Endpoint</div>
+              <div class="settings-row-desc">Local Ollama API server URL</div>
+            </div>
+            <input class="settings-input" id="setting-ollama-endpoint" type="text" value="http://localhost:11434" placeholder="http://localhost:11434" style="width:230px;">
+          </div>
+
+          <div class="settings-row" id="row-ollama-model" style="display:none;">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Ollama Model</div>
               <div class="settings-row-desc">e.g. llama3.1, mistral, gemma2</div>
             </div>
-            <input class="settings-input" type="text" value="llama3.1:70b" placeholder="llama3.1">
+            <input class="settings-input" id="setting-ollama-model" type="text" value="llama3.1" placeholder="llama3.1" style="width:230px;">
           </div>
+
           <div class="settings-row">
             <div class="settings-row-info">
-              <div class="settings-row-label">Context window</div>
-              <div class="settings-row-desc">Token limit per request</div>
+              <div class="settings-row-label">Agent Grounding Mode</div>
+              <div class="settings-row-desc">How strictly the Research Agent adheres to your active sources</div>
             </div>
-            <input class="settings-input" type="number" value="32768" placeholder="32768">
+            <select class="settings-input" id="setting-agent-mode" style="width:230px; cursor:pointer;">
+              <option value="strict" selected>Strict Grounding (NotebookLM Citations)</option>
+              <option value="synthesizer">Research Synthesizer (Sources + Broad Context)</option>
+              <option value="creative">Open Research Assistant (Exploratory)</option>
+            </select>
+          </div>
+
+          <div class="settings-row" style="align-items:flex-start;">
+            <div class="settings-row-info">
+              <div class="settings-row-label">Custom Agent Persona & Instructions</div>
+              <div class="settings-row-desc">Optional guidance passed to Gemini for tone, depth, or formatting</div>
+            </div>
+            <textarea class="settings-input" id="setting-agent-instructions" style="width:230px; height:70px; padding:8px; resize:vertical; font-size:12px; line-height:1.4;" placeholder="e.g. Cite specific statistics and focus on policy implications..."></textarea>
           </div>
         </div>
 
@@ -1850,7 +1922,7 @@ svg { display: block; flex-shrink: 0; }
               <div class="settings-row-label">Clear conversation history</div>
               <div class="settings-row-desc">Permanently delete all chat logs</div>
             </div>
-            <button class="btn btn-danger btn-sm" onclick="showToast('History cleared', 'success')">Clear history</button>
+            <button class="btn btn-danger btn-sm" onclick="clearChatHistory()">Clear history</button>
           </div>
         </div>
 
@@ -1877,7 +1949,7 @@ svg { display: block; flex-shrink: 0; }
         </div>
 
         <div style="display:flex; gap:8px; margin-top:8px;">
-          <button class="btn btn-secondary" onclick="showToast('Settings saved', 'success')">Save changes</button>
+          <button class="btn btn-primary" onclick="saveSettings()">Save changes</button>
           <button class="btn btn-ghost" onclick="switchView('library')">Cancel</button>
         </div>
       </div>
@@ -1904,53 +1976,10 @@ svg { display: block; flex-shrink: 0; }
         <!-- SOURCES TAB -->
         <div id="sp-sources">
           <div class="sp-section">
-            <div class="sp-section-title">Active Sources (8)</div>
-
-            <div class="source-item">
-              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
-              <div class="source-item-icon doc-icon pdf">📄</div>
-              <div class="source-item-body">
-                <div class="source-item-title">IPCC AR6 Working Group III — Chapter 13</div>
-                <div class="source-item-meta">PDF · 87 pages · Added Jan 2024</div>
-              </div>
+            <div class="sp-section-title" id="sp-sources-title">Active Sources</div>
+            <div id="sp-sources-list">
+              <!-- Dynamically populated by renderSidepanelSources() -->
             </div>
-
-            <div class="source-item">
-              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
-              <div class="source-item-icon doc-icon web">🌐</div>
-              <div class="source-item-body">
-                <div class="source-item-title">EU ETS Reform 2023 — Official Text</div>
-                <div class="source-item-meta">Web · eur-lex.europa.eu · Mar 2024</div>
-              </div>
-            </div>
-
-            <div class="source-item">
-              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
-              <div class="source-item-icon doc-icon pdf">📄</div>
-              <div class="source-item-body">
-                <div class="source-item-title">Stiglitz, Stern, et al. — Carbon Pricing After Paris</div>
-                <div class="source-item-meta">PDF · 54 pages · Feb 2024</div>
-              </div>
-            </div>
-
-            <div class="source-item">
-              <div class="source-check" role="checkbox" aria-checked="false" tabindex="0"></div>
-              <div class="source-item-icon doc-icon txt">📝</div>
-              <div class="source-item-body">
-                <div class="source-item-title">IEA Net Zero by 2050 — Executive Summary</div>
-                <div class="source-item-meta">TXT · 12 pages · Jan 2024</div>
-              </div>
-            </div>
-
-            <div class="source-item">
-              <div class="source-check checked" role="checkbox" aria-checked="true" tabindex="0"></div>
-              <div class="source-item-icon doc-icon epub">📚</div>
-              <div class="source-item-body">
-                <div class="source-item-title">The New Climate Economy — Full Report</div>
-                <div class="source-item-meta">EPUB · 340 pages · Dec 2023</div>
-              </div>
-            </div>
-
           </div>
 
           <button class="btn btn-secondary btn-sm" style="width:100%; margin-top:4px;" onclick="openModal()">
@@ -2080,16 +2109,17 @@ svg { display: block; flex-shrink: 0; }
 
       <div id="tab-text" style="display:none">
         <textarea
+          id="paste-source-content"
           placeholder="Paste your text, notes, or markdown here…"
           style="width:100%; height:160px; border:1.5px solid var(--border); border-radius:var(--radius-md); padding:12px; font-family:var(--font-ui); font-size:var(--text-small); color:var(--text-primary); background:var(--bg-secondary); resize:none; outline:none; line-height:1.6; transition: border-color var(--transition-normal), box-shadow var(--transition-normal);"
           onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 0 3px var(--accent-subtle)'; this.style.background='var(--bg-primary)';"
           onblur="this.style.borderColor=''; this.style.boxShadow=''; this.style.background='';"></textarea>
-        <input style="margin-top:8px; width:100%;" class="settings-input" type="text" placeholder="Title (optional)" style="width:100%">
+        <input id="paste-source-title" style="margin-top:8px; width:100%;" class="settings-input" type="text" placeholder="Title (optional)">
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="simulateUpload()">Import</button>
+      <button class="btn btn-primary" onclick="handleImportModal()">Import</button>
     </div>
   </div>
 </div>
@@ -2099,124 +2129,753 @@ svg { display: block; flex-shrink: 0; }
 
 <!-- ═══════════════════ SCRIPT ═══════════════════ -->
 <script>
-/* ════ DOCUMENT DATA ════ */
-const DOCS = [
+/* ════════════════════════════════════════════════
+   RESEARCH LAB — AI AGENT & DATA STORE
+   Powered by Google Gemini API
+════════════════════════════════════════════════ */
+
+// Default documents if none in localStorage
+const DEFAULT_DOCS = [
   {
     id: 1, type: 'pdf', icon: '📄',
     title: 'IPCC Sixth Assessment Report — Working Group III: Mitigation of Climate Change',
-    source: 'ipcc.ch', excerpt: 'Provides updated global assessments of climate mitigation policies, pathways, and the costs of delayed action across sectors.',
+    source: 'ipcc.ch', excerpt: 'Provides updated global assessments of climate mitigation policies, pathways, and the costs of delayed action across sectors. Identifies required carbon prices in the range of USD 135–5500/tCO₂ by 2030 for 1.5°C pathways.',
+    content: 'Chapter 13: National and Sub-national Policies and Institutions. Effective carbon prices in the range of USD 135–5500 per tCO₂ are required by 2030 for 1.5°C-consistent pathways. Mitigation policies must be accompanied by revenue recycling to low-income households to prevent regressive equity outcomes. Cross-border carbon pricing coordination is essential to prevent international carbon leakage.',
     tags: ['research', 'climate'], date: '2 Jan'
   },
   {
     id: 2, type: 'web', icon: '🌐',
     title: 'EU ETS Reform 2023 — Regulation (EU) 2023/956 Carbon Border Adjustment Mechanism',
-    source: 'eur-lex.europa.eu', excerpt: 'The Carbon Border Adjustment Mechanism prevents carbon leakage by pricing imports on their embedded carbon emissions.',
+    source: 'eur-lex.europa.eu', excerpt: 'The Carbon Border Adjustment Mechanism (CBAM) prevents carbon leakage by pricing imports on their embedded carbon emissions. Phased implementation starts 2026.',
+    content: 'Regulation (EU) 2023/956 of the European Parliament. The Carbon Border Adjustment Mechanism (CBAM) applies an equivalent carbon cost to imports of carbon-intensive goods (steel, cement, aluminum, fertilizer, electricity, hydrogen). Importers must surrender CBAM certificates matching embedded emissions. Revenue from ETS auctions is partly diverted to the Social Climate Fund to shield vulnerable citizens.',
     tags: ['policy', 'EU'], date: '15 Mar'
   },
   {
     id: 3, type: 'pdf', icon: '📄',
     title: 'Carbon Pricing After Paris: Towards a Consistent International Framework',
-    source: 'Stiglitz, Stern et al.', excerpt: 'Argues for coordinated global carbon pricing through a "climate club" architecture to address leakage and competitiveness concerns.',
+    source: 'Stiglitz, Stern et al.', excerpt: 'Argues for coordinated global carbon pricing through a "climate club" architecture to address leakage and competitiveness concerns. CBAM alone is deemed insufficient.',
+    content: 'Section 4.2: Carbon Leakage and Border Adjustments. Unilateral carbon pricing without border measures risks 15–25% leakage in heavy industry. CBAM offers partial remediation but creates trade friction. The authors propose a "climate club" where a coalition of high-ambition nations agrees on a common carbon price floor ($75–$100/tCO₂ by 2030) and imposes uniform tariffs on non-participants.',
     tags: ['research', 'citations'], date: '3 Feb'
   },
   {
     id: 4, type: 'epub', icon: '📚',
     title: 'The New Climate Economy: Better Growth, Better Climate',
-    source: 'Global Commission', excerpt: 'Economic analysis demonstrating that ambitious climate action is consistent with strong growth through system-level transitions.',
+    source: 'Global Commission on Economy & Climate', excerpt: 'Economic analysis demonstrating that ambitious climate action is consistent with strong growth through system-level transitions in energy, cities, and land use.',
+    content: 'Executive Summary: Investing in low-carbon infrastructure generates an estimated $26 trillion in net economic benefits through 2030 compared to business-as-usual. Phasing out fossil fuel subsidies ($400B+ annually) and shifting capital towards renewables creates up to 65 million new low-carbon jobs globally.',
     tags: ['research'], date: '12 Dec'
   },
   {
     id: 5, type: 'txt', icon: '📝',
-    title: 'IEA Net Zero by 2050 — A Roadmap for the Global Energy Sector (Executive Summary)',
-    source: 'iea.org', excerpt: 'Outlines the pathway to net-zero CO₂ emissions from the global energy sector by 2050, requiring immediate, deep, and broad clean energy transitions.',
+    title: 'IEA Net Zero by 2050 — A Roadmap for the Global Energy Sector',
+    source: 'iea.org', excerpt: 'Outlines the technical pathway to net-zero CO₂ emissions by 2050. Calls for immediate cessation of new oil/gas exploration and quadrupling renewable capacity.',
+    content: 'Roadmap Milestone 2030: Solar PV and wind installations must reach 1,020 GW annually by 2030. Electric vehicles must comprise 60% of global new car sales. Energy intensity of the global economy must improve by 4% per year, roughly double the historical rate.',
     tags: ['reading-list'], date: '8 Jan'
   },
   {
     id: 6, type: 'pdf', icon: '📄',
     title: 'Transforming Our World: The 2030 Agenda for Sustainable Development',
-    source: 'United Nations', excerpt: 'A plan of action for people, planet and prosperity establishing 17 Sustainable Development Goals and 169 targets.',
+    source: 'United Nations', excerpt: 'Plan of action establishing 17 Sustainable Development Goals, balancing economic growth, social equity, and environmental protection.',
+    content: 'SDG 13: Urgent action to combat climate change and its impacts. SDG 7: Ensure access to affordable, reliable, sustainable, and modern energy for all. Integrates poverty eradication with environmental stewardship.',
     tags: ['policy'], date: '20 Nov'
   },
   {
     id: 7, type: 'note', icon: '✏️',
-    title: 'Research Notes — CBAM vs. Carbon Club Comparison',
-    source: 'Personal note', excerpt: 'Key distinctions between unilateral border adjustment (CBAM) and multilateral climate club approaches. WTO challenge risk analysis.',
+    title: 'Research Notes — CBAM vs. Climate Club Comparison',
+    source: 'Personal Note', excerpt: 'Analytical comparison between EU CBAM and Stiglitz-Nordhaus climate clubs. Evaluates WTO legality and international trade impacts.',
+    content: 'Key takeaway: EU CBAM is unilateral and depends on complex individual embedded emission verification. Climate clubs use punitive external tariffs on non-members, simplifying enforcement but potentially violating WTO GATT Article I (MFN treatment). Requires strategic diplomatic coordination with US and developing nations.',
     tags: ['citations'], date: '1 day ago'
   },
   {
     id: 8, type: 'web', icon: '🌐',
-    title: 'The Social Cost of Carbon: Advances in Long-Term Probabilistic Projections',
-    source: 'Nature Climate Change', excerpt: 'Updated estimates of the social cost of carbon accounting for tipping point risks, inequality aversion, and discount rate uncertainty.',
+    title: 'The Social Cost of Carbon: Advances in Probabilistic Projections',
+    source: 'Nature Climate Change', excerpt: 'Updated SCC estimates incorporating tipping points and climate risk distributions, suggesting damages exceeding $185 per ton CO₂.',
+    content: 'Model Findings: Median social cost of carbon is estimated at $185 per tonne CO₂ (5%–95% range: $44–$413/tCO₂ at a 2% near-risk-free discount rate). This estimate substantially exceeds previous US government valuations ($51/tCO₂), justifying significantly more aggressive policy interventions.',
     tags: ['research', 'citations'], date: '5 Mar'
-  },
+  }
 ];
 
-/* ════ RENDER LIBRARY ════ */
-function renderLibrary() {
-  const grid = document.getElementById('doc-grid');
-  grid.innerHTML = '';
+// Document storage
+let DOCS = (() => {
+  try {
+    const saved = localStorage.getItem('nblmimic_user_sources');
+    return saved ? JSON.parse(saved) : DEFAULT_DOCS;
+  } catch (e) {
+    return DEFAULT_DOCS;
+  }
+})();
 
-  // Skeleton cards for visual interest during "load"
-  for (let i = 0; i < 3; i++) {
-    const sk = document.createElement('div');
-    sk.className = 'skeleton-card skeleton';
-    sk.innerHTML = `
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <div class="skel-block skel-icon"></div>
-        <div style="flex:1">
-          <div class="skel-block skel-line skel-long" style="margin-bottom:6px"></div>
-          <div class="skel-block skel-line skel-short"></div>
+// Active sources set (all active by default)
+let activeSourceIds = new Set(DOCS.map(d => d.id));
+
+// Chat History storage
+let CHAT_HISTORY = (() => {
+  try {
+    const saved = localStorage.getItem('nblmimic_chat_history');
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    return [];
+  }
+})();
+
+// App Settings
+const SETTINGS = (() => {
+  const defaults = {
+    provider: 'gemini',
+    gemini_api_key: '',
+    gemini_model: 'gemini-3.8-flash',
+    ollama_endpoint: 'http://localhost:11434',
+    ollama_model: 'llama3.1',
+    agent_mode: 'strict',
+    agent_instructions: ''
+  };
+  try {
+    const saved = localStorage.getItem('nblmimic_settings');
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+  } catch (e) {
+    return defaults;
+  }
+})();
+
+/* ════ SETTINGS MANAGEMENT ════ */
+function initSettingsUI() {
+  const providerEl = document.getElementById('setting-provider');
+  const keyEl = document.getElementById('setting-gemini-key');
+  const geminiModelEl = document.getElementById('setting-gemini-model');
+  const ollamaEndpointEl = document.getElementById('setting-ollama-endpoint');
+  const ollamaModelEl = document.getElementById('setting-ollama-model');
+  const agentModeEl = document.getElementById('setting-agent-mode');
+  const instructionsEl = document.getElementById('setting-agent-instructions');
+
+  if (providerEl) providerEl.value = SETTINGS.provider;
+  if (keyEl) keyEl.value = SETTINGS.gemini_api_key;
+  if (geminiModelEl) geminiModelEl.value = SETTINGS.gemini_model;
+  if (ollamaEndpointEl) ollamaEndpointEl.value = SETTINGS.ollama_endpoint;
+  if (ollamaModelEl) ollamaModelEl.value = SETTINGS.ollama_model;
+  if (agentModeEl) agentModeEl.value = SETTINGS.agent_mode;
+  if (instructionsEl) instructionsEl.value = SETTINGS.agent_instructions;
+
+  updateProviderVisibility();
+  updateApiKeyBanner();
+  updateModelBadge();
+
+  // Restore saved notes if any
+  const savedNotes = localStorage.getItem('nblmimic_notes');
+  const notesArea = document.querySelector('#sp-notes textarea');
+  if (savedNotes && notesArea) {
+    notesArea.value = savedNotes;
+  }
+}
+
+function updateProviderVisibility() {
+  const provider = document.getElementById('setting-provider')?.value || SETTINGS.provider;
+  const isGemini = provider === 'gemini';
+  const rowKey = document.getElementById('row-gemini-key');
+  const rowGModel = document.getElementById('row-gemini-model');
+  const rowOEndpoint = document.getElementById('row-ollama-endpoint');
+  const rowOModel = document.getElementById('row-ollama-model');
+
+  if (rowKey) rowKey.style.display = isGemini ? 'flex' : 'none';
+  if (rowGModel) rowGModel.style.display = isGemini ? 'flex' : 'none';
+  if (rowOEndpoint) rowOEndpoint.style.display = isGemini ? 'none' : 'flex';
+  if (rowOModel) rowOModel.style.display = isGemini ? 'none' : 'flex';
+}
+
+function updateApiKeyBanner() {
+  const banner = document.getElementById('api-key-banner');
+  if (!banner) return;
+  const isGemini = (document.getElementById('setting-provider')?.value || SETTINGS.provider) === 'gemini';
+  const hasKey = Boolean(SETTINGS.gemini_api_key && SETTINGS.gemini_api_key.trim());
+  banner.style.display = (isGemini && !hasKey) ? 'flex' : 'none';
+}
+
+function updateModelBadge() {
+  const badge = document.getElementById('agent-model-badge');
+  if (!badge) return;
+  const isGemini = SETTINGS.provider === 'gemini';
+  badge.textContent = isGemini ? SETTINGS.gemini_model : `ollama: ${SETTINGS.ollama_model}`;
+}
+
+function saveSettings() {
+  SETTINGS.provider = document.getElementById('setting-provider')?.value || 'gemini';
+  SETTINGS.gemini_api_key = document.getElementById('setting-gemini-key')?.value.trim() || '';
+  SETTINGS.gemini_model = document.getElementById('setting-gemini-model')?.value || 'gemini-3.8-flash';
+  SETTINGS.ollama_endpoint = document.getElementById('setting-ollama-endpoint')?.value.trim() || 'http://localhost:11434';
+  SETTINGS.ollama_model = document.getElementById('setting-ollama-model')?.value.trim() || 'llama3.1';
+  SETTINGS.agent_mode = document.getElementById('setting-agent-mode')?.value || 'strict';
+  SETTINGS.agent_instructions = document.getElementById('setting-agent-instructions')?.value.trim() || '';
+
+  localStorage.setItem('nblmimic_settings', JSON.stringify(SETTINGS));
+  updateApiKeyBanner();
+  updateModelBadge();
+  showToast('Settings saved successfully', 'success');
+}
+
+async function testGeminiKey() {
+  const key = document.getElementById('setting-gemini-key')?.value.trim() || SETTINGS.gemini_api_key;
+  if (!key) {
+    showToast('Please enter an API key first', 'error');
+    return;
+  }
+  showToast('Testing Gemini API key…', 'info');
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: 'Respond with the single word: READY' }] }]
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    showToast('✅ Gemini API Key is valid and active!', 'success');
+  } catch (err) {
+    showToast(`Key error: ${err.message}`, 'error');
+  }
+}
+
+/* ════ MARKDOWN & CITATION FORMATTER ════ */
+function formatMarkdown(text) {
+  if (!text) return '';
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Fenced Code Blocks
+  html = html.replace(/```([a-zA-Z0-9_]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    return `<pre><code class="language-${lang}">${code.trim()}</code></pre>`;
+  });
+
+  // Inline Code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Headings
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+  // Bold & Italic
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  // Blockquotes
+  html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+  // Bullet Lists
+  html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li>$1</li>');
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+  html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+  // Citations like [1], [2], [Source 1], [1, 2]
+  html = html.replace(/\[(?:Source\s+)?(\d+)\]/gi, (match, num) => {
+    const doc = DOCS.find(d => d.id == num);
+    const title = doc ? doc.title.replace(/"/g, '&quot;') : `Source ${num}`;
+    return `<button class="source-pill" onclick="openSourcePanel(${num})" title="${title}"><span class="source-pill-num">${num}</span> ${doc ? doc.source : `Source ${num}`}</button>`;
+  });
+
+  // Paragraphs
+  const paragraphs = html.split(/\n{2,}/).map(p => {
+    p = p.trim();
+    if (!p) return '';
+    if (p.startsWith('<h') || p.startsWith('<pre') || p.startsWith('<ul') || p.startsWith('<blockquote')) {
+      return p;
+    }
+    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+  });
+
+  return paragraphs.join('');
+}
+
+/* ════ RENDER CHAT ════ */
+function renderChat() {
+  const messagesContainer = document.getElementById('chat-messages');
+  if (!messagesContainer) return;
+
+  // Preserve the api-key-banner
+  const banner = document.getElementById('api-key-banner');
+  messagesContainer.innerHTML = '';
+  if (banner) messagesContainer.appendChild(banner);
+
+  if (CHAT_HISTORY.length === 0) {
+    const welcome = document.createElement('div');
+    welcome.className = 'msg-group ai';
+    welcome.id = 'chat-welcome-msg';
+    welcome.innerHTML = `
+      <div class="msg-sender">Research Lab Agent</div>
+      <div class="msg-bubble">
+        <p><strong>👋 Welcome to the Research Lab AI Agent.</strong></p>
+        <p>I am your autonomous research analyst and synthesizer inspired by Google NotebookLM. I answer queries grounded strictly in your active sources, cite reference documents, and generate synthesis notes.</p>
+        <div class="prompt-chips">
+          <button class="prompt-chip" onclick="askPreset('Summarize the key findings and major takeaways across all active sources.')">📑 Summarize active sources</button>
+          <button class="prompt-chip" onclick="askPreset('How does the EU Green Deal compare to the IPCC recommended approach?')">⚖️ Compare EU vs IPCC</button>
+          <button class="prompt-chip" onclick="askPreset('What does Stiglitz et al. say about carbon leakage specifically?')">🔍 Carbon leakage analysis</button>
+          <button class="prompt-chip" onclick="askPreset('Synthesize an executive briefing note with key recommendations.')">📝 Generate briefing note</button>
         </div>
       </div>
-      <div class="skel-block skel-line skel-med"></div>
-      <div class="skel-block skel-line skel-long"></div>
     `;
-    grid.appendChild(sk);
+    messagesContainer.appendChild(welcome);
+    return;
   }
 
-  setTimeout(() => {
-    grid.innerHTML = '';
-    DOCS.forEach((doc, i) => {
-      const card = document.createElement('div');
-      card.className = 'doc-card';
-      card.style.animationDelay = `${i * 30}ms`;
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', doc.title);
-      card.onclick = () => { switchView('chat'); };
-      card.onkeydown = (e) => { if (e.key === 'Enter') card.click(); };
-      const tags = doc.tags.map(t => `<span class="doc-tag">${t}</span>`).join('');
-      card.innerHTML = `
-        <div class="doc-card-header">
-          <div class="doc-icon ${doc.type}">${doc.icon}</div>
-          <div class="doc-card-meta">
-            <div class="doc-card-title">${doc.title}</div>
-            <div class="doc-card-source">${doc.source}</div>
-          </div>
-        </div>
-        <div class="doc-card-excerpt">${doc.excerpt}</div>
-        <div class="doc-card-footer">
-          ${tags}
-          <span class="doc-date">${doc.date}</span>
-        </div>
-        <div class="doc-card-actions">
-          <button class="btn-icon" title="Open chat" aria-label="Open in chat" onclick="event.stopPropagation(); switchView('chat')">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="btn-icon" title="More options" aria-label="More options" onclick="event.stopPropagation(); showToast('Options menu', 'info')">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <circle cx="6.5" cy="2.5" r="1" fill="currentColor"/>
-              <circle cx="6.5" cy="6.5" r="1" fill="currentColor"/>
-              <circle cx="6.5" cy="10.5" r="1" fill="currentColor"/>
-            </svg>
-          </button>
+  CHAT_HISTORY.forEach((msg, idx) => {
+    const group = document.createElement('div');
+    group.className = `msg-group ${msg.role === 'user' ? 'user' : 'ai'}`;
+    
+    if (msg.role === 'user') {
+      group.innerHTML = `
+        <div class="msg-sender" style="text-align:right">You</div>
+        <div class="msg-bubble">${msg.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+      `;
+    } else {
+      const formatted = formatMarkdown(msg.text);
+      group.innerHTML = `
+        <div class="msg-sender">Research Lab Agent</div>
+        <div class="msg-bubble">${formatted}</div>
+        <div class="msg-actions">
+          <button class="msg-action-btn" onclick="copyMessage(${idx})">Copy</button>
+          <button class="msg-action-btn" onclick="saveToNotesByIndex(${idx})">Save note</button>
         </div>
       `;
-      grid.appendChild(card);
+    }
+    messagesContainer.appendChild(group);
+  });
+
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function askPreset(promptText) {
+  const input = document.getElementById('chat-input');
+  if (input) {
+    input.value = promptText;
+    sendMessage();
+  }
+}
+
+/* ════ AI CALL (GEMINI / OLLAMA) ════ */
+async function callGemini(messagesHistory, userPrompt, activeSources) {
+  const apiKey = SETTINGS.gemini_api_key.trim();
+  if (!apiKey) {
+    throw new Error('MISSING_API_KEY');
+  }
+
+  const model = SETTINGS.gemini_model || 'gemini-3.8-flash';
+  const mode = SETTINGS.agent_mode || 'strict';
+  const customInst = SETTINGS.agent_instructions.trim();
+
+  // Assemble source corpus for grounding
+  let sourcesSection = '';
+  if (activeSources.length > 0) {
+    sourcesSection = '\n\n=== ACTIVE RESEARCH SOURCES AVAILABLE FOR CITATION ===\n' +
+      activeSources.map((doc, idx) => {
+        return `[${idx + 1}] Title: ${doc.title}\nSource: ${doc.source}\nContent & Excerpts:\n${doc.content || doc.excerpt}\n---`;
+      }).join('\n');
+  }
+
+  let groundingRules = '';
+  if (mode === 'strict') {
+    groundingRules = `Strict Grounding Instructions:
+- You must ground your reasoning and answers directly in the active sources provided below.
+- Whenever you cite or use a fact, finding, or argument from a source, add citation markers like [1], [2], or [3] immediately following the cited statement.
+- If the sources do not contain the answer, explicitly state: "Based on the active sources provided, this information is not discussed."`;
+  } else if (mode === 'synthesizer') {
+    groundingRules = `Synthesis Instructions:
+- Synthesize the active sources with high-level domain concepts.
+- Always cite the active sources with [1], [2] when referencing them, and clearly distinguish between evidence from sources versus broader context.`;
+  } else {
+    groundingRules = `Exploratory Instructions:
+- Assist the user creatively while grounding in active sources [1], [2] where applicable.`;
+  }
+
+  const systemPrompt = `You are Research Lab AI, a knowledgeable, objective, and analytical research partner inspired by Google NotebookLM.
+${groundingRules}
+${customInst ? '\nUser-defined Persona Instructions:\n' + customInst : ''}
+${sourcesSection}`;
+
+  // Build multi-turn contents array
+  const contents = [];
+  messagesHistory.slice(-8).forEach(m => {
+    contents.push({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.text }]
     });
-  }, 600);
+  });
+  contents.push({
+    role: 'user',
+    parts: [{ text: userPrompt }]
+  });
+
+  const payload = {
+    system_instruction: {
+      parts: [{ text: systemPrompt }]
+    },
+    contents: contents,
+    generationConfig: {
+      temperature: mode === 'strict' ? 0.2 : 0.6,
+      maxOutputTokens: 4096
+    }
+  };
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!outputText) {
+    throw new Error('Received an empty response from Gemini.');
+  }
+
+  return outputText;
+}
+
+async function callOllama(messagesHistory, userPrompt, activeSources) {
+  const endpoint = (SETTINGS.ollama_endpoint || 'http://localhost:11434').replace(/\/+$/, '');
+  const model = SETTINGS.ollama_model || 'llama3.1';
+
+  let sourcesSection = activeSources.map((doc, idx) => `[${idx + 1}] ${doc.title}: ${doc.content || doc.excerpt}`).join('\n\n');
+  const systemPrompt = `You are Research Lab AI, a research assistant inspired by NotebookLM. Synthesize answers grounded in these sources with citations like [1], [2]:\n\n${sourcesSection}`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...messagesHistory.slice(-6).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })),
+    { role: 'user', content: userPrompt }
+  ];
+
+  const res = await fetch(`${endpoint}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: model, messages: messages, stream: false })
+  });
+
+  if (!res.ok) throw new Error(`Ollama request failed: ${res.statusText}`);
+  const data = await res.json();
+  return data.message?.content || 'No response returned from Ollama.';
+}
+
+/* ════ SEND MESSAGE HANDLER ════ */
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input ? input.value.trim() : '';
+  if (!text) return;
+
+  // Add user message to history
+  CHAT_HISTORY.push({ role: 'user', text: text });
+  localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+  renderChat();
+
+  if (input) {
+    input.value = '';
+    input.style.height = 'auto';
+  }
+
+  // Check API Key
+  if (SETTINGS.provider === 'gemini' && !SETTINGS.gemini_api_key.trim()) {
+    updateApiKeyBanner();
+    CHAT_HISTORY.push({
+      role: 'model',
+      text: '⚠️ **Gemini API Key Required:** To receive AI-grounded research answers, please enter your Gemini API key in [Settings](javascript:switchView("settings")). You can generate a free key at [Google AI Studio](https://aistudio.google.com/).'
+    });
+    localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+    renderChat();
+    return;
+  }
+
+  // Show typing indicator
+  const typing = document.getElementById('typing-group');
+  const typingStatus = document.getElementById('typing-status');
+  if (typing) {
+    typing.style.display = 'flex';
+    if (typingStatus) {
+      typingStatus.textContent = SETTINGS.provider === 'gemini'
+        ? `Research Lab Agent (${SETTINGS.gemini_model}) is synthesizing sources…`
+        : `Ollama (${SETTINGS.ollama_model}) is reasoning…`;
+    }
+  }
+
+  const messagesContainer = document.getElementById('chat-messages');
+  if (messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  try {
+    const activeDocs = DOCS.filter(d => activeSourceIds.has(d.id));
+    const previousHistory = CHAT_HISTORY.slice(0, -1);
+    
+    let replyText = '';
+    if (SETTINGS.provider === 'gemini') {
+      replyText = await callGemini(previousHistory, text, activeDocs);
+    } else {
+      replyText = await callOllama(previousHistory, text, activeDocs);
+    }
+
+    if (typing) typing.style.display = 'none';
+
+    CHAT_HISTORY.push({ role: 'model', text: replyText });
+    localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+    renderChat();
+  } catch (err) {
+    if (typing) typing.style.display = 'none';
+    const errorMsg = `❌ **Error querying ${SETTINGS.provider === 'gemini' ? 'Gemini API' : 'Ollama'}:** ${err.message}\n\nPlease verify your API key and connection in [Settings](javascript:switchView("settings")).`;
+    CHAT_HISTORY.push({ role: 'model', text: errorMsg });
+    localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+    renderChat();
+    showToast(`AI query failed: ${err.message}`, 'error');
+  }
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 180) + 'px';
+}
+
+function copyMessage(idx) {
+  const msg = CHAT_HISTORY[idx];
+  if (!msg) return;
+  navigator.clipboard.writeText(msg.text).then(() => {
+    showToast('Copied message to clipboard', 'success');
+  }).catch(() => {
+    showToast('Failed to copy', 'error');
+  });
+}
+
+function saveToNotesByIndex(idx) {
+  const msg = CHAT_HISTORY[idx];
+  if (!msg) return;
+  const notesArea = document.querySelector('#sp-notes textarea');
+  if (notesArea) {
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const current = notesArea.value.trim();
+    notesArea.value = (current ? current + '\n\n' : '') + `=== Note (${timestamp}) ===\n` + msg.text;
+    localStorage.setItem('nblmimic_notes', notesArea.value);
+    showToast('Saved response to research notes', 'success');
+  }
+}
+
+function clearChatHistory() {
+  CHAT_HISTORY = [];
+  localStorage.removeItem('nblmimic_chat_history');
+  renderChat();
+  showToast('Chat conversation history cleared', 'success');
+}
+
+/* ════ RENDER LIBRARY & SIDEPANEL SOURCES ════ */
+function renderLibrary(filterType = 'all', searchQuery = '') {
+  const grid = document.getElementById('doc-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  let filtered = DOCS;
+  if (filterType && filterType !== 'all') {
+    filtered = filtered.filter(d => d.type.toLowerCase() === filterType.toLowerCase());
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(d => 
+      d.title.toLowerCase().includes(q) || 
+      d.source.toLowerCase().includes(q) || 
+      d.excerpt.toLowerCase().includes(q) ||
+      (d.tags && d.tags.some(t => t.toLowerCase().includes(q)))
+    );
+  }
+
+  filtered.forEach((doc, i) => {
+    const card = document.createElement('div');
+    card.className = 'doc-card';
+    card.style.animationDelay = `${i * 30}ms`;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', doc.title);
+    card.onclick = () => { 
+      openSourcePanel(doc.id);
+      switchView('chat');
+    };
+    card.onkeydown = (e) => { if (e.key === 'Enter') card.click(); };
+
+    const tags = (doc.tags || []).map(t => `<span class="doc-tag">${t}</span>`).join('');
+    card.innerHTML = `
+      <div class="doc-card-header">
+        <div class="doc-icon ${doc.type}">${doc.icon}</div>
+        <div class="doc-card-meta">
+          <div class="doc-card-title">${doc.title}</div>
+          <div class="doc-card-source">${doc.source}</div>
+        </div>
+      </div>
+      <div class="doc-card-excerpt">${doc.excerpt}</div>
+      <div class="doc-card-footer">
+        ${tags}
+        <span class="doc-date">${doc.date}</span>
+      </div>
+      <div class="doc-card-actions">
+        <button class="btn-icon" title="Ask Agent about this source" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('What are the key points and conclusions in &quot;${doc.title.replace(/"/g, '&quot;')}&quot;?'); switchView('chat');">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderSidepanelSources() {
+  const container = document.getElementById('sp-sources-list');
+  const title = document.getElementById('sp-sources-title');
+  const chatCount = document.getElementById('chat-sources-count');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const activeCount = DOCS.filter(d => activeSourceIds.has(d.id)).length;
+  if (title) title.textContent = `Active Sources (${activeCount}/${DOCS.length})`;
+  if (chatCount) chatCount.textContent = `${activeCount} sources in context`;
+
+  DOCS.forEach(doc => {
+    const isChecked = activeSourceIds.has(doc.id);
+    const item = document.createElement('div');
+    item.className = 'source-item';
+    item.innerHTML = `
+      <div class="source-check ${isChecked ? 'checked' : ''}" role="checkbox" aria-checked="${isChecked}" tabindex="0"></div>
+      <div class="source-item-icon doc-icon ${doc.type}">${doc.icon}</div>
+      <div class="source-item-body">
+        <div class="source-item-title">${doc.title}</div>
+        <div class="source-item-meta">${doc.type.toUpperCase()} · ${doc.source}</div>
+      </div>
+    `;
+
+    const checkEl = item.querySelector('.source-check');
+    const toggleCheck = (e) => {
+      e.stopPropagation();
+      if (activeSourceIds.has(doc.id)) {
+        activeSourceIds.delete(doc.id);
+      } else {
+        activeSourceIds.add(doc.id);
+      }
+      renderSidepanelSources();
+      showToast(`${activeSourceIds.size} sources active in Agent context`, 'info');
+    };
+
+    checkEl.addEventListener('click', toggleCheck);
+    item.addEventListener('click', () => {
+      openSourcePanel(doc.id);
+    });
+
+    container.appendChild(item);
+  });
+}
+
+function openSourcePanel(num) {
+  const app = document.getElementById('app');
+  if (app) app.classList.remove('sidepanel-collapsed');
+
+  const doc = DOCS.find(d => d.id == num);
+  const contextTab = document.getElementById('sp-context');
+  if (doc && contextTab) {
+    contextTab.innerHTML = `
+      <div class="sp-section">
+        <div class="sp-section-title">Source [${doc.id}] Details</div>
+        <div class="insight-card">
+          <div class="insight-card-type">${doc.type.toUpperCase()} Reference</div>
+          <div class="insight-card-text" style="font-weight:600; margin-bottom:4px;">${doc.title}</div>
+          <div class="insight-card-meta" style="font-size:11px; color:var(--text-tertiary); margin-bottom:8px;">${doc.source} · ${doc.date}</div>
+          <div class="insight-card-quote">
+            "${doc.content || doc.excerpt}"
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="askPreset('Provide a detailed breakdown of the findings in &quot;${doc.title.replace(/"/g, '&quot;')}&quot;.')">
+          Ask Agent about this source
+        </button>
+      </div>
+    `;
+  }
+
+  // Switch tab to context
+  const tabs = document.querySelectorAll('.sidepanel-tab');
+  if (tabs.length >= 2) {
+    switchSPTab(tabs[1], 'sp-context');
+  }
+}
+
+/* ════ ADD / IMPORT SOURCES ════ */
+function handleImportModal() {
+  const tabText = document.getElementById('tab-text');
+  const tabFile = document.getElementById('tab-file');
+  const tabUrl = document.getElementById('tab-url');
+
+  if (tabText && tabText.style.display !== 'none') {
+    const title = document.getElementById('paste-source-title')?.value.trim() || 'Research Note';
+    const content = document.getElementById('paste-source-content')?.value.trim();
+    if (!content) {
+      showToast('Please paste some text content to import', 'error');
+      return;
+    }
+    addNewSource(title, content, 'note');
+    document.getElementById('paste-source-title').value = '';
+    document.getElementById('paste-source-content').value = '';
+    closeModal();
+    showToast(`"${title}" added to your research library!`, 'success');
+  } else if (tabUrl && tabUrl.style.display !== 'none') {
+    const url = document.getElementById('url-input')?.value.trim();
+    if (!url) {
+      showToast('Please enter a valid URL', 'error');
+      return;
+    }
+    addNewSource(`Web Source: ${url.replace(/^https?:\/\//, '')}`, `Reference content retrieved from ${url}`, 'web');
+    document.getElementById('url-input').value = '';
+    closeModal();
+    showToast('Web source registered for research', 'success');
+  } else {
+    // File upload
+    const fileInput = document.getElementById('file-input');
+    if (fileInput && fileInput.files.length) {
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result || `Binary file content for ${file.name}`;
+        addNewSource(file.name, text, file.name.endsWith('.pdf') ? 'pdf' : 'txt');
+        closeModal();
+        showToast(`"${file.name}" imported and ready for analysis!`, 'success');
+      };
+      reader.readAsText(file);
+    } else {
+      showToast('Please choose a file or paste text first', 'info');
+    }
+  }
+}
+
+function addNewSource(title, content, type = 'note') {
+  const newId = DOCS.length ? Math.max(...DOCS.map(d => d.id)) + 1 : 1;
+  const icons = { pdf: '📄', web: '🌐', note: '✏️', txt: '📝', epub: '📚' };
+  const doc = {
+    id: newId,
+    type: type,
+    icon: icons[type] || '📄',
+    title: title,
+    source: 'User Notebook Source',
+    excerpt: content.slice(0, 160) + (content.length > 160 ? '…' : ''),
+    content: content,
+    tags: ['research', 'user'],
+    date: 'Just now'
+  };
+  DOCS.unshift(doc);
+  activeSourceIds.add(doc.id);
+  localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
+  renderLibrary();
+  renderSidepanelSources();
 }
 
 /* ════ VIEW SWITCHING ════ */
@@ -2231,10 +2890,15 @@ function switchView(viewId, btn) {
     document.querySelectorAll(`.nav-item[data-view="${viewId}"]`).forEach(n => n.classList.add('active'));
   }
 
+  if (viewId === 'chat') {
+    renderChat();
+    updateApiKeyBanner();
+  }
+
   closeMobilePanels();
 }
 
-/* ════ SIDEBAR TOGGLE ════ */
+/* ════ SIDEBAR & PANELS ════ */
 function toggleSidebar() {
   const app = document.getElementById('app');
   const sidebar = document.getElementById('sidebar');
@@ -2248,12 +2912,11 @@ function toggleSidebar() {
 }
 
 function closeMobilePanels() {
-  document.getElementById('sidebar').classList.remove('mobile-open');
-  document.getElementById('sidepanel').classList.remove('mobile-open');
-  document.getElementById('mobile-overlay').classList.remove('visible');
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
+  document.getElementById('sidepanel')?.classList.remove('mobile-open');
+  document.getElementById('mobile-overlay')?.classList.remove('visible');
 }
 
-/* ════ SIDE PANEL TOGGLE ════ */
 function toggleSidepanel() {
   const app = document.getElementById('app');
   const sp = document.getElementById('sidepanel');
@@ -2266,13 +2929,6 @@ function toggleSidepanel() {
   }
 }
 
-function openSourcePanel(num) {
-  const app = document.getElementById('app');
-  app.classList.remove('sidepanel-collapsed');
-  switchSPTab(document.querySelector('.sidepanel-tab'), 'sp-context');
-}
-
-/* ════ SIDE PANEL TABS ════ */
 function switchSPTab(btn, contentId) {
   document.querySelectorAll('.sidepanel-tab').forEach(t => {
     t.classList.remove('active');
@@ -2294,8 +2950,10 @@ function setTheme(mode) {
     theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   html.setAttribute('data-theme', theme);
-  document.getElementById('icon-sun').style.display = theme === 'dark' ? 'block' : 'none';
-  document.getElementById('icon-moon').style.display = theme === 'dark' ? 'none' : 'block';
+  const sun = document.getElementById('icon-sun');
+  const moon = document.getElementById('icon-moon');
+  if (sun) sun.style.display = theme === 'dark' ? 'block' : 'none';
+  if (moon) moon.style.display = theme === 'dark' ? 'none' : 'block';
   document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
   const opt = document.querySelector(`.theme-option.${mode}`);
   if (opt) opt.classList.add('active');
@@ -2309,23 +2967,24 @@ document.getElementById('theme-toggle').onclick = () => {
 /* ════ MODAL ════ */
 function openModal() {
   const m = document.getElementById('modal');
-  m.classList.add('open');
-  m.addEventListener('click', function bgClick(e) {
-    if (e.target === m) { closeModal(); m.removeEventListener('click', bgClick); }
-  });
+  if (m) {
+    m.classList.add('open');
+    m.addEventListener('click', function bgClick(e) {
+      if (e.target === m) { closeModal(); m.removeEventListener('click', bgClick); }
+    });
+  }
 }
 function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  document.getElementById('upload-progress').classList.remove('visible');
-  document.getElementById('upload-file-1').style.display = 'none';
-  document.getElementById('upload-file-fill').style.width = '0%';
+  document.getElementById('modal')?.classList.remove('open');
+  document.getElementById('upload-progress')?.classList.remove('visible');
+  const f = document.getElementById('upload-file-1');
+  if (f) f.style.display = 'none';
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
 document.getElementById('btn-upload').onclick = openModal;
 
-/* ════ UPLOAD TABS ════ */
 function switchUploadTab(btn, tabId) {
   document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
@@ -2335,90 +2994,38 @@ function switchUploadTab(btn, tabId) {
   });
 }
 
-/* ════ FILE HANDLING ════ */
 function handleDrop(e) {
   e.preventDefault();
-  document.getElementById('dropzone').classList.remove('drag-over');
+  document.getElementById('dropzone')?.classList.remove('drag-over');
   const files = Array.from(e.dataTransfer.files);
-  if (files.length) simulateFileProgress(files[0].name);
-}
-function handleFileSelect(input) {
-  if (input.files.length) simulateFileProgress(input.files[0].name);
-}
-function simulateUpload() {
-  simulateFileProgress('document.pdf');
-}
-function simulateFileProgress(name) {
-  const progress = document.getElementById('upload-progress');
-  const fileItem = document.getElementById('upload-file-1');
-  const fill = document.getElementById('upload-file-fill');
-  const pct = document.getElementById('upload-pct');
-  const fname = document.getElementById('upload-file-name');
-
-  fname.textContent = name;
-  progress.classList.add('visible');
-  fileItem.style.display = 'flex';
-  let p = 0;
-  const interval = setInterval(() => {
-    p = Math.min(p + Math.random() * 18, 100);
-    fill.style.width = p + '%';
-    pct.textContent = Math.round(p) + '%';
-    if (p >= 100) {
-      clearInterval(interval);
-      setTimeout(() => {
-        closeModal();
-        showToast(`"${name}" imported successfully`, 'success');
-      }, 400);
-    }
-  }, 120);
-}
-
-/* ════ CHAT ════ */
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 180) + 'px';
-}
-function handleChatKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+  if (files.length) {
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      addNewSource(file.name, evt.target.result || `Content of ${file.name}`, file.name.endsWith('.pdf') ? 'pdf' : 'txt');
+      closeModal();
+      showToast(`"${file.name}" imported and ready for analysis!`, 'success');
+    };
+    reader.readAsText(file);
   }
 }
-function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const messages = document.getElementById('chat-messages');
-
-  const userGroup = document.createElement('div');
-  userGroup.className = 'msg-group user';
-  userGroup.innerHTML = `
-    <div class="msg-sender" style="text-align:right">You</div>
-    <div class="msg-bubble">${text}</div>
-  `;
-  messages.appendChild(userGroup);
-
-  input.value = '';
-  input.style.height = 'auto';
-
-  const typing = document.getElementById('typing-group');
-  typing.style.display = 'flex';
-  messages.scrollTop = messages.scrollHeight;
-
-  setTimeout(() => {
-    typing.style.display = 'none';
-    const lastMsg = document.getElementById('last-ai-msg');
-    lastMsg.style.display = 'flex';
-    messages.scrollTop = messages.scrollHeight;
-  }, 1800);
-
-  switchView('chat');
+function handleFileSelect(input) {
+  if (input.files.length) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      addNewSource(file.name, evt.target.result || `Content of ${file.name}`, file.name.endsWith('.pdf') ? 'pdf' : 'txt');
+      closeModal();
+      showToast(`"${file.name}" imported and ready for analysis!`, 'success');
+    };
+    reader.readAsText(file);
+  }
 }
 
-/* ════ TOAST ════ */
+/* ════ TOAST NOTIFICATIONS ════ */
 function showToast(message, type = 'info') {
   const stack = document.getElementById('toast-stack');
+  if (!stack) return;
   const icons = {
     success: `<svg class="toast-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#34D399" stroke-width="1.3"/><path d="M5 8l2.5 2.5L11 5.5" stroke="#34D399" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     error:   `<svg class="toast-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#F87171" stroke-width="1.3"/><path d="M10 6L6 10M6 6l4 4" stroke="#F87171" stroke-width="1.4" stroke-linecap="round"/></svg>`,
@@ -2433,43 +3040,45 @@ function showToast(message, type = 'info') {
     toast.style.transform = 'translateY(4px)';
     toast.style.transition = 'opacity 200ms, transform 200ms';
     setTimeout(() => toast.remove(), 200);
-  }, 3200);
+  }, 3400);
 }
 
-/* ════ SIDEBAR TOGGLE BUTTON ════ */
+/* ════ GLOBAL EVENT LISTENERS ════ */
 document.getElementById('sidebar-toggle').onclick = toggleSidebar;
+document.getElementById('btn-settings-open').onclick = () => switchView('settings');
 
-/* ════ SETTINGS BUTTON ════ */
-document.getElementById('btn-settings-open').onclick = () => {
-  switchView('settings');
-};
-
-/* ════ FILTER BUTTONS ════ */
+// Filter Buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
+    const filter = this.textContent.trim().toLowerCase();
+    renderLibrary(filter === 'all' ? 'all' : filter);
   });
 });
 
-/* ════ SOURCE CHECKBOXES (keyboard) ════ */
-document.querySelectorAll('.source-check').forEach(check => {
-  check.addEventListener('click', function() {
-    this.classList.toggle('checked');
-    this.setAttribute('aria-checked', this.classList.contains('checked'));
+// Search input in header
+const searchInput = document.querySelector('.search-input');
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    renderLibrary('all', e.target.value.trim());
   });
-  check.addEventListener('keydown', function(e) {
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      this.click();
-    }
-  });
-});
+}
 
-/* ════ INIT ════ */
+// Notes auto-save
+const notesArea = document.querySelector('#sp-notes textarea');
+if (notesArea) {
+  notesArea.addEventListener('input', (e) => {
+    localStorage.setItem('nblmimic_notes', e.target.value);
+  });
+}
+
+/* ════ INITIALIZATION ════ */
+initSettingsUI();
 renderLibrary();
+renderSidepanelSources();
+renderChat();
 
-// Detect system dark mode preference on load
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
   setTheme('dark');
 }

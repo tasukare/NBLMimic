@@ -1,0 +1,14 @@
+# Environment variables & API keys (CRITICAL: NEVER COMMIT)
+.env
+.env.*
+!.env.example
+
+# Dependencies & Build artifacts
+node_modules/
+npm-debug.log*
+
+# System & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

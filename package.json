@@ -1,0 +1,13 @@
+{
+  "name": "nblmimic",
+  "version": "1.0.0",
+  "description": "A private, distraction-free knowledge management and research notebook inspired by Google NotebookLM",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["notebooklm", "gemini-api", "research", "ai-agent"],
+  "author": "Hanzo023 & tasukare",
+  "license": "MIT"
+}

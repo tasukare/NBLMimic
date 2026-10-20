@@ -40,17 +40,22 @@ Here is a quick map of what each file does:
 
 Because this project is built with clean web standards, running it is super simple:
 
-### Option 1: Just Open in Browser
-Double-click `index.html` to open it in your favorite web browser (Brave, Chrome, Firefox, etc.).
+### Option 1: Secure Server with .env (Recommended)
+1. Copy `.env.example` to `.env` (or open `.env`) and add your Gemini API key:
+   ```bash
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+   *(Note: `.env` is protected by `.gitignore` and is NEVER uploaded to GitHub)*
+2. Start the local server:
+   ```bash
+   node server.js
+   # or
+   npm start
+   ```
+3. Open **[http://localhost:3000](http://localhost:3000)** in your browser. The server automatically uses your `.env` key securely!
 
-### Option 2: Run a Local Server (Recommended)
-Open your terminal in the project folder and run:
-
-```bash
-# Using Python:
-python3 -m http.server 8000
-```
-Then visit **[http://localhost:8000](http://localhost:8000)** in your browser!
+### Option 2: Just Open in Browser (Static)
+Double-click `index.html` to open it in your browser. You can enter your API key in Settings (stored only in your local browser profile).
 
 ---
 

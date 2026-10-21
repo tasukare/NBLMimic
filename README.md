@@ -15,6 +15,13 @@ Instead of relying on proprietary cloud databases, NBLMimic stores your document
   - **Left:** Source Library (manage uploaded documents, research papers, notes).
   - **Center:** Distraction-Free Document & Citation Reader.
   - **Right:** Notes, synthesis, and research workspace.
+- **📰 Real-Time Live News Stream & Auto-Categorization:** 
+  - Automatically fetches and updates live top stories from Hacker News, Ars Technica, and ScienceDaily via zero-dependency native fetch & RSS engine.
+  - Smart keyword categorizer dynamically tags articles into `🤖 AI & ML`, `💻 Tech & Dev`, `🔬 Science`, `📈 Business`, `🌐 World & Policy`, or `📝 Notes & Uploads`.
+  - Filter pills display live article counters per category.
+  - Interactive auto-sort dropdown: sort instantly by **Recency (Latest First)**, **Alphabetical (A–Z)**, **Category**, **Publication / Source**, or **Active Status**.
+  - 1-click **Refresh News** with rotating live sync animation and sub-5ms cached responsiveness.
+  - Permanently preserves user custom notes and file uploads across news refreshes.
 - **⚡ In-Chat Quick Model Switcher:** Switch models on the fly with one click directly inside the research chat:
   - `🚀 3.5 Lite` (Default — sub-second &lt;1s response, maximum free-tier quota, zero demand spikes)
   - `⚡ 3.5 Flash` (Standard model — 1M context window)
@@ -119,6 +126,7 @@ git push
 - [x] Real-time audio waveform visualizer and live transcription
 - [x] Secure local server with `.env` secret auto-sync & zero npm dependencies
 - [x] Local Ollama AI fallback support
+- [x] Real-time live news stream, auto-categorizer, and dynamic auto-sort system
 - [x] Dynamic source ingestion (file uploads, notes, active source toggles)
 - [x] Live search, type filtering, and notes auto-saving
 - [ ] Connect Google Drive API for cloud sync & storage

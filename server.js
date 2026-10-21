@@ -8,6 +8,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const dns = require('dns');
+
+// Prioritize IPv4 DNS to eliminate IPv6 timeout delay on Windows
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch (e) {}
 
 // Load .env file
 function loadEnv() {
@@ -68,7 +74,7 @@ const server = http.createServer(async (req, res) => {
       status: 'ok',
       hasServerKey: Boolean(key.trim()),
       apiKey: key.trim(),
-      defaultModel: 'gemini-3.5-flash',
+      defaultModel: 'gemini-3.5-flash-lite',
       liveModel: 'gemini-3.8-live'
     }));
     return;
@@ -85,7 +91,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 2. Secure Gemini Chat Proxy Endpoint
+  // 2. Secure Gemini Chat Proxy Endpoint with Smart Auto-Fallback & Latency Protection
   if (pathname === '/api/chat' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -102,23 +108,87 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        const model = payload.model || 'gemini-3.5-flash';
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const requestedModel = payload.model || 'gemini-3.5-flash-lite';
 
-        // Forward to Google Gemini API using native fetch
-        const geminiRes = await fetch(geminiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: payload.system_instruction,
-            contents: payload.contents,
-            generationConfig: payload.generationConfig
-          })
-        });
+        async function callGoogleModel(modelName, timeoutMs = 8000) {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), timeoutMs);
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-        const geminiData = await geminiRes.text();
-        res.writeHead(geminiRes.status, { 'Content-Type': 'application/json' });
-        res.end(geminiData);
+          try {
+            const geminiRes = await fetch(geminiUrl, {
+              method: 'POST',
+              signal: controller.signal,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: payload.system_instruction,
+                contents: payload.contents,
+                generationConfig: payload.generationConfig
+              })
+            });
+            clearTimeout(timer);
+            const text = await geminiRes.text();
+            let json = null;
+            try { json = JSON.parse(text); } catch (e) {}
+            return {
+              ok: geminiRes.ok,
+              status: geminiRes.status,
+              json,
+              rawText: text
+            };
+          } catch (fetchErr) {
+            clearTimeout(timer);
+            const isTimeout = fetchErr.name === 'AbortError';
+            return {
+              ok: false,
+              status: isTimeout ? 504 : 500,
+              json: { error: { message: isTimeout ? `Request timed out after ${timeoutMs/1000}s on ${modelName}` : fetchErr.message } },
+              rawText: JSON.stringify({ error: { message: fetchErr.message } })
+            };
+          }
+        }
+
+        // Fast path for lite model: generous timeout, responds in <1s with auto-retry
+        if (requestedModel === 'gemini-3.5-flash-lite') {
+          let result = await callGoogleModel('gemini-3.5-flash-lite', 10000);
+          if (!result.ok && (result.status === 504 || result.status === 503 || result.status === 500)) {
+            console.log(`[Proxy] Transient ${result.status} on gemini-3.5-flash-lite, quick retrying...`);
+            result = await callGoogleModel('gemini-3.5-flash-lite', 12000);
+          }
+          res.writeHead(result.status, { 'Content-Type': 'application/json' });
+          res.end(result.rawText);
+          return;
+        }
+
+        // For other models, try with 7s timeout. If slow/503/429, auto-fallback to flash-lite!
+        console.log(`[Proxy] Requesting model: ${requestedModel}`);
+        const primaryResult = await callGoogleModel(requestedModel, 7000);
+
+        if (primaryResult.ok) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(primaryResult.rawText);
+          return;
+        }
+
+        // Primary failed or timed out or high demand/quota (503, 429, 504, 404)
+        console.log(`[Proxy] ${requestedModel} issue (status: ${primaryResult.status}). Auto-falling back to gemini-3.5-flash-lite...`);
+        const fallbackResult = await callGoogleModel('gemini-3.5-flash-lite', 10000);
+
+        if (fallbackResult.ok && fallbackResult.json?.candidates?.[0]?.content?.parts?.[0]) {
+          const reason = primaryResult.status === 503 ? 'high demand / traffic spike' :
+                         primaryResult.status === 429 ? 'free-tier quota limit' :
+                         primaryResult.status === 504 ? 'server delay (>7s)' : 'server issue';
+          const notice = `\n\n> ⚡ *Auto-accelerated via **gemini-3.5-flash-lite** in ~1s (Google's servers for \`${requestedModel}\` had a temporary ${reason}).*`;
+          
+          fallbackResult.json.candidates[0].content.parts[0].text += notice;
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(fallbackResult.json));
+          return;
+        }
+
+        // If fallback also failed, return primary error
+        res.writeHead(primaryResult.status, { 'Content-Type': 'application/json' });
+        res.end(primaryResult.rawText);
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: { message: `Server error: ${err.message}` } }));

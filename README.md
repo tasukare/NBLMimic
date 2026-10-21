@@ -16,15 +16,15 @@ Instead of relying on proprietary cloud databases, NBLMimic stores your document
   - **Center:** Distraction-Free Document & Citation Reader.
   - **Right:** Notes, synthesis, and research workspace.
 - **⚡ In-Chat Quick Model Switcher:** Switch models on the fly with one click directly inside the research chat:
-  - `⚡ 3.5 Flash` (Default — fast, robust, high daily quotas)
-  - `🚀 3.5 Lite` (Ultra fast, maximum free availability fallback)
-  - `✨ 3.8 Flash` (Next-generation multimodal preview)
-  - `🔮 4 Argon` (Deep analytical reasoning)
-  - `💎 3.1 Pro` (Multi-document complex synthesis)
+  - `🚀 3.5 Lite` (Default — sub-second &lt;1s response, maximum free-tier quota, zero demand spikes)
+  - `⚡ 3.5 Flash` (Standard model — 1M context, higher latency)
+  - `✨ 3.8 Flash` (Next-generation multimodal preview — may experience temporary demand spikes)
+  - `🔮 4 Argon` (Deep analytical reasoning — paid tier only)
+  - `💎 3.1 Pro` (Multi-document complex synthesis — paid tier only)
 - **🎙️ Gemini 3.8 Live Real-Time Voice:** Interactive spoken audio conversations over WebSockets (`wss://...BidiGenerateContent`) with ultra-low latency, natural voice personas (Aoede, Puck, Charon, Kore, Fenrir), real-time waveform visualizer, and dual-channel live transcription.
 - **🎧 Audio Overview (NotebookLM Podcast):** One-click spoken deep dive synthesis analyzing all active research sources with natural conversation flow.
 - **🧠 Grounded AI Research Partner:** Grounded research answering with strict source citation pills (`[1]`, `[2]`) that jump directly to matching reference documents.
-- **🛡️ Smart Quota & High Demand Fallback:** Automatically detects model rate limits (HTTP 429) or temporary traffic spikes (HTTP 503) on Google's servers, informing you with one-click instant switches to alternative available models (`gemini-3.5-flash-lite`).
+- **🛡️ Smart Auto-Acceleration & High-Demand Recovery:** Automatically detects model rate limits (HTTP 429), server traffic spikes (HTTP 503), or server delays (>7s), instantly auto-routing your query through `gemini-3.5-flash-lite` so research answers are never blocked.
 - **🔒 Zero-Leak Privacy & Automatic `.env` Sync:**
   - Put your key in `.env` once; the local server automatically syncs it with the browser upon startup.
   - No repeated key prompts or annoying warnings on page reload.

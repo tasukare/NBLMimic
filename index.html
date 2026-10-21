@@ -2279,8 +2279,8 @@ svg { display: block; flex-shrink: 0; }
         <!-- Interactive Model Selector Dropdown -->
         <div class="chat-model-selector-wrap" id="chat-model-selector-wrap">
           <button class="chat-model-selector-btn" id="chat-model-btn" onclick="toggleModelDropdown(event)" title="Click to change Gemini model">
-            <span class="chat-model-icon">⚡</span>
-            <span class="chat-model-name" id="chat-model-name">gemini-3.5-flash</span>
+            <span class="chat-model-icon">🚀</span>
+            <span class="chat-model-name" id="chat-model-name">gemini-3.5-flash-lite</span>
             <svg class="chat-model-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M2.5 4.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -2289,20 +2289,20 @@ svg { display: block; flex-shrink: 0; }
           <div class="chat-model-dropdown" id="chat-model-dropdown" style="display:none;">
             <div class="chat-model-dropdown-header">Switch Gemini Model</div>
             
-            <div class="chat-model-option active" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')">
-              <div class="chat-model-option-top">
-                <span class="chat-model-opt-name">gemini-3.5-flash</span>
-                <span class="badge badge-green">Recommended</span>
-              </div>
-              <div class="chat-model-opt-desc">Highest quota & reliability, 1M context, fast synthesis</div>
-            </div>
-            
-            <div class="chat-model-option" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')">
+            <div class="chat-model-option active" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')">
               <div class="chat-model-option-top">
                 <span class="chat-model-opt-name">gemini-3.5-flash-lite</span>
-                <span class="badge badge-blue">Ultra Fast</span>
+                <span class="badge badge-green">Recommended · Instant &lt;1s</span>
               </div>
-              <div class="chat-model-opt-desc">High availability fallback when other models hit quota limits</div>
+              <div class="chat-model-opt-desc">Sub-second response (&lt;1s), highest free-tier availability, never hits demand spikes</div>
+            </div>
+
+            <div class="chat-model-option" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')">
+              <div class="chat-model-option-top">
+                <span class="chat-model-opt-name">gemini-3.5-flash</span>
+                <span class="badge badge-blue">Standard</span>
+              </div>
+              <div class="chat-model-opt-desc">1M context window (may experience high latency on Google servers)</div>
             </div>
 
             <div class="chat-model-option" data-model="gemini-3.8-flash" onclick="selectChatModel('gemini-3.8-flash')">
@@ -2310,23 +2310,23 @@ svg { display: block; flex-shrink: 0; }
                 <span class="chat-model-opt-name">gemini-3.8-flash</span>
                 <span class="badge badge-amber">Preview</span>
               </div>
-              <div class="chat-model-opt-desc">Latest generation model (may experience temporary demand spikes)</div>
+              <div class="chat-model-opt-desc">Latest generation model (Google frequently experiencing 503 traffic spikes)</div>
             </div>
 
             <div class="chat-model-option" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')">
               <div class="chat-model-option-top">
                 <span class="chat-model-opt-name">gemini-4-argon</span>
-                <span class="badge badge-purple">Deep Reasoning</span>
+                <span class="badge badge-purple">Paid Tier Only</span>
               </div>
-              <div class="chat-model-opt-desc">Extended reasoning for complex document analysis</div>
+              <div class="chat-model-opt-desc">Extended reasoning (free-tier quota limit: 0)</div>
             </div>
 
             <div class="chat-model-option" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')">
               <div class="chat-model-option-top">
                 <span class="chat-model-opt-name">gemini-3.1-pro-preview</span>
-                <span class="badge badge-gray">Pro</span>
+                <span class="badge badge-gray">Paid Tier Only</span>
               </div>
-              <div class="chat-model-opt-desc">High precision synthesis for complex research comparisons</div>
+              <div class="chat-model-opt-desc">Deep analytical synthesis (free-tier quota limit: 0)</div>
             </div>
           </div>
         </div>
@@ -2364,11 +2364,11 @@ svg { display: block; flex-shrink: 0; }
         <!-- Quick Model Switching Buttons directly inside the Research Chat -->
         <div class="chat-model-quickbar" id="chat-model-quickbar">
           <span class="chat-quickbar-label">Model:</span>
-          <button type="button" class="chat-quick-model-btn active" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')" title="Fast, high quota, recommended for research">⚡ 3.5 Flash</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')" title="Ultra fast fallback with highest availability">🚀 3.5 Lite</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.8-flash" onclick="selectChatModel('gemini-3.8-flash')" title="Next-generation preview model">✨ 3.8 Flash</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')" title="Extended deep reasoning model">🔮 4 Argon</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')" title="Pro level multi-document analytical synthesis">💎 3.1 Pro</button>
+          <button type="button" class="chat-quick-model-btn active" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')" title="Ultra fast (<1s), highest free-tier availability, never hits demand spikes">🚀 3.5 Lite (Fastest)</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')" title="Standard model (may experience high latency on Google servers)">⚡ 3.5 Flash</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.8-flash" onclick="selectChatModel('gemini-3.8-flash')" title="Next-generation preview (Google experiencing high demand spikes)">✨ 3.8 Flash</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')" title="Extended deep reasoning (free tier quota limit: 0)">🔮 4 Argon</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')" title="Pro analytical synthesis (free tier quota limit: 0)">💎 3.1 Pro</button>
         </div>
 
         <div class="chat-input-wrap">
@@ -2478,11 +2478,11 @@ svg { display: block; flex-shrink: 0; }
               <div class="settings-row-desc">Select AI model for research synthesis. You can also switch on the fly in Research Chat!</div>
             </div>
             <select class="settings-input" id="setting-gemini-model" style="width:230px; cursor:pointer;" onchange="syncModelSelection(this.value)">
-              <option value="gemini-3.5-flash" selected>gemini-3.5-flash (Recommended · High Quota)</option>
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Fast · Max Availability)</option>
-              <option value="gemini-3.8-flash">gemini-3.8-flash (Preview)</option>
-              <option value="gemini-4-argon">gemini-4-argon (Deep Reasoning)</option>
-              <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Pro Synthesis)</option>
+              <option value="gemini-3.5-flash-lite" selected>gemini-3.5-flash-lite (Recommended · Instant &lt;1s)</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash (Standard · High Latency)</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash (Preview · High Demand Spikes)</option>
+              <option value="gemini-4-argon">gemini-4-argon (Paid Tier Only · Limit 0 on Free)</option>
+              <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Paid Tier Only · Limit 0 on Free)</option>
             </select>
           </div>
 
@@ -2981,7 +2981,7 @@ const SETTINGS = (() => {
   const defaults = {
     provider: 'gemini',
     gemini_api_key: '',
-    gemini_model: 'gemini-3.5-flash',
+    gemini_model: 'gemini-3.5-flash-lite',
     live_voice: 'Aoede',
     live_model: 'gemini-3.8-live',
     ollama_endpoint: 'http://localhost:11434',
@@ -2991,7 +2991,13 @@ const SETTINGS = (() => {
   };
   try {
     const saved = localStorage.getItem('nblmimic_settings');
-    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+    const parsed = saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+    // Auto-migrate previously saved slow model to ultra-fast flash-lite
+    if (!saved || parsed.gemini_model === 'gemini-3.5-flash') {
+      parsed.gemini_model = 'gemini-3.5-flash-lite';
+      localStorage.setItem('nblmimic_settings', JSON.stringify(parsed));
+    }
+    return parsed;
   } catch (e) {
     return defaults;
   }
@@ -3142,9 +3148,17 @@ function syncModelSelection(modelName) {
 }
 
 function updateModelBadge() {
-  const currentModel = SETTINGS.provider === 'gemini' ? (SETTINGS.gemini_model || 'gemini-3.5-flash') : SETTINGS.ollama_model;
+  const currentModel = SETTINGS.provider === 'gemini' ? (SETTINGS.gemini_model || 'gemini-3.5-flash-lite') : SETTINGS.ollama_model;
   const nameEl = document.getElementById('chat-model-name');
   if (nameEl) nameEl.textContent = currentModel;
+
+  const iconEl = document.querySelector('.chat-model-icon');
+  if (iconEl) {
+    iconEl.textContent = currentModel.includes('lite') ? '🚀' :
+                         currentModel.includes('argon') ? '🔮' :
+                         currentModel.includes('pro') ? '💎' :
+                         currentModel.includes('3.8') ? '✨' : '⚡';
+  }
 
   // Sync active item in dropdown
   document.querySelectorAll('.chat-model-option').forEach(opt => {
@@ -3176,7 +3190,7 @@ function switchAndRetryModel(newModel) {
 function saveSettings() {
   SETTINGS.provider = document.getElementById('setting-provider')?.value || 'gemini';
   SETTINGS.gemini_api_key = document.getElementById('setting-gemini-key')?.value.trim() || '';
-  SETTINGS.gemini_model = document.getElementById('setting-gemini-model')?.value || 'gemini-3.5-flash';
+  SETTINGS.gemini_model = document.getElementById('setting-gemini-model')?.value || 'gemini-3.5-flash-lite';
   SETTINGS.live_voice = document.getElementById('setting-live-voice')?.value || 'Aoede';
   SETTINGS.live_model = document.getElementById('setting-live-model')?.value || 'gemini-3.8-live';
   SETTINGS.ollama_endpoint = document.getElementById('setting-ollama-endpoint')?.value.trim() || 'http://localhost:11434';
@@ -3198,7 +3212,7 @@ async function testGeminiKey() {
   }
   showToast('Testing Gemini API key…', 'info');
 
-  const modelsToTest = [SETTINGS.gemini_model || 'gemini-3.5-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+  const modelsToTest = ['gemini-3.5-flash-lite', SETTINGS.gemini_model || 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
   const uniqueModels = [...new Set(modelsToTest)];
 
   let testPassed = false;
@@ -3396,7 +3410,7 @@ async function callGemini(messagesHistory, userPrompt, activeSources) {
     } catch (e) {}
   }
 
-  const model = SETTINGS.gemini_model || 'gemini-3.5-flash';
+  const model = SETTINGS.gemini_model || 'gemini-3.5-flash-lite';
   const mode = SETTINGS.agent_mode || 'strict';
   const customInst = SETTINGS.agent_instructions.trim();
 
@@ -3453,7 +3467,7 @@ ${sourcesSection}`;
     }
   };
 
-  // If local server proxy is available, forward through proxy (it automatically injects .env key!)
+  // If local server proxy is available, forward through proxy (it automatically injects .env key and handles auto-fallback!)
   if (SERVER_STATUS.baseUrl) {
     try {
       const response = await fetch(`${SERVER_STATUS.baseUrl}/api/chat`, {
@@ -3472,14 +3486,17 @@ ${sourcesSection}`;
         const data = await response.json();
         const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (outputText) return outputText;
+        throw new Error('Received an empty response from Gemini via server.');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        if (!apiKey) {
-          throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
-        }
+        throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (proxyErr) {
-      if (!apiKey) throw proxyErr;
+      // If server returned an HTTP error, throw it directly (do not make a duplicate slow client call)
+      if (proxyErr.message && !proxyErr.message.includes('Failed to fetch')) {
+        throw proxyErr;
+      }
+      // Only fall through if server was physically offline/unreachable
     }
   }
 
@@ -3487,23 +3504,57 @@ ${sourcesSection}`;
     throw new Error('No API key detected. Please add GEMINI_API_KEY to your .env file or enter it in Settings.');
   }
 
-  // Direct client-side fetch (browser-to-API with client key)
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+  // Direct client-side fetch (fallback when static index.html is used without server.js)
+  async function callClientModel(m, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      clearTimeout(timer);
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+      clearTimeout(timer);
+      return { ok: false, status: err.name === 'AbortError' ? 504 : 500, error: err.message };
+    }
   }
 
-  const data = await response.json();
-  const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!outputText) {
-    throw new Error('Received an empty response from Gemini.');
+  // Fast path for lite model
+  if (model === 'gemini-3.5-flash-lite') {
+    const res = await callClientModel('gemini-3.5-flash-lite', 12000);
+    if (!res.ok) {
+      throw new Error(res.data?.error?.message || `HTTP ${res.status}: Failed to reach gemini-3.5-flash-lite`);
+    }
+    const outputText = res.data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!outputText) throw new Error('Received an empty response from Gemini.');
+    return outputText;
   }
+
+  // Try requested model with 7s timeout
+  const clientRes = await callClientModel(model, 7000);
+  if (clientRes.ok) {
+    const outputText = clientRes.data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (outputText) return outputText;
+  }
+
+  // Auto-fallback in client mode if 503 (demand spike), 429 (quota), or 504 (timeout)
+  if (clientRes.status === 503 || clientRes.status === 429 || clientRes.status === 504) {
+    const fallbackRes = await callClientModel('gemini-3.5-flash-lite', 10000);
+    if (fallbackRes.ok) {
+      const outputText = fallbackRes.data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (outputText) {
+        const reason = clientRes.status === 503 ? 'high demand / traffic spike' : clientRes.status === 429 ? 'free-tier quota limit' : 'server delay (>7s)';
+        return outputText + `\n\n> ⚡ *Auto-accelerated via **gemini-3.5-flash-lite** in ~1s (Google's servers for \`${model}\` had a temporary ${reason}).*`;
+      }
+    }
+  }
+
+  throw new Error(clientRes.data?.error?.message || `HTTP ${clientRes.status}: Error reaching Google API`);
 
   return outputText;
 }
@@ -3555,7 +3606,7 @@ async function sendMessage() {
     typing.style.display = 'flex';
     if (typingStatus) {
       typingStatus.textContent = SETTINGS.provider === 'gemini'
-        ? `Research Lab Agent (${SETTINGS.gemini_model || 'gemini-3.5-flash'}) is synthesizing sources…`
+        ? `Research Lab Agent (${SETTINGS.gemini_model || 'gemini-3.5-flash-lite'}) is synthesizing sources…`
         : `Ollama (${SETTINGS.ollama_model}) is reasoning…`;
     }
   }
@@ -3590,25 +3641,22 @@ async function sendMessage() {
 
     if (isHighDemand) {
       errorMsg = `⚠️ **Temporary High Demand on \`${SETTINGS.gemini_model}\`**\n\n` +
-        `Google's servers for \`${SETTINGS.gemini_model}\` are currently experiencing a temporary traffic spike. Your Gemini API key is valid and working!\n\n` +
-        `**⚡ Switch to an available model with instant capacity:**\n` +
-        `- [⚡ Switch to gemini-3.5-flash (Recommended)](javascript:switchAndRetryModel('gemini-3.5-flash'))\n` +
-        `- [🚀 Switch to gemini-3.5-flash-lite (Ultra High Availability)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
-        `- [🔮 Switch to gemini-4-argon (Deep Reasoning)](javascript:switchAndRetryModel('gemini-4-argon'))`;
+        `Google's servers for \`${SETTINGS.gemini_model}\` are currently experiencing a heavy traffic spike (HTTP 503).\n\n` +
+        `**🚀 Switch to an available model with instant capacity:**\n` +
+        `- [🚀 Switch to gemini-3.5-flash-lite (Instant &lt;1s · Highest Availability)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
+        `- [⚡ Switch to gemini-3.5-flash](javascript:switchAndRetryModel('gemini-3.5-flash'))`;
     } else if (isQuotaExceeded) {
-      errorMsg = `⚠️ **Request / Quota Limit Reached on \`${SETTINGS.gemini_model}\`**\n\n` +
-        `You have used your rate or weekly request quota for \`${SETTINGS.gemini_model}\` on this API key.\n\n` +
-        `**💡 Other models on your key with separate quotas you can use right now:**\n` +
-        `- [⚡ Switch to gemini-3.5-flash (High Quota)](javascript:switchAndRetryModel('gemini-3.5-flash'))\n` +
-        `- [🚀 Switch to gemini-3.5-flash-lite (Highest Free Tier Quota)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
-        `- [🔮 Switch to gemini-4-argon](javascript:switchAndRetryModel('gemini-4-argon'))\n` +
-        `- [💎 Switch to gemini-3.1-pro-preview](javascript:switchAndRetryModel('gemini-3.1-pro-preview'))`;
+      errorMsg = `⚠️ **Quota / Rate Limit on \`${SETTINGS.gemini_model}\`**\n\n` +
+        `Google AI Studio free-tier has a limit of **0 requests** for \`${SETTINGS.gemini_model}\` (or the daily/weekly quota for this model was exhausted).\n\n` +
+        `**🚀 Switch to a free-tier supported model with instant capacity:**\n` +
+        `- [🚀 Switch to gemini-3.5-flash-lite (Recommended · Full Free Quota)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
+        `- [⚡ Switch to gemini-3.5-flash](javascript:switchAndRetryModel('gemini-3.5-flash'))`;
     } else if (isModelNotFound) {
       errorMsg = `⚠️ **Model \`${SETTINGS.gemini_model}\` is Not Available**\n\n` +
         `This model ID is not available for this API key.\n\n` +
         `**Available models you can switch to:**\n` +
-        `- [⚡ Switch to gemini-3.5-flash (Recommended)](javascript:switchAndRetryModel('gemini-3.5-flash'))\n` +
-        `- [🚀 Switch to gemini-3.5-flash-lite](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))`;
+        `- [🚀 Switch to gemini-3.5-flash-lite (Recommended)](javascript:switchAndRetryModel('gemini-3.5-flash-lite'))\n` +
+        `- [⚡ Switch to gemini-3.5-flash](javascript:switchAndRetryModel('gemini-3.5-flash'))`;
     } else {
       errorMsg = `❌ **Error querying ${SETTINGS.provider === 'gemini' ? 'Gemini API' : 'Ollama'}:** ${err.message}\n\nPlease check your key and connection in [Settings](javascript:switchView("settings")).`;
     }

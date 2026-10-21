@@ -2312,22 +2312,6 @@ svg { display: block; flex-shrink: 0; }
               </div>
               <div class="chat-model-opt-desc">Latest generation model (Google frequently experiencing 503 traffic spikes)</div>
             </div>
-
-            <div class="chat-model-option" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')">
-              <div class="chat-model-option-top">
-                <span class="chat-model-opt-name">gemini-4-argon</span>
-                <span class="badge badge-purple">Paid Tier Only</span>
-              </div>
-              <div class="chat-model-opt-desc">Extended reasoning (free-tier quota limit: 0)</div>
-            </div>
-
-            <div class="chat-model-option" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')">
-              <div class="chat-model-option-top">
-                <span class="chat-model-opt-name">gemini-3.1-pro-preview</span>
-                <span class="badge badge-gray">Paid Tier Only</span>
-              </div>
-              <div class="chat-model-opt-desc">Deep analytical synthesis (free-tier quota limit: 0)</div>
-            </div>
           </div>
         </div>
         <button class="btn-audio-overview" id="btn-audio-overview" onclick="startAudioOverview()" title="Generate Spoken Audio Overview of Active Sources (NotebookLM Style)">
@@ -2365,10 +2349,8 @@ svg { display: block; flex-shrink: 0; }
         <div class="chat-model-quickbar" id="chat-model-quickbar">
           <span class="chat-quickbar-label">Model:</span>
           <button type="button" class="chat-quick-model-btn active" data-model="gemini-3.5-flash-lite" onclick="selectChatModel('gemini-3.5-flash-lite')" title="Ultra fast (<1s), highest free-tier availability, never hits demand spikes">🚀 3.5 Lite (Fastest)</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')" title="Standard model (may experience high latency on Google servers)">⚡ 3.5 Flash</button>
+          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.5-flash" onclick="selectChatModel('gemini-3.5-flash')" title="Standard model (1M context window)">⚡ 3.5 Flash</button>
           <button type="button" class="chat-quick-model-btn" data-model="gemini-3.8-flash" onclick="selectChatModel('gemini-3.8-flash')" title="Next-generation preview (Google experiencing high demand spikes)">✨ 3.8 Flash</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-4-argon" onclick="selectChatModel('gemini-4-argon')" title="Extended deep reasoning (free tier quota limit: 0)">🔮 4 Argon</button>
-          <button type="button" class="chat-quick-model-btn" data-model="gemini-3.1-pro-preview" onclick="selectChatModel('gemini-3.1-pro-preview')" title="Pro analytical synthesis (free tier quota limit: 0)">💎 3.1 Pro</button>
         </div>
 
         <div class="chat-input-wrap">
@@ -2479,10 +2461,8 @@ svg { display: block; flex-shrink: 0; }
             </div>
             <select class="settings-input" id="setting-gemini-model" style="width:230px; cursor:pointer;" onchange="syncModelSelection(this.value)">
               <option value="gemini-3.5-flash-lite" selected>gemini-3.5-flash-lite (Recommended · Instant &lt;1s)</option>
-              <option value="gemini-3.5-flash">gemini-3.5-flash (Standard · High Latency)</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash (Standard · 1M Context)</option>
               <option value="gemini-3.8-flash">gemini-3.8-flash (Preview · High Demand Spikes)</option>
-              <option value="gemini-4-argon">gemini-4-argon (Paid Tier Only · Limit 0 on Free)</option>
-              <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Paid Tier Only · Limit 0 on Free)</option>
             </select>
           </div>
 
@@ -2992,8 +2972,8 @@ const SETTINGS = (() => {
   try {
     const saved = localStorage.getItem('nblmimic_settings');
     const parsed = saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
-    // Auto-migrate previously saved slow model to ultra-fast flash-lite
-    if (!saved || parsed.gemini_model === 'gemini-3.5-flash') {
+    // Auto-migrate previously saved slow or unsupported paid models to ultra-fast flash-lite
+    if (!saved || parsed.gemini_model === 'gemini-3.5-flash' || parsed.gemini_model === 'gemini-4-argon' || parsed.gemini_model === 'gemini-3.1-pro-preview') {
       parsed.gemini_model = 'gemini-3.5-flash-lite';
       localStorage.setItem('nblmimic_settings', JSON.stringify(parsed));
     }
@@ -3155,8 +3135,6 @@ function updateModelBadge() {
   const iconEl = document.querySelector('.chat-model-icon');
   if (iconEl) {
     iconEl.textContent = currentModel.includes('lite') ? '🚀' :
-                         currentModel.includes('argon') ? '🔮' :
-                         currentModel.includes('pro') ? '💎' :
                          currentModel.includes('3.8') ? '✨' : '⚡';
   }
 

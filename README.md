@@ -17,10 +17,8 @@ Instead of relying on proprietary cloud databases, NBLMimic stores your document
   - **Right:** Notes, synthesis, and research workspace.
 - **⚡ In-Chat Quick Model Switcher:** Switch models on the fly with one click directly inside the research chat:
   - `🚀 3.5 Lite` (Default — sub-second &lt;1s response, maximum free-tier quota, zero demand spikes)
-  - `⚡ 3.5 Flash` (Standard model — 1M context, higher latency)
+  - `⚡ 3.5 Flash` (Standard model — 1M context window)
   - `✨ 3.8 Flash` (Next-generation multimodal preview — may experience temporary demand spikes)
-  - `🔮 4 Argon` (Deep analytical reasoning — paid tier only)
-  - `💎 3.1 Pro` (Multi-document complex synthesis — paid tier only)
 - **🎙️ Gemini 3.8 Live Real-Time Voice:** Interactive spoken audio conversations over WebSockets (`wss://...BidiGenerateContent`) with ultra-low latency, natural voice personas (Aoede, Puck, Charon, Kore, Fenrir), real-time waveform visualizer, and dual-channel live transcription.
 - **🎧 Audio Overview (NotebookLM Podcast):** One-click spoken deep dive synthesis analyzing all active research sources with natural conversation flow.
 - **🧠 Grounded AI Research Partner:** Grounded research answering with strict source citation pills (`[1]`, `[2]`) that jump directly to matching reference documents.
@@ -114,7 +112,7 @@ git push
 - [x] UI component library (`components.html`)
 - [x] Design guide & AI agent rules (`STYLEGUIDE.md`, `AGENTS.md`)
 - [x] Google Gemini API integration with Grounded Research Agent & Interactive Citations
-- [x] In-chat quick model switcher (`3.5 Flash`, `3.5 Lite`, `3.8 Flash`, `4 Argon`, `3.1 Pro`)
+- [x] In-chat quick model switcher (`3.5 Lite`, `3.5 Flash`, `3.8 Flash`)
 - [x] Smart quota limit (429) & high-demand (503) auto-detection with 1-click fallback buttons
 - [x] Google Gemini 3.8 Live API real-time bidirectional voice & audio streaming (`gemini-3.8-live`)
 - [x] Spoken "Audio Overview" deep-dive generator (NotebookLM podcast style)

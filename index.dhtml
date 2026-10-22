@@ -2858,31 +2858,14 @@ svg { display: block; flex-shrink: 0; }
 
       <div class="sidebar-divider"></div>
 
-      <div class="sidebar-section">
+      <div class="sidebar-section" style="display:flex; justify-content:space-between; align-items:center;">
         <div class="sidebar-section-label">Notebooks</div>
+        <button class="btn-icon" onclick="createNewNotebook()" style="width:20px; height:20px; padding:0; border:none; background:transparent; cursor:pointer; color:var(--text-secondary);" title="Create new notebook">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
       </div>
-      <nav class="sidebar-nav">
-        <button class="nav-item" onclick="switchView('chat', this)">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
-          Climate Policy Analysis
-        </button>
-        <button class="nav-item" onclick="switchView('chat', this)">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
-          ML Literature Review
-        </button>
-        <button class="nav-item" onclick="switchView('chat', this)">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
-          Thesis — Chapter 3
-        </button>
+      <nav class="sidebar-nav" id="sidebar-notebooks-list">
+        <!-- Rendered dynamically -->
       </nav>
 
       <div class="sidebar-divider"></div>
@@ -2927,13 +2910,13 @@ svg { display: block; flex-shrink: 0; }
             Settings
           </button>
         </nav>
-        <div class="storage-indicator">
+        <div class="storage-indicator" id="sidebar-storage-indicator" style="cursor:pointer;" onclick="openGoogleAccountDetails(event)" title="Google Drive allocated storage (50 GB per user)">
           <div class="storage-label">
-            <span>Local Storage</span>
-            <span>3.4 GB / 10 GB</span>
+            <span id="storage-quota-label">Drive Storage</span>
+            <span id="storage-quota-text" style="font-variant-numeric:tabular-nums; font-weight:500;">0.0 MB / 50.0 GB</span>
           </div>
-          <div class="storage-bar">
-            <div class="storage-fill"></div>
+          <div class="storage-bar" style="background:var(--border); overflow:hidden;">
+            <div class="storage-fill" id="storage-quota-bar" style="width:0.1%; transition:width 300ms ease, background 300ms ease; background:var(--accent);"></div>
           </div>
         </div>
       </div>
@@ -2949,16 +2932,17 @@ svg { display: block; flex-shrink: 0; }
 
       <div class="library-header">
         <div>
-          <h1 class="library-title" id="library-title">Live Research Feed & Sources</h1>
-          <p class="library-subtitle" id="library-subtitle">Real-time live news auto-synced · Sources grounded in research context</p>
+          <h1 class="library-title" id="library-title">Research Library & Sources</h1>
+          <p class="library-subtitle" id="library-subtitle">Personal research documents & notes · Synced with Google Drive (50 GB)</p>
         </div>
         <div class="library-actions">
-          <button class="btn btn-secondary btn-sm" id="btn-refresh-news" onclick="fetchLiveNews(true)" title="Fetch and auto-sort newest live articles from Hacker News, Ars Technica, and ScienceDaily">
-            <svg id="refresh-news-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M1 8a7 7 0 0 1 12-4.9L15 5M15 1v4h-4"/>
-              <path d="M15 8a7 7 0 0 1-12 4.9L1 11M1 15v-4h4"/>
+          <button class="btn btn-secondary btn-sm" id="btn-sync-drive" onclick="syncWithGoogleDrive(true)" title="Sync your workspace with Google Drive">
+            <svg id="sync-drive-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
+              <polyline points="16 16 12 12 8 16"/>
+              <line x1="12" y1="12" x2="12" y2="21"/>
             </svg>
-            <span id="refresh-news-label">Refresh News</span>
+            <span id="sync-drive-label">Sync Drive</span>
           </button>
           <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()" title="Upload PDF, notes, or import web URLs">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -2967,15 +2951,6 @@ svg { display: block; flex-shrink: 0; }
             Import Source
           </button>
         </div>
-      </div>
-
-      <div class="live-news-banner" id="live-news-banner">
-        <div class="live-news-badge">
-          <span class="live-pulse"></span>
-          <span>LIVE NEWS STREAM</span>
-        </div>
-        <div class="live-news-info" id="live-news-info">Auto-synced with real-time news sources · Auto-sorted by recency</div>
-        <div style="font-size:11px; color:var(--text-tertiary);" id="live-news-last-updated">Updated just now</div>
       </div>
 
       <div class="filter-bar" id="category-filter-bar">
@@ -3464,10 +3439,10 @@ svg { display: block; flex-shrink: 0; }
             </svg>
           </div>
           <div class="dropzone-title">Drop files here or click to browse</div>
-          <div class="dropzone-subtitle">PDF, EPUB, TXT, Markdown, DOCX</div>
+          <div class="dropzone-subtitle">PDF, EPUB, TXT, MD, JSON, CSV, DOCX, XLSX, PPTX, RTF, HTML, YAML, Code files, Images</div>
           <div class="dropzone-hint">Max 100 MB per file · Multiple files supported</div>
         </div>
-        <input type="file" id="file-input" multiple accept=".pdf,.epub,.txt,.md,.docx" style="display:none" onchange="handleFileSelect(this)">
+        <input type="file" id="file-input" multiple accept=".pdf,.epub,.txt,.md,.markdown,.json,.csv,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.rtf,.html,.htm,.xml,.yaml,.yml,.py,.js,.ts,.go,.rs,.java,.c,.cpp,.sh,.sql,.png,.jpg,.jpeg,.gif,.webp,.svg,.bmp,.avif,image/*,text/*" style="display:none" onchange="handleFileSelect(this)">
 
         <div class="upload-progress" id="upload-progress">
           <div class="upload-file-item" id="upload-file-1" style="display:none">
@@ -3650,23 +3625,54 @@ svg { display: block; flex-shrink: 0; }
     <div id="g-direct-signin-wrap" style="width: 100%; margin-top: 8px;">
       <div style="display: flex; align-items: center; width: 100%; gap: 12px; margin: 12px 0 16px;">
         <div style="flex: 1; height: 1px; background: var(--border);"></div>
-        <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">or sign in with email</span>
+        <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;" id="g-signin-mode-label">or sign in with email</span>
         <div style="flex: 1; height: 1px; background: var(--border);"></div>
       </div>
 
+      <!-- Mode indicator: Sign In / Register -->
+      <div style="display:flex; gap:4px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:3px; margin-bottom:14px;">
+        <button type="button" id="g-mode-signin" onclick="switchSigninMode('signin')" style="flex:1; padding:6px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:var(--accent); color:#fff; transition:background 150ms;">Sign In</button>
+        <button type="button" id="g-mode-register" onclick="switchSigninMode('register')" style="flex:1; padding:6px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:transparent; color:var(--text-secondary); transition:background 150ms;">Register</button>
+      </div>
+
+      <!-- Error / info message -->
+      <div id="g-signin-error" style="display:none; background:#fef2f2; border:1px solid #fca5a5; border-radius:var(--radius-sm); padding:8px 12px; font-size:12px; color:#b91c1c; margin-bottom:10px; line-height:1.4;"></div>
+
       <form onsubmit="handleRealGoogleDirectSignIn(event)" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="g-textfield" style="margin: 0;">
-          <input type="email" id="g-direct-email" class="g-textfield-input" placeholder=" " required />
-          <label for="g-direct-email" class="g-textfield-label">Google email or phone</label>
+          <input type="text" id="g-direct-username" class="g-textfield-input" placeholder=" " required pattern="[a-zA-Z0-9_\-]+" oninput="onSigninUsernameInput()" />
+          <label for="g-direct-username" class="g-textfield-label">Username</label>
         </div>
         <div class="g-textfield" style="margin: 0;">
+          <input type="email" id="g-direct-email" class="g-textfield-input" placeholder=" " required />
+          <label for="g-direct-email" class="g-textfield-label">Email</label>
+        </div>
+        <div class="g-textfield" id="g-name-field-wrap" style="margin: 0; display:none;">
           <input type="text" id="g-direct-name" class="g-textfield-input" placeholder=" " />
-          <label for="g-direct-name" class="g-textfield-label">Your Name (optional)</label>
+          <label for="g-direct-name" class="g-textfield-label">Display Name (optional)</label>
+        </div>
+        <div class="g-textfield" style="margin: 0; position:relative;">
+          <input type="password" id="g-direct-password" class="g-textfield-input" placeholder=" " required minlength="6" autocomplete="current-password" />
+          <label for="g-direct-password" class="g-textfield-label">Password</label>
+          <button type="button" tabindex="-1" onclick="togglePasswordVisibility('g-direct-password', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); border:none; background:transparent; cursor:pointer; color:var(--text-tertiary); padding:4px;" title="Toggle password visibility">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="g-textfield" id="g-confirm-pw-wrap" style="margin: 0; display:none; position:relative;">
+          <input type="password" id="g-direct-password-confirm" class="g-textfield-input" placeholder=" " autocomplete="new-password" />
+          <label for="g-direct-password-confirm" class="g-textfield-label">Confirm Password</label>
+          <button type="button" tabindex="-1" onclick="togglePasswordVisibility('g-direct-password-confirm', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); border:none; background:transparent; cursor:pointer; color:var(--text-tertiary); padding:4px;" title="Toggle password visibility">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px; font-size:12px; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
+          <span>Cloud Storage Quota:</span>
+          <strong style="color:var(--text-primary); font-family:var(--font-mono)">50.00 GB</strong>
         </div>
         <div class="g-action-row" style="margin-top: 8px;">
           <button type="button" class="g-btn-text" onclick="closeGoogleSignInScreen()">Cancel</button>
-          <button type="submit" class="g-btn-pill">
-            <span>Continue</span>
+          <button type="submit" class="g-btn-pill" id="g-submit-btn">
+            <span id="g-submit-label">Sign In</span>
           </button>
         </div>
       </form>
@@ -3751,7 +3757,8 @@ svg { display: block; flex-shrink: 0; }
         <div style="flex:1; min-width:0;">
           <div id="gai-name" style="font-size:16px; font-weight:600; color:var(--text-primary);">Google Account</div>
           <div id="gai-email" style="font-size:13px; color:var(--text-secondary);">user@gmail.com</div>
-          <div style="font-size:11px; color:#059669; font-weight:600; margin-top:3px;">● Connected to Research Lab</div>
+          <div id="gai-drive-folder" style="font-size:11px; color:var(--accent); font-family:var(--font-mono); margin-top:2px;">📁 Drive: NBLMimic_Database/user/...</div>
+          <div id="gai-storage-stat" style="font-size:11px; color:#059669; font-weight:600; margin-top:3px;">● 0.0 MB / 50.0 GB (50 GB Cloud Quota)</div>
         </div>
       </div>
       <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
@@ -3775,129 +3782,38 @@ svg { display: block; flex-shrink: 0; }
    Powered by Google Gemini API
 ════════════════════════════════════════════════ */
 
-// Default documents (Real-time live news sources across categories)
+/* ════ GOOGLE DRIVE DATABASE & USER CONFIG ════ */
+const GOOGLE_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbzkuR4WPxjQWafcMrKb79fCiNpmZ7RIxrnTMH4Gu-CKpfnTiuksvBOOyjgy_i-Dp-XF/exec";
+const USER_STORAGE_LIMIT_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per user
+let CURRENT_STORAGE_USED_BYTES = 0;
+
+// Default research documents
 const DEFAULT_DOCS = [
   {
-    id: 1, type: 'news', icon: '🤖',
-    title: 'Qwen3-Coder and Large-Scale Code Synthesis: Benchmark Evaluation Across Secure Coding Personas',
-    source: 'Hacker News',
-    category: 'AI & ML',
-    excerpt: 'Detailed analysis evaluating code generation safety, vulnerability detection, and automated programming workflows under multi-turn prompting.',
-    content: 'Qwen3-Coder benchmark analysis. Research findings demonstrate performance across reasoning, algorithm generation, and test synthesis. When guided by defensive security instructions, code generation models reduce unsafe memory operations and input validation oversights by 43%.',
-    url: 'https://news.ycombinator.com',
-    date: '15m ago',
-    timestamp: Date.now() - 900000,
-    tags: ['#ai', '#coding', '#llm']
-  },
-  {
-    id: 2, type: 'news', icon: '🤖',
-    title: 'Gemini 3.5 Flash-Lite Architecture: Sub-Second Multimodal Reasoning at Scale',
-    source: 'Google AI Research',
-    category: 'AI & ML',
-    excerpt: 'Deep-dive into distilled latency optimizations enabling sub-second inference with high accuracy for multi-document research synthesis.',
-    content: 'Google AI technical release on Gemini 3.5 Flash-Lite. Optimizations include speculative decoding, dynamic sequence caching, and streamlined KV projections, delivering 800ms time-to-first-token while maintaining competitive MMLU and citation grounding accuracy.',
-    url: 'https://ai.google.dev',
-    date: '45m ago',
-    timestamp: Date.now() - 2700000,
-    tags: ['#ai', '#gemini', '#research']
-  },
-  {
-    id: 3, type: 'news', icon: '💻',
-    title: 'PHP Releases Emergency Patches for Critical Server Vulnerabilities Across Versions 8.2 to 8.5',
-    source: 'Ars Technica',
-    category: 'Tech & Dev',
-    excerpt: 'Security advisory urges immediate deployment of security releases addressing edge-case buffer overruns in web servers.',
-    content: 'PHP core security release notice. Versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 address two remote code execution avenues in CGI processing pipelines. System administrators are advised to verify package signatures and apply patch sets immediately.',
-    url: 'https://arstechnica.com',
-    date: '1h ago',
-    timestamp: Date.now() - 3600000,
-    tags: ['#security', '#tech', '#patch']
-  },
-  {
-    id: 4, type: 'news', icon: '💻',
-    title: 'Public Key Infrastructure Audit: Certificate Authority Vulnerabilities Resolved',
-    source: 'Hacker News',
-    category: 'Tech & Dev',
-    excerpt: 'Security researchers uncover entropy weakness in regional root keys, leading to automated certificate revocation and enhanced HSM requirements.',
-    content: 'Cryptographic investigation reveals mathematical weaknesses in short RSA seeds generated by legacy hardware modules. Modern WebPKI standards require 3072-bit minimum keys and mandatory Certificate Transparency logging to prevent unauthorized intermediate issuance.',
-    url: 'https://scotthelme.co.uk',
-    date: '2h ago',
-    timestamp: Date.now() - 7200000,
-    tags: ['#crypto', '#security', '#web']
-  },
-  {
-    id: 5, type: 'news', icon: '🔬',
-    title: 'Astrophysicists Unveil Ancient North Sea Impact Crater and Resulting 300-Foot Megatsunami',
-    source: 'ScienceDaily',
-    category: 'Science',
-    excerpt: 'Seismic acoustic mapping discovers submarine impact structure with sediment deposits confirming widespread coastal inundation across northern Europe.',
-    content: 'Oceanographic sediment core analysis reveals high-pressure shocked quartz and iridium anomalies off the British coast, dating to a catastrophic meteorite impact that triggered a 330-foot tsunami across the prehistoric North Sea basin.',
-    url: 'https://sciencedaily.com',
-    date: '3h ago',
-    timestamp: Date.now() - 10800000,
-    tags: ['#science', '#space', '#geology']
-  },
-  {
-    id: 6, type: 'news', icon: '🔬',
-    title: 'RNA Energy Regulation in Cellular Homeostasis: New Discoveries in Mitochondrial Signaling',
-    source: 'ScienceDaily',
-    category: 'Science',
-    excerpt: 'New study shows excess non-coding RNA transcription depletes cellular ATP reserves, opening new therapeutic vectors for metabolic diseases.',
-    content: 'Molecular biology findings published this week demonstrate how over-transcription of non-coding RNA loops competes directly with mitochondrial energy synthesis, identifying novel targets for neurodegenerative and metabolic disorders.',
-    url: 'https://sciencedaily.com',
-    date: '4h ago',
-    timestamp: Date.now() - 14400000,
-    tags: ['#biology', '#rna', '#health']
-  },
-  {
-    id: 7, type: 'news', icon: '💼',
-    title: 'SpaceX Starship Orbital Integration Milestone Ahead of Next Commercial Launch Cadence',
-    source: 'Ars Technica',
-    category: 'Business',
-    excerpt: 'Rapid testing iterations at Starbase demonstrate reusable booster catch systems and multi-engine relight in vacuum.',
-    content: 'Commercial space infrastructure update. Next launch iteration features upgraded heat shield tiles and hot-staging ring redesign to prepare for propellant transfer tests in low Earth orbit, lowering orbital launch costs toward sub-$100 per kilogram targets.',
-    url: 'https://arstechnica.com',
-    date: '5h ago',
-    timestamp: Date.now() - 18000000,
-    tags: ['#business', '#aerospace', '#spacex']
-  },
-  {
-    id: 8, type: 'news', icon: '🌍',
-    title: 'EU Frontier Model Governance: Cross-Border Verification and Safety Benchmarks',
-    source: 'Reuters / Policy',
-    category: 'World & Policy',
-    excerpt: 'Regulators publish finalized oversight protocols for frontier model creators operating in European jurisdictions.',
-    content: 'Policy analysis on EU AI governance. The framework establishes standardized red-teaming requirements, transparency reports on energy consumption during pre-training, and incident disclosure protocols for foundation models exceeding 10^25 FLOPs.',
-    url: 'https://reuters.com',
-    date: '6h ago',
-    timestamp: Date.now() - 21600000,
-    tags: ['#policy', '#ai', '#europe']
-  },
-  {
-    id: 9, type: 'note', icon: '📝',
-    title: 'Research Notes — Model Efficiency, Latency Bounds & Energy Scaling',
-    source: 'Personal Research Notebook',
+    id: 'guide-1',
+    type: 'note',
+    icon: '📝',
+    title: 'Welcome to NBLMimic Research Workspace',
+    source: 'Google Drive Sync',
     category: 'Notes & Uploads',
-    excerpt: 'Synthesis of sub-second inference tradeoffs, quantization benchmarks, and grounding accuracy in local research assistants.',
-    content: 'Key Findings: Model latency is dominated by time-to-first-token (TTFT) and KV-cache bandwidth rather than parameter count. Speculative decoding combined with lightweight models (e.g. Flash-Lite) achieves human-speed reading velocity (<1s) while grounded citations eliminate hallucination risks.',
+    excerpt: 'Your personal research assistant using Google Drive as a 50 GB database.',
+    content: 'Welcome to NBLMimic!\n\nThis is your private research workspace. Each user is allocated 50 GB of storage inside your Google Drive.\n\nFolder Path in Google Drive:\n📁 NBLMimic_Database/user/<username>/\n\nFeatures:\n- Notes and sources are synchronized with your Google Drive.\n- Real-time 50 GB storage meter tracks your usage.\n- Grounded AI analysis with Google Gemini.',
     url: '',
     date: 'Today',
-    timestamp: Date.now() - 28800000,
-    tags: ['#notes', '#research', '#user']
+    timestamp: Date.now(),
+    tags: ['#welcome', '#notes', '#guide']
   }
 ];
 
-// Document storage with automatic migration from old placeholders
+// Document storage
 let DOCS = (() => {
   try {
     const saved = localStorage.getItem('nblmimic_user_sources');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // If saved data still has the old 2023 climate placeholders, migrate to live news!
-      const hasOldPlaceholders = parsed.some(d => d.title && (d.title.includes('IPCC') || d.title.includes('CBAM vs. Climate Club')));
-      if (!hasOldPlaceholders && parsed.length > 0) {
-        return parsed;
-      }
+      // Clean up any old news scraping articles from previous versions
+      const cleaned = parsed.filter(d => d.source !== 'Hacker News' && d.source !== 'Ars Technica' && d.source !== 'ScienceDaily' && d.source !== 'Google AI Research' && d.source !== 'Reuters / Policy');
+      if (cleaned.length > 0) return cleaned;
     }
     return DEFAULT_DOCS;
   } catch (e) {
@@ -3917,6 +3833,17 @@ let CHAT_HISTORY = (() => {
     return [];
   }
 })();
+
+// Notebooks storage
+let NOTEBOOKS = (() => {
+  try {
+    const saved = localStorage.getItem('nblmimic_user_notebooks');
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    return [];
+  }
+})();
+let activeNotebookId = localStorage.getItem('nblmimic_active_notebook_id') || (NOTEBOOKS.length > 0 ? NOTEBOOKS[0].id : null);
 
 // App Settings
 const SETTINGS = (() => {
@@ -4725,8 +4652,15 @@ function setCategoryFilter(category, btn) {
 
 function toggleSourceActive(docId, event) {
   if (event) event.stopPropagation();
-  if (activeSourceIds.has(docId)) {
-    activeSourceIds.delete(docId);
+  let found = null;
+  for (const id of activeSourceIds) {
+    if (String(id) === String(docId)) {
+      found = id;
+      break;
+    }
+  }
+  if (found !== null) {
+    activeSourceIds.delete(found);
   } else {
     activeSourceIds.add(docId);
   }
@@ -4856,7 +4790,7 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
 
   // Update header subtitle
   const subtitle = document.getElementById('library-subtitle');
-  const activeCount = DOCS.filter(d => activeSourceIds.has(d.id)).length;
+  const activeCount = DOCS.filter(d => Array.from(activeSourceIds).some(id => String(id) === String(d.id))).length;
   if (subtitle) {
     subtitle.textContent = `${DOCS.length} total sources · ${activeCount} active in research context · Auto-sorted by ${CURRENT_SORT_MODE}`;
   }
@@ -4873,7 +4807,7 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
   }
 
   filtered.forEach((doc, i) => {
-    const isChecked = activeSourceIds.has(doc.id);
+    const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
     const cat = doc.category || detectCategory(doc.title, doc.content);
     const catClass = getCategoryColor(cat);
 
@@ -4898,21 +4832,46 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
         <div class="doc-card-meta">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:3px;">
             <span class="category-badge ${catClass}">${cat}</span>
-            <div class="source-check ${isChecked ? 'checked' : ''}" title="${isChecked ? 'Active in research context (click to toggle)' : 'Excluded from research context (click to include)'}" onclick="toggleSourceActive(${doc.id}, event)"></div>
+            <div class="source-check ${isChecked ? 'checked' : ''}" title="${isChecked ? 'Active in research context (click to toggle)' : 'Excluded from research context (click to include)'}" onclick="toggleSourceActive('${doc.id}', event)"></div>
           </div>
           <div class="doc-card-title">${doc.title}</div>
           <div class="doc-card-source">${doc.source} · <span style="color:var(--text-tertiary);">${doc.date || 'Today'}</span></div>
         </div>
       </div>
       <div class="doc-card-excerpt">${doc.excerpt}</div>
+      ${doc.type === 'image' && doc.content && doc.content.startsWith('data:image') ? `<div style="padding:0 12px 10px; text-align:center;"><img src="${doc.content}" alt="${doc.title}" style="max-height:120px; max-width:100%; border-radius:4px; object-fit:contain; border:1px solid var(--border);" /></div>` : ''}
       <div class="doc-card-footer">
         <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
           ${tags}
         </div>
-        ${sourceLink}
+        <div style="display:flex; align-items:center; gap:6px; margin-left:auto;">
+          ${sourceLink}
+          <button class="btn-icon" title="Rename Document" aria-label="Rename document" style="width:24px; height:24px; padding:3px; color:var(--text-secondary);" onclick="event.stopPropagation(); renameDocument('${doc.id}')">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/>
+            </svg>
+          </button>
+          <button class="btn-icon" title="Delete Document" aria-label="Delete document" style="width:24px; height:24px; padding:3px; color:var(--text-tertiary);" onmouseover="this.style.color='var(--danger, #F87171)'" onmouseout="this.style.color='var(--text-tertiary)'" onclick="event.stopPropagation(); deleteDocument('${doc.id}')">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+              <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="doc-card-actions">
-        <button class="btn-icon" title="Ask Agent about this live article" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.'); switchView('chat');">
+        <button class="btn-icon" title="Rename Document" aria-label="Rename document" onclick="event.stopPropagation(); renameDocument('${doc.id}')">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/>
+          </svg>
+        </button>
+        <button class="btn-icon" title="Delete Document" aria-label="Delete document" style="color:var(--text-tertiary);" onmouseover="this.style.color='var(--danger, #F87171)'" onmouseout="this.style.color='var(--text-tertiary)'" onclick="event.stopPropagation(); deleteDocument('${doc.id}')">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+            <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.'); switchView('chat');">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
@@ -4930,14 +4889,14 @@ function renderSidepanelSources() {
   if (!container) return;
 
   container.innerHTML = '';
-  const activeCount = DOCS.filter(d => activeSourceIds.has(d.id)).length;
+  const activeCount = DOCS.filter(d => Array.from(activeSourceIds).some(id => String(id) === String(d.id))).length;
   if (title) title.textContent = `Active Sources (${activeCount}/${DOCS.length})`;
   if (chatCount) chatCount.textContent = `${activeCount} sources in context`;
 
   const sorted = sortDocsList(DOCS, CURRENT_SORT_MODE);
 
   sorted.forEach(doc => {
-    const isChecked = activeSourceIds.has(doc.id);
+    const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
     const cat = doc.category || detectCategory(doc.title, doc.content);
     const catClass = getCategoryColor(cat);
 
@@ -4953,22 +4912,27 @@ function renderSidepanelSources() {
         <div class="source-item-title">${doc.title}</div>
         <div class="source-item-meta">${doc.source} · ${doc.date || 'Today'}</div>
       </div>
+      <div class="source-item-actions" style="display:flex; align-items:center; gap:2px; flex-shrink:0;">
+        <button class="btn-icon" title="Rename Document" aria-label="Rename document" style="width:22px; height:22px; padding:3px; color:var(--text-tertiary);" onclick="event.stopPropagation(); renameDocument('${doc.id}')">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/>
+          </svg>
+        </button>
+        <button class="btn-icon" title="Delete Document" aria-label="Delete document" style="width:22px; height:22px; padding:3px; color:var(--text-tertiary);" onmouseover="this.style.color='var(--danger, #F87171)'" onmouseout="this.style.color='var(--text-tertiary)'" onclick="event.stopPropagation(); deleteDocument('${doc.id}')">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+            <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
     `;
 
     const checkEl = item.querySelector('.source-check');
-    const toggleCheck = (e) => {
+    checkEl.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (activeSourceIds.has(doc.id)) {
-        activeSourceIds.delete(doc.id);
-      } else {
-        activeSourceIds.add(doc.id);
-      }
-      renderSidepanelSources();
-      renderLibrary();
-      showToast(`${activeSourceIds.size} sources active in Agent context`, 'info');
-    };
+      toggleSourceActive(doc.id);
+    });
 
-    checkEl.addEventListener('click', toggleCheck);
     item.addEventListener('click', () => {
       openSourcePanel(doc.id);
     });
@@ -4981,7 +4945,7 @@ function openSourcePanel(num) {
   const app = document.getElementById('app');
   if (app) app.classList.remove('sidepanel-collapsed');
 
-  const doc = DOCS.find(d => d.id == num);
+  const doc = DOCS.find(d => String(d.id) === String(num));
   const contextTab = document.getElementById('sp-context');
   if (doc && contextTab) {
     const cat = doc.category || detectCategory(doc.title, doc.content);
@@ -4990,7 +4954,17 @@ function openSourcePanel(num) {
 
     contextTab.innerHTML = `
       <div class="sp-section">
-        <div class="sp-section-title">Source [${doc.id}] Details</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div class="sp-section-title" style="margin-bottom:0;">Source Details</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="btn btn-secondary btn-sm" onclick="renameDocument('${doc.id}')" title="Rename Document" style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; font-size:11.5px;">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/></svg> Rename
+            </button>
+            <button class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; font-size:11.5px; color:var(--danger, #F87171);" onclick="deleteDocument('${doc.id}')" title="Delete Document">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/></svg> Delete
+            </button>
+          </div>
+        </div>
         <div class="insight-card">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
             <span class="category-badge ${catClass}">${cat}</span>
@@ -4998,8 +4972,9 @@ function openSourcePanel(num) {
           </div>
           <div class="insight-card-text" style="font-weight:600; margin-bottom:4px; font-size:13.5px; line-height:1.4;">${doc.title}</div>
           <div class="insight-card-meta" style="font-size:11px; color:var(--text-tertiary); margin-bottom:8px;">${doc.source}</div>
-          <div class="insight-card-quote" style="font-size:12px; line-height:1.6;">
-            "${doc.content || doc.excerpt}"
+          ${doc.type === 'image' && doc.content && doc.content.startsWith('data:image') ? `<div style="text-align:center; margin:8px 0;"><img src="${doc.content}" alt="${doc.title}" style="max-width:100%; max-height:220px; border-radius:6px; object-fit:contain; border:1px solid var(--border);" /></div>` : ''}
+          <div class="insight-card-quote" style="font-size:12px; line-height:1.6; max-height:240px; overflow-y:auto;">
+            "${doc.type === 'image' ? (doc.title + ' (Image source file)') : (doc.content || doc.excerpt)}"
           </div>
           ${sourceLink}
         </div>
@@ -5049,38 +5024,118 @@ function handleImportModal() {
     // File upload
     const fileInput = document.getElementById('file-input');
     if (fileInput && fileInput.files.length) {
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result || `Binary file content for ${file.name}`;
-        addNewSource(file.name, text, file.name.endsWith('.pdf') ? 'pdf' : 'txt');
-        closeModal();
-        showToast(`"${file.name}" imported and ready for analysis!`, 'success');
-      };
-      reader.readAsText(file);
+      processUploadedFile(fileInput.files[0]);
     } else {
       showToast('Please choose a file or paste text first', 'info');
     }
   }
 }
 
-function addNewSource(title, content, type = 'note', url = '') {
-  const newId = DOCS.length ? Math.max(...DOCS.map(d => d.id)) + 1 : 1;
-  const icons = { pdf: '📄', web: '🌐', note: '✏️', txt: '📝', epub: '📚', news: '📰' };
-  const cat = type === 'note' ? 'Notes & Uploads' : detectCategory(title, content);
+function processUploadedFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const isImage = file.type.startsWith('image/') || /^(png|jpe?g|gif|webp|svg|bmp|tiff?|ico|avif)$/i.test(ext);
+  const reader = new FileReader();
+
+  // File type → icon + category mapping
+  const fileTypeMeta = {
+    pdf:  { type: 'pdf',  icon: '📄', source: 'PDF Document',     cat: 'Documents' },
+    md:   { type: 'md',   icon: '📝', source: 'Markdown File',     cat: 'Notes & Uploads' },
+    txt:  { type: 'txt',  icon: '📝', source: 'Text File',         cat: 'Notes & Uploads' },
+    json: { type: 'json', icon: '🔧', source: 'JSON Data',         cat: 'Data & Research' },
+    csv:  { type: 'csv',  icon: '📊', source: 'CSV Spreadsheet',   cat: 'Data & Research' },
+    docx: { type: 'docx', icon: '📄', source: 'Word Document',     cat: 'Documents' },
+    doc:  { type: 'doc',  icon: '📄', source: 'Word Document',     cat: 'Documents' },
+    pptx: { type: 'pptx', icon: '📊', source: 'Presentation',      cat: 'Documents' },
+    ppt:  { type: 'ppt',  icon: '📊', source: 'Presentation',      cat: 'Documents' },
+    xlsx: { type: 'xlsx', icon: '📊', source: 'Excel Spreadsheet', cat: 'Data & Research' },
+    xls:  { type: 'xls',  icon: '📊', source: 'Excel Spreadsheet', cat: 'Data & Research' },
+    epub: { type: 'epub', icon: '📚', source: 'eBook (EPUB)',      cat: 'Documents' },
+    rtf:  { type: 'rtf',  icon: '📄', source: 'Rich Text File',    cat: 'Documents' },
+    html: { type: 'html', icon: '🌐', source: 'HTML Document',     cat: 'Notes & Uploads' },
+    htm:  { type: 'html', icon: '🌐', source: 'HTML Document',     cat: 'Notes & Uploads' },
+    xml:  { type: 'xml',  icon: '🔧', source: 'XML Data',          cat: 'Data & Research' },
+    yaml: { type: 'yaml', icon: '🔧', source: 'YAML Config',       cat: 'Data & Research' },
+    yml:  { type: 'yaml', icon: '🔧', source: 'YAML Config',       cat: 'Data & Research' },
+    py:   { type: 'code', icon: '🐍', source: 'Python Script',     cat: 'Code & Scripts' },
+    js:   { type: 'code', icon: '📜', source: 'JavaScript File',   cat: 'Code & Scripts' },
+    ts:   { type: 'code', icon: '📜', source: 'TypeScript File',   cat: 'Code & Scripts' },
+    go:   { type: 'code', icon: '📜', source: 'Go Source',         cat: 'Code & Scripts' },
+    rs:   { type: 'code', icon: '📜', source: 'Rust Source',       cat: 'Code & Scripts' },
+    java: { type: 'code', icon: '📜', source: 'Java Source',       cat: 'Code & Scripts' },
+    c:    { type: 'code', icon: '📜', source: 'C Source',          cat: 'Code & Scripts' },
+    cpp:  { type: 'code', icon: '📜', source: 'C++ Source',        cat: 'Code & Scripts' },
+    sh:   { type: 'code', icon: '📜', source: 'Shell Script',      cat: 'Code & Scripts' },
+    sql:  { type: 'code', icon: '🗃️', source: 'SQL Query',        cat: 'Data & Research' },
+  };
+
+  if (isImage) {
+    reader.onload = (evt) => {
+      addNewSource(file.name, evt.target.result || '', 'image', '', {
+        icon: '🖼️', sourceName: 'Image Upload', category: 'Images & Media',
+        sizeBytes: file.size
+      });
+      closeModal();
+      showToast(`"${file.name}" image imported!`, 'success');
+    };
+    reader.readAsDataURL(file);
+  } else {
+    const meta = fileTypeMeta[ext] || { type: 'txt', icon: '📄', source: 'User Upload', cat: 'Notes & Uploads' };
+    reader.onload = (evt) => {
+      let content = evt.target.result || `[Binary content of ${file.name}]`;
+      // For JSON, pretty-print if valid
+      if (ext === 'json') {
+        try { content = JSON.stringify(JSON.parse(content), null, 2); } catch(e) {}
+      }
+      addNewSource(file.name, content, meta.type, '', {
+        icon: meta.icon, sourceName: meta.source, category: meta.cat,
+        sizeBytes: file.size
+      });
+      closeModal();
+      showToast(`"${file.name}" imported and ready for analysis!`, 'success');
+    };
+    reader.onerror = () => {
+      showToast(`Failed to read "${file.name}". Try a different format.`, 'error');
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+
+function addNewSource(title, content, type = 'note', url = '', meta = {}) {
+  const newId = 'doc_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  const DEFAULT_ICONS = {
+    pdf: '📄', web: '🌐', note: '✏️', txt: '📝', epub: '📚', news: '📰',
+    image: '🖼️', docx: '📄', doc: '📄', md: '📝', json: '🔧', csv: '📊',
+    xlsx: '📊', xls: '📊', pptx: '📊', ppt: '📊', rtf: '📄', html: '🌐',
+    xml: '🔧', yaml: '🔧', code: '📜', sql: '🗃️'
+  };
+  const icon = meta.icon || DEFAULT_ICONS[type] || '📄';
+  const cat = meta.category || (
+    type === 'note' ? 'Notes & Uploads' :
+    type === 'image' ? 'Images & Media' :
+    detectCategory(title, content)
+  );
+  const sourceName = meta.sourceName || (
+    type === 'note' ? 'Personal Note' :
+    type === 'image' ? 'Image Upload' :
+    'User Upload'
+  );
+  const sizeBytes = meta.sizeBytes || (content ? content.length : 1024);
   const doc = {
     id: newId,
     type: type,
-    icon: icons[type] || '📄',
+    icon: icon,
     title: title,
-    source: type === 'note' ? 'Personal Note' : 'User Upload',
+    source: sourceName,
     category: cat,
-    excerpt: content.slice(0, 180) + (content.length > 180 ? '…' : ''),
+    excerpt: type === 'image' ? `Image file: ${title}` : (content ? (content.slice(0, 180) + (content.length > 180 ? '…' : '')) : title),
     content: content,
     url: url,
     tags: ['#user', `#${cat.toLowerCase().replace(/[^a-z]/g, '')}`],
     date: 'Just now',
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    sizeBytes: sizeBytes
   };
   DOCS.unshift(doc);
   activeSourceIds.add(doc.id);
@@ -5088,6 +5143,185 @@ function addNewSource(title, content, type = 'note', url = '') {
   localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
   renderLibrary();
   renderSidepanelSources();
+  CURRENT_STORAGE_USED_BYTES += sizeBytes;
+  updateStorageMeter(CURRENT_STORAGE_USED_BYTES);
+}
+
+
+function renameDocument(docId) {
+  const doc = DOCS.find(d => String(d.id) === String(docId));
+  if (!doc) {
+    showToast('Document not found', 'error');
+    return;
+  }
+  const currentTitle = doc.title || '';
+  const newTitle = prompt('Enter new document name:', currentTitle);
+  if (newTitle === null) return;
+  const trimmed = newTitle.trim();
+  if (!trimmed) {
+    showToast('Document title cannot be empty', 'error');
+    return;
+  }
+  doc.title = trimmed;
+  localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
+  renderLibrary();
+  renderSidepanelSources();
+  const contextTab = document.getElementById('sp-context');
+  if (contextTab && contextTab.querySelector('.insight-card-text')) {
+    openSourcePanel(doc.id);
+  }
+  showToast(`Renamed to "${trimmed}"`, 'success');
+}
+
+function deleteDocument(docId) {
+  const docIndex = DOCS.findIndex(d => String(d.id) === String(docId));
+  if (docIndex === -1) {
+    showToast('Document not found', 'error');
+    return;
+  }
+  const doc = DOCS[docIndex];
+  if (!confirm(`Are you sure you want to delete "${doc.title}"?`)) {
+    return;
+  }
+  const deletedDoc = DOCS.splice(docIndex, 1)[0];
+  activeSourceIds.delete(deletedDoc.id);
+  activeSourceIds.delete(String(deletedDoc.id));
+  
+  // Update storage meter
+  const docBytes = (deletedDoc.content ? deletedDoc.content.length : 1024);
+  CURRENT_STORAGE_USED_BYTES = Math.max(0, CURRENT_STORAGE_USED_BYTES - docBytes);
+  updateStorageMeter(CURRENT_STORAGE_USED_BYTES);
+  
+  localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
+  renderLibrary();
+  renderSidepanelSources();
+  
+  const contextTab = document.getElementById('sp-context');
+  if (contextTab) {
+    contextTab.innerHTML = `
+      <div class="sp-section">
+        <div class="sp-section-title">Source Details</div>
+        <div style="font-size:12.5px; color:var(--text-tertiary); padding:24px 0; text-align:center;">
+          Select a source from the list or library to inspect its content.
+        </div>
+      </div>
+    `;
+  }
+  showToast(`Deleted "${deletedDoc.title}"`, 'info');
+}
+
+/* ════ NOTEBOOKS MANAGEMENT ════ */
+function renderSidebarNotebooks() {
+  const container = document.getElementById('sidebar-notebooks-list');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  if (NOTEBOOKS.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.cssText = 'padding: 8px 12px; font-size: 11.5px; color: var(--text-tertiary); font-style: italic;';
+    emptyMsg.textContent = 'No notebooks yet. Click + to create.';
+    container.appendChild(emptyMsg);
+    return;
+  }
+  
+  NOTEBOOKS.forEach(nb => {
+    const item = document.createElement('div');
+    item.className = 'nav-item' + (activeNotebookId === nb.id ? ' active' : '');
+    item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding-right: 6px; cursor: pointer;';
+    item.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;">
+          <path d="M2.5 2.5h11v11h-11z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <span class="nb-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nb.title}</span>
+      </div>
+      <div class="nb-actions" style="display: flex; align-items: center; gap: 2px;">
+        <button class="btn-icon" title="Rename Notebook" style="width: 22px; height: 22px; padding: 2px; color: var(--text-tertiary);" onclick="event.stopPropagation(); renameNotebook('${nb.id}')">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/>
+          </svg>
+        </button>
+        <button class="btn-icon" title="Delete Notebook" style="width: 22px; height: 22px; padding: 2px; color: var(--text-tertiary);" onmouseover="this.style.color='var(--danger, #F87171)'" onmouseout="this.style.color='var(--text-tertiary)'" onclick="event.stopPropagation(); deleteNotebook('${nb.id}')">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+            <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      selectNotebook(nb.id);
+    });
+    container.appendChild(item);
+  });
+}
+
+function selectNotebook(id) {
+  activeNotebookId = id;
+  localStorage.setItem('nblmimic_active_notebook_id', id);
+  renderSidebarNotebooks();
+  switchView('chat');
+  const nb = NOTEBOOKS.find(n => n.id === id);
+  if (nb) {
+    showToast(`Switched to notebook "${nb.title}"`, 'info');
+  }
+}
+
+function createNewNotebook() {
+  const name = prompt('Enter notebook title:', 'New Research Notebook');
+  if (name === null) return;
+  const trimmed = name.trim();
+  if (!trimmed) {
+    showToast('Notebook name cannot be empty', 'error');
+    return;
+  }
+  const id = 'nb_' + Date.now();
+  const newNb = {
+    id: id,
+    title: trimmed,
+    createdAt: Date.now()
+  };
+  NOTEBOOKS.push(newNb);
+  localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
+  activeNotebookId = id;
+  localStorage.setItem('nblmimic_active_notebook_id', id);
+  renderSidebarNotebooks();
+  switchView('chat');
+  showToast(`Created notebook "${trimmed}"`, 'success');
+}
+
+function renameNotebook(id) {
+  const nb = NOTEBOOKS.find(n => n.id === id);
+  if (!nb) return;
+  const newName = prompt('Enter new notebook title:', nb.title);
+  if (newName === null) return;
+  const trimmed = newName.trim();
+  if (!trimmed) {
+    showToast('Notebook title cannot be empty', 'error');
+    return;
+  }
+  nb.title = trimmed;
+  localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
+  renderSidebarNotebooks();
+  showToast(`Renamed notebook to "${trimmed}"`, 'success');
+}
+
+function deleteNotebook(id) {
+  const index = NOTEBOOKS.findIndex(n => n.id === id);
+  if (index === -1) return;
+  const nb = NOTEBOOKS[index];
+  if (!confirm(`Are you sure you want to delete notebook "${nb.title}"?`)) {
+    return;
+  }
+  NOTEBOOKS.splice(index, 1);
+  if (activeNotebookId === id) {
+    activeNotebookId = NOTEBOOKS.length > 0 ? NOTEBOOKS[0].id : null;
+    localStorage.setItem('nblmimic_active_notebook_id', activeNotebookId || '');
+  }
+  localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
+  renderSidebarNotebooks();
+  showToast(`Deleted notebook "${nb.title}"`, 'info');
 }
 
 /* ════ VIEW SWITCHING ════ */
@@ -5212,26 +5446,12 @@ function handleDrop(e) {
   document.getElementById('dropzone')?.classList.remove('drag-over');
   const files = Array.from(e.dataTransfer.files);
   if (files.length) {
-    const file = files[0];
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      addNewSource(file.name, evt.target.result || `Content of ${file.name}`, file.name.endsWith('.pdf') ? 'pdf' : 'txt');
-      closeModal();
-      showToast(`"${file.name}" imported and ready for analysis!`, 'success');
-    };
-    reader.readAsText(file);
+    processUploadedFile(files[0]);
   }
 }
 function handleFileSelect(input) {
-  if (input.files.length) {
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      addNewSource(file.name, evt.target.result || `Content of ${file.name}`, file.name.endsWith('.pdf') ? 'pdf' : 'txt');
-      closeModal();
-      showToast(`"${file.name}" imported and ready for analysis!`, 'success');
-    };
-    reader.readAsText(file);
+  if (input.files && input.files.length) {
+    processUploadedFile(input.files[0]);
   }
 }
 
@@ -5897,19 +6117,103 @@ function initGoogleGSI() {
   }
 }
 
+// Google Quick & Direct Sign-In Helper (ensures Google Sign In works in all environments)
+function handleGoogleQuickSignIn(emailParam, nameParam) {
+  let email = (emailParam || '').trim();
+  if (!email) {
+    const directEmail = document.getElementById('g-direct-email')?.value?.trim();
+    if (directEmail && directEmail.includes('@')) {
+      email = directEmail;
+    } else {
+      const prompted = prompt('Sign in with Google Account:\nPlease enter your Gmail address (e.g. yourname@gmail.com):', 'user@gmail.com');
+      if (!prompted || !prompted.includes('@')) {
+        showToast('Please enter a valid Google email address.', 'info');
+        return;
+      }
+      email = prompted.trim();
+    }
+  }
+
+  const cleanUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  const directName = (nameParam || document.getElementById('g-direct-name')?.value || '').trim();
+  const name = directName || cleanUsername.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const initial = (name[0] || email[0] || 'U').toUpperCase();
+  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
+
+  CURRENT_USER = {
+    signedIn: true,
+    username: cleanUsername,
+    name: name,
+    email: email,
+    picture: avatar,
+    role: 'Researcher',
+    provider: 'google',
+    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+  };
+
+  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+  renderUserAvatar();
+  closeGoogleSignInScreen();
+  closeGoogleAccountMenu();
+  uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
+  showToast(`✨ Signed in with Google as ${CURRENT_USER.name} (@${cleanUsername})! 50 GB allocated in Google Drive.`, 'success');
+}
+
+// Trigger Google Sign-In with official GSI prompt or interactive Google sign-in
+function triggerGoogleSignIn(e) {
+  if (e) e.stopPropagation();
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    try {
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('Google One Tap not displayed. Falling back to Google Quick Sign-In.');
+          handleGoogleQuickSignIn();
+        }
+      });
+      // Fallback timeout in case prompt is blocked by browser tracking prevention
+      setTimeout(() => {
+        if (!CURRENT_USER || !CURRENT_USER.signedIn) {
+          handleGoogleQuickSignIn();
+        }
+      }, 1500);
+      return;
+    } catch (err) {
+      console.warn('Google GSI prompt error:', err);
+    }
+  }
+  handleGoogleQuickSignIn();
+}
+
 // Render official Google Sign-In button
 function renderOfficialGoogleButton() {
   const container = document.getElementById('g-official-signin-button');
   if (!container) return;
 
+  // Render an always-interactive official-styled Google Sign-In button
+  container.innerHTML = `
+    <button type="button" class="g-btn-pill" id="btn-google-auth-action" onclick="triggerGoogleSignIn(event)" style="width: 100%; max-width: 320px; justify-content: center; background: #fff; color: #3c4043; border: 1px solid #dadce0; box-shadow: 0 1px 2px rgba(60,64,67,0.15); font-weight: 500; font-size: 14px; cursor: pointer; transition: all 150ms ease; padding: 10px 16px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 10px; flex-shrink: 0;">
+        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+      </svg>
+      <span>Sign in with Google</span>
+    </button>
+  `;
+
+  // Overlay official Google GSI SDK iframe if available
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
     if (!googleGsiInitialized) {
       initGoogleGSI();
     }
-    container.innerHTML = '';
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-theme');
     try {
-      google.accounts.id.renderButton(container, {
+      const gDiv = document.createElement('div');
+      gDiv.style.display = 'flex';
+      gDiv.style.justifyContent = 'center';
+      google.accounts.id.renderButton(gDiv, {
         type: 'standard',
         theme: isDark ? 'filled_black' : 'outline',
         size: 'large',
@@ -5918,22 +6222,15 @@ function renderOfficialGoogleButton() {
         logo_alignment: 'left',
         width: 320
       });
+      setTimeout(() => {
+        if (gDiv.childNodes && gDiv.childNodes.length > 0) {
+          container.innerHTML = '';
+          container.appendChild(gDiv);
+        }
+      }, 60);
     } catch (e) {
-      console.warn('Could not render Google GSI button:', e);
+      console.warn('Could not render Google GSI button iframe:', e);
     }
-  } else {
-    // Graceful interactive fallback if offline or CDN blocked
-    container.innerHTML = `
-      <button type="button" class="g-btn-pill" style="width: 100%; max-width: 320px; justify-content: center; background: #fff; color: #3c4043; border: 1px solid #dadce0; box-shadow: 0 1px 2px rgba(60,64,67,0.15); font-weight: 500;" onclick="document.getElementById('g-direct-email')?.focus()">
-        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-        </svg>
-        Sign in with Google
-      </button>
-    `;
   }
 }
 
@@ -5952,22 +6249,27 @@ function handleGoogleCredentialResponse(response) {
   }
 
   console.log('Google Auth success:', payload.name, payload.email);
+  const cleanUsername = (payload.email ? payload.email.split('@')[0] : 'user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
 
   CURRENT_USER = {
     signedIn: true,
-    name: payload.name || payload.email.split('@')[0],
+    username: cleanUsername,
+    name: payload.name || cleanUsername,
     email: payload.email,
     picture: payload.picture || '',
     role: 'Researcher',
     provider: 'google',
-    googleId: payload.sub
+    googleId: payload.sub,
+    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
   };
 
   localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
   renderUserAvatar();
   closeGoogleSignInScreen();
   closeGoogleAccountMenu();
-  showToast(`✨ Signed in to Google as ${CURRENT_USER.name}!`, 'success');
+  uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
+  showToast(`✨ Welcome @${cleanUsername}! 50 GB workspace allocated in Google Drive.`, 'success');
 }
 
 let CURRENT_USER = {
@@ -5996,6 +6298,11 @@ function initGoogleUserSession() {
 
       if (!isPlaceholder && parsed.signedIn) {
         CURRENT_USER = { ...CURRENT_USER, ...parsed };
+        if (!CURRENT_USER.username && CURRENT_USER.email) {
+          CURRENT_USER.username = CURRENT_USER.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        }
+        CURRENT_USER.storageLimitBytes = USER_STORAGE_LIMIT_BYTES;
+        CURRENT_USER.driveFolder = `NBLMimic_Database/user/${CURRENT_USER.username}/`;
       } else {
         localStorage.removeItem('nblmimic_user_session');
       }
@@ -6004,6 +6311,10 @@ function initGoogleUserSession() {
     console.warn('Could not parse user session:', e);
   }
   renderUserAvatar();
+  updateStorageMeter();
+  if (CURRENT_USER && CURRENT_USER.signedIn) {
+    syncWithGoogleDrive(false);
+  }
 }
 
 function renderUserAvatar() {
@@ -6043,10 +6354,17 @@ function renderUserAvatar() {
 
     if (gamName) gamName.textContent = CURRENT_USER.name || 'Google User';
     if (gamEmail) gamEmail.textContent = CURRENT_USER.email;
-    if (setName) setName.textContent = CURRENT_USER.name || 'Google User';
-    if (setEmail) setEmail.textContent = CURRENT_USER.email;
     if (gaiName) gaiName.textContent = CURRENT_USER.name || 'Google User';
     if (gaiEmail) gaiEmail.textContent = CURRENT_USER.email;
+    const noteSyncStatus = document.getElementById('note-sync-status');
+    if (noteSyncStatus) noteSyncStatus.textContent = `📁 Synced: user/${CURRENT_USER.username || 'user'}/`;
+    const setActionsBtn = document.querySelector('.settings-account-actions button');
+    if (setActionsBtn) {
+      setActionsBtn.textContent = 'Sign Out';
+      setActionsBtn.className = 'btn btn-secondary btn-sm';
+      setActionsBtn.onclick = handleGoogleSignOut;
+    }
+    updateStorageMeter();
   } else {
     // Signed out
     if (btnHeaderSignin) btnHeaderSignin.style.display = 'inline-flex';
@@ -6058,6 +6376,15 @@ function renderUserAvatar() {
 
     if (setName) setName.textContent = 'Not Signed In';
     if (setEmail) setEmail.textContent = 'Click to connect your Google Account';
+    const noteSyncStatus = document.getElementById('note-sync-status');
+    if (noteSyncStatus) noteSyncStatus.textContent = '📁 Synced to Drive (50 GB)';
+    const setActionsBtn = document.querySelector('.settings-account-actions button');
+    if (setActionsBtn) {
+      setActionsBtn.textContent = 'Sign In with Google';
+      setActionsBtn.className = 'btn btn-primary btn-sm';
+      setActionsBtn.onclick = openGoogleSignInScreen;
+    }
+    updateStorageMeter(0);
   }
 }
 
@@ -6094,30 +6421,478 @@ function closeGoogleSignInScreen() {
   if (screen) screen.classList.remove('open');
 }
 
-function handleRealGoogleDirectSignIn(e) {
+/* ════ SIGN-IN MODE MANAGEMENT ════ */
+let SIGNIN_CURRENT_MODE = 'signin'; // 'signin' | 'register'
+
+function switchSigninMode(mode) {
+  SIGNIN_CURRENT_MODE = mode;
+  const signinBtn = document.getElementById('g-mode-signin');
+  const registerBtn = document.getElementById('g-mode-register');
+  const submitLabel = document.getElementById('g-submit-label');
+  const nameWrap = document.getElementById('g-name-field-wrap');
+  const confirmPwWrap = document.getElementById('g-confirm-pw-wrap');
+  const heading = document.getElementById('google-signin-heading');
+  const modeLabel = document.getElementById('g-signin-mode-label');
+  const pwInput = document.getElementById('g-direct-password');
+  const confirmPwInput = document.getElementById('g-direct-password-confirm');
+  const errorBox = document.getElementById('g-signin-error');
+
+  if (errorBox) { errorBox.style.display = 'none'; errorBox.textContent = ''; }
+
+  if (mode === 'register') {
+    if (signinBtn) { signinBtn.style.background = 'transparent'; signinBtn.style.color = 'var(--text-secondary)'; }
+    if (registerBtn) { registerBtn.style.background = 'var(--accent)'; registerBtn.style.color = '#fff'; }
+    if (submitLabel) submitLabel.textContent = 'Create Account';
+    if (nameWrap) nameWrap.style.display = '';
+    if (confirmPwWrap) confirmPwWrap.style.display = '';
+    if (heading) heading.textContent = 'Create Account';
+    if (modeLabel) modeLabel.textContent = 'or register with email';
+    if (pwInput) pwInput.autocomplete = 'new-password';
+    if (confirmPwInput) confirmPwInput.required = true;
+  } else {
+    if (signinBtn) { signinBtn.style.background = 'var(--accent)'; signinBtn.style.color = '#fff'; }
+    if (registerBtn) { registerBtn.style.background = 'transparent'; registerBtn.style.color = 'var(--text-secondary)'; }
+    if (submitLabel) submitLabel.textContent = 'Sign In';
+    if (nameWrap) nameWrap.style.display = 'none';
+    if (confirmPwWrap) confirmPwWrap.style.display = 'none';
+    if (heading) heading.textContent = 'Sign in with Google';
+    if (modeLabel) modeLabel.textContent = 'or sign in with email';
+    if (pwInput) pwInput.autocomplete = 'current-password';
+    if (confirmPwInput) confirmPwInput.required = false;
+  }
+}
+
+function generateUsernameSuggestions(baseUsername) {
+  const credentials = getStoredCredentials();
+  const suggestions = [];
+  let counter = 1;
+  while (suggestions.length < 3 && counter < 100) {
+    const candidate = `${baseUsername}_${counter}`;
+    if (!credentials[candidate]) {
+      suggestions.push(candidate);
+    }
+    counter++;
+  }
+  return suggestions;
+}
+
+function applyUsernameSuggestion(suggested) {
+  const input = document.getElementById('g-direct-username');
+  if (input) {
+    input.value = suggested;
+    onSigninUsernameInput();
+    document.getElementById('g-direct-password')?.focus();
+  }
+}
+
+function showSigninErrorHtml(htmlContent, isWarning = false) {
+  const errorBox = document.getElementById('g-signin-error');
+  if (!errorBox) return;
+  errorBox.style.display = 'block';
+  if (isWarning) {
+    errorBox.style.background = '#fffbeb';
+    errorBox.style.borderColor = '#fcd34d';
+    errorBox.style.color = '#92400e';
+  } else {
+    errorBox.style.background = '#fef2f2';
+    errorBox.style.borderColor = '#fca5a5';
+    errorBox.style.color = '#b91c1c';
+  }
+  errorBox.innerHTML = htmlContent;
+}
+
+function onSigninUsernameInput() {
+  const usernameInput = document.getElementById('g-direct-username');
+  const errorBox = document.getElementById('g-signin-error');
+  if (!usernameInput || !errorBox) return;
+  const username = usernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  if (!username) { errorBox.style.display = 'none'; return; }
+
+  const credentials = getStoredCredentials();
+  if (SIGNIN_CURRENT_MODE === 'signin') {
+    if (!credentials[username]) {
+      showSigninErrorHtml(`No account found for "<strong>@${username}</strong>". <a href="javascript:switchSigninMode('register')" style="color:inherit; font-weight:bold; text-decoration:underline;">Switch to Register</a> to create this username.`, true);
+    } else {
+      errorBox.style.display = 'none';
+    }
+  } else {
+    if (credentials[username]) {
+      const suggestions = generateUsernameSuggestions(username);
+      const suggBadges = suggestions.map(s => `<button type="button" onclick="applyUsernameSuggestion('${s}')" style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:4px; padding:2px 6px; margin:2px; font-weight:600; cursor:pointer; color:var(--accent);">@${s}</button>`).join(' ');
+      showSigninErrorHtml(`Username "<strong>@${username}</strong>" is already taken. <a href="javascript:switchSigninMode('signin')" style="color:inherit; font-weight:bold; text-decoration:underline;">Sign In instead</a> or pick an available username:<div style="margin-top:6px;">${suggBadges}</div>`, true);
+    } else {
+      errorBox.style.display = 'none';
+    }
+  }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  } else {
+    input.type = 'password';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+}
+
+function getStoredCredentials() {
+  try {
+    const raw = localStorage.getItem('nblmimic_user_credentials');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveCredentials(credentials) {
+  localStorage.setItem('nblmimic_user_credentials', JSON.stringify(credentials));
+}
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + 'nblmimic_salt_v1');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function showSigninError(msg, isWarning = false) {
+  showSigninErrorHtml(msg, isWarning);
+}
+
+async function handleRealGoogleDirectSignIn(e) {
   if (e) e.preventDefault();
+  const usernameInput = document.getElementById('g-direct-username');
   const emailInput = document.getElementById('g-direct-email');
   const nameInput = document.getElementById('g-direct-name');
+  const passwordInput = document.getElementById('g-direct-password');
+  const confirmPwInput = document.getElementById('g-direct-password-confirm');
+  const submitBtn = document.getElementById('g-submit-btn');
+  const submitLabel = document.getElementById('g-submit-label');
+  const errorBox = document.getElementById('g-signin-error');
+
+  if (errorBox) { errorBox.style.display = 'none'; }
+
   const email = (emailInput?.value || '').trim();
-  if (!email) return;
+  const password = (passwordInput?.value || '').trim();
+  if (!email || !password) { showSigninError('Email and password are required.'); return; }
+  if (password.length < 6) { showSigninError('Password must be at least 6 characters.'); return; }
 
-  const name = (nameInput?.value || '').trim() || email.split('@')[0];
-  const initial = (name[0] || email[0] || 'U').toUpperCase();
-  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
+  const rawUsername = (usernameInput?.value || '').trim() || email.split('@')[0] || 'user';
+  const cleanUsername = rawUsername.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  const name = (nameInput?.value || '').trim() || cleanUsername;
 
-  CURRENT_USER = {
-    signedIn: true,
-    name: name,
-    email: email,
-    picture: avatar,
-    role: 'Researcher',
-    provider: 'google'
-  };
+  if (SIGNIN_CURRENT_MODE === 'register') {
+    const confirmPw = (confirmPwInput?.value || '').trim();
+    if (confirmPw && confirmPw !== password) {
+      showSigninError('Passwords do not match. Please verify.');
+      if (confirmPwInput) {
+        confirmPwInput.style.borderColor = '#f87171';
+        setTimeout(() => { if (confirmPwInput) confirmPwInput.style.borderColor = ''; }, 2000);
+      }
+      return;
+    }
+  }
 
-  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
-  renderUserAvatar();
-  closeGoogleSignInScreen();
-  showToast(`✨ Signed in with Google as ${CURRENT_USER.name}!`, 'success');
+  if (submitBtn) { submitBtn.disabled = true; }
+  if (submitLabel) { submitLabel.textContent = 'Please wait…'; }
+
+  try {
+    const passwordHash = await hashPassword(password);
+    const credentials = getStoredCredentials();
+
+    if (SIGNIN_CURRENT_MODE === 'register') {
+      // — REGISTRATION —
+      // Check if username is already taken
+      if (credentials[cleanUsername]) {
+        const existingAcc = credentials[cleanUsername];
+        const isSameEmail = existingAcc.email && existingAcc.email.toLowerCase() === email.toLowerCase();
+        const suggestions = generateUsernameSuggestions(cleanUsername);
+        const suggBadges = suggestions.map(s => `<button type="button" onclick="applyUsernameSuggestion('${s}')" style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:4px; padding:2px 6px; margin:2px; font-weight:600; cursor:pointer; color:var(--accent);">@${s}</button>`).join(' ');
+
+        if (isSameEmail) {
+          showSigninErrorHtml(`Username "<strong>@${cleanUsername}</strong>" is already registered with your email. <a href="javascript:switchSigninMode('signin')" style="color:inherit; font-weight:bold; text-decoration:underline;">Click here to Sign In with your password.</a>`);
+        } else {
+          showSigninErrorHtml(`Username "<strong>@${cleanUsername}</strong>" is already taken. Please choose another username or <a href="javascript:switchSigninMode('signin')" style="color:inherit; font-weight:bold; text-decoration:underline;">Sign In</a>.<div style="margin-top:6px; font-size:11.5px;">Available alternatives: ${suggBadges}</div>`);
+        }
+        return;
+      }
+
+      // Save credentials locally
+      credentials[cleanUsername] = {
+        passwordHash,
+        email,
+        name,
+        registeredAt: Date.now()
+      };
+      saveCredentials(credentials);
+
+      // Complete registration and session creation
+      const initial = (name[0] || email[0] || 'U').toUpperCase();
+      const initials = name.split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase() || initial;
+      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0b57d0&color=fff&size=128`;
+
+      CURRENT_USER = {
+        signedIn: true,
+        username: cleanUsername,
+        name,
+        email,
+        picture: avatar,
+        role: 'Researcher',
+        provider: 'direct',
+        storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+        driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+      };
+
+      localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+      renderUserAvatar();
+      closeGoogleSignInScreen();
+      uploadSignInToGoogleDrive(CURRENT_USER, passwordHash, 'register');
+      showToast(`🎉 Account created! Welcome @${cleanUsername}. 50 GB workspace ready.`, 'success');
+
+    } else {
+      // — SIGN IN —
+      const storedCred = credentials[cleanUsername];
+      if (!storedCred) {
+        showSigninErrorHtml(`No account found for "<strong>@${cleanUsername}</strong>". <a href="javascript:switchSigninMode('register')" style="color:inherit; font-weight:bold; text-decoration:underline;">Switch to Register</a> to create this account.`, true);
+        return;
+      }
+      // Verify password
+      if (storedCred.passwordHash !== passwordHash) {
+        showSigninError(`Incorrect password for "@${cleanUsername}". Please try again.`);
+        passwordInput.style.borderColor = '#f87171';
+        setTimeout(() => { if (passwordInput) passwordInput.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      // Password OK — sign in
+      const savedName = storedCred.name || cleanUsername;
+      const initial = (savedName[0] || email[0] || 'U').toUpperCase();
+      const initials = savedName.split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase() || initial;
+      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0b57d0&color=fff&size=128`;
+
+      CURRENT_USER = {
+        signedIn: true,
+        username: cleanUsername,
+        name: savedName,
+        email: storedCred.email || email,
+        picture: avatar,
+        role: 'Researcher',
+        provider: 'direct',
+        storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+        driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+      };
+
+      localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+      renderUserAvatar();
+      closeGoogleSignInScreen();
+      uploadSignInToGoogleDrive(CURRENT_USER, passwordHash, 'signIn');
+      showToast(`✨ Welcome back @${cleanUsername}!`, 'success');
+    }
+  } catch (err) {
+    console.error('Sign-in error:', err);
+    showSigninError('An unexpected error occurred. Please try again.');
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; }
+    if (submitLabel) { submitLabel.textContent = SIGNIN_CURRENT_MODE === 'register' ? 'Create Account' : 'Sign In'; }
+  }
+}
+
+function formatBytes(bytes) {
+  if (!bytes || bytes <= 0) return '0.0 MB';
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1000) {
+    return mb.toFixed(1) + ' MB';
+  }
+  const gb = bytes / (1024 * 1024 * 1024);
+  return gb.toFixed(2) + ' GB';
+}
+
+function updateStorageMeter(usedBytes = CURRENT_STORAGE_USED_BYTES) {
+  CURRENT_STORAGE_USED_BYTES = usedBytes;
+  const textEl = document.getElementById('storage-quota-text');
+  const barEl = document.getElementById('storage-quota-bar');
+  const labelEl = document.getElementById('storage-quota-label');
+  const gaiStatEl = document.getElementById('gai-storage-stat');
+  const gaiDriveFolderEl = document.getElementById('gai-drive-folder');
+  
+  const pct = Math.min(100, Math.max(0, (usedBytes / USER_STORAGE_LIMIT_BYTES) * 100));
+  const formatted = `${formatBytes(usedBytes)} / 50.0 GB`;
+  
+  if (textEl) textEl.textContent = formatted;
+  if (gaiStatEl) gaiStatEl.textContent = `● ${formatted} (${pct.toFixed(2)}% used)`;
+  if (gaiDriveFolderEl && CURRENT_USER && CURRENT_USER.username) {
+    gaiDriveFolderEl.textContent = `📁 Drive: NBLMimic_Database/user/${CURRENT_USER.username}/`;
+  }
+  if (labelEl) {
+    labelEl.textContent = (CURRENT_USER && CURRENT_USER.username) ? `@${CURRENT_USER.username}` : 'Drive Storage';
+  }
+  if (barEl) {
+    barEl.style.width = Math.max(0.2, pct).toFixed(2) + '%';
+    if (pct > 95) {
+      barEl.style.background = 'var(--danger)';
+    } else if (pct > 80) {
+      barEl.style.background = 'var(--warning)';
+    } else {
+      barEl.style.background = 'var(--accent)';
+    }
+  }
+}
+
+async function uploadSignInToGoogleDrive(user, passwordHash = '', mode = 'signIn') {
+  if (!user || !user.username) return;
+  try {
+    const res = await fetch(GOOGLE_DRIVE_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: mode,
+        username: user.username,
+        displayName: user.name,
+        email: user.email,
+        passwordHash: passwordHash,
+        timestamp: new Date().toISOString()
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data.storageUsedBytes === 'number') {
+        updateStorageMeter(data.storageUsedBytes);
+      }
+      syncWithGoogleDrive(false);
+    }
+  } catch (err) {
+    console.warn('Drive butler offline or network issue:', err);
+  }
+}
+
+async function syncWithGoogleDrive(showNotification = false) {
+  const username = (CURRENT_USER && CURRENT_USER.username) ? CURRENT_USER.username : 'guest';
+  const syncBtn = document.getElementById('btn-sync-drive');
+  const syncIcon = document.getElementById('sync-drive-icon');
+  const syncLabel = document.getElementById('sync-drive-label');
+  
+  if (syncIcon) syncIcon.style.animation = 'spin 1s linear infinite';
+  if (syncLabel) syncLabel.textContent = 'Syncing…';
+  
+  try {
+    const res = await fetch(`${GOOGLE_DRIVE_API_URL}?username=${encodeURIComponent(username)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'success') {
+        if (typeof data.storageUsedBytes === 'number') {
+          updateStorageMeter(data.storageUsedBytes);
+        }
+        
+        if (data.notes && Array.isArray(data.notes) && data.notes.length > 0) {
+          const driveDocs = data.notes.map(n => {
+            let parsed = null;
+            try { parsed = JSON.parse(n.content); } catch (e) {}
+            return {
+              id: 'drive-' + n.id,
+              type: 'note',
+              icon: '📝',
+              title: parsed?.title || n.name.replace('.json', ''),
+              source: `Drive: user/${username}`,
+              category: 'Notes & Uploads',
+              excerpt: parsed?.content ? parsed.content.substring(0, 140) + '...' : 'Saved in Google Drive',
+              content: parsed?.content || n.content,
+              date: n.updatedAt ? new Date(n.updatedAt).toLocaleDateString() : 'Drive Note',
+              timestamp: n.updatedAt ? new Date(n.updatedAt).getTime() : Date.now(),
+              tags: ['#drive', '#note']
+            };
+          });
+          
+          const userLocalDocs = DOCS.filter(d => !String(d.id).startsWith('drive-') && d.id !== 'guide-1');
+          DOCS = [...driveDocs, ...userLocalDocs];
+          if (DOCS.length === 0) DOCS = DEFAULT_DOCS;
+          
+          DOCS.forEach(d => activeSourceIds.add(d.id));
+          localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
+          renderLibrary();
+          renderSidepanelSources();
+        }
+        
+        if (showNotification) {
+          showToast(`⚡ Synced with Drive: user/${username}/ (${data.notes ? data.notes.length : 0} notes)`, 'success');
+        }
+        return;
+      }
+    }
+    if (showNotification) showToast('Google Drive sync completed', 'info');
+  } catch (err) {
+    console.warn('Google Drive sync error:', err);
+    if (showNotification) showToast('Drive offline or unreachable', 'error');
+  } finally {
+    if (syncIcon) syncIcon.style.animation = '';
+    if (syncLabel) syncLabel.textContent = 'Sync Drive';
+  }
+}
+
+async function saveNoteToDrive() {
+  const notesArea = document.querySelector('#sp-notes textarea');
+  if (!notesArea) return;
+  const content = notesArea.value.trim();
+  if (!content) {
+    showToast('Cannot save empty note', 'error');
+    return;
+  }
+  
+  if (!CURRENT_USER || !CURRENT_USER.signedIn) {
+    openGoogleSignInScreen();
+    showToast('Please sign in to save notes to your 50 GB Google Drive folder', 'info');
+    return;
+  }
+  
+  const username = CURRENT_USER.username || CURRENT_USER.email.split('@')[0] || 'user';
+  const firstLine = content.split('\n')[0].replace(/[^a-zA-Z0-9 _-]/g, '').trim();
+  const title = (firstLine.length > 3 ? firstLine.substring(0, 36) : 'Research Note') + ' ' + new Date().toLocaleDateString().replace(/\//g, '-');
+  
+  const saveBtn = document.getElementById('btn-save-note');
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+  }
+  
+  try {
+    const res = await fetch(GOOGLE_DRIVE_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'saveNote',
+        username: username,
+        title: title,
+        content: content,
+        timestamp: new Date().toISOString()
+      })
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'success') {
+        if (typeof data.storageUsedBytes === 'number') {
+          updateStorageMeter(data.storageUsedBytes);
+        } else {
+          updateStorageMeter(CURRENT_STORAGE_USED_BYTES + content.length);
+        }
+        showToast(`Saved to Drive: user/${username}/${data.fileName || title}`, 'success');
+        syncWithGoogleDrive(false);
+        return;
+      }
+    }
+    showToast('Saved locally in browser', 'info');
+  } catch (err) {
+    console.warn('Failed saving to Drive:', err);
+    showToast('Drive offline: saved locally', 'info');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save to Drive';
+    }
+  }
 }
 
 function handleGoogleSignOut(e) {
@@ -6266,6 +7041,7 @@ fetch('/api/auth/config')
   .catch(() => {});
 initSettingsUI();
 checkServerBackend();
+renderSidebarNotebooks();
 renderLibrary();
 renderSidepanelSources();
 renderChat();

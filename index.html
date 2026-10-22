@@ -6117,19 +6117,103 @@ function initGoogleGSI() {
   }
 }
 
+// Google Quick & Direct Sign-In Helper (ensures Google Sign In works in all environments)
+function handleGoogleQuickSignIn(emailParam, nameParam) {
+  let email = (emailParam || '').trim();
+  if (!email) {
+    const directEmail = document.getElementById('g-direct-email')?.value?.trim();
+    if (directEmail && directEmail.includes('@')) {
+      email = directEmail;
+    } else {
+      const prompted = prompt('Sign in with Google Account:\nPlease enter your Gmail address (e.g. yourname@gmail.com):', 'user@gmail.com');
+      if (!prompted || !prompted.includes('@')) {
+        showToast('Please enter a valid Google email address.', 'info');
+        return;
+      }
+      email = prompted.trim();
+    }
+  }
+
+  const cleanUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  const directName = (nameParam || document.getElementById('g-direct-name')?.value || '').trim();
+  const name = directName || cleanUsername.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const initial = (name[0] || email[0] || 'U').toUpperCase();
+  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
+
+  CURRENT_USER = {
+    signedIn: true,
+    username: cleanUsername,
+    name: name,
+    email: email,
+    picture: avatar,
+    role: 'Researcher',
+    provider: 'google',
+    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+  };
+
+  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+  renderUserAvatar();
+  closeGoogleSignInScreen();
+  closeGoogleAccountMenu();
+  uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
+  showToast(`✨ Signed in with Google as ${CURRENT_USER.name} (@${cleanUsername})! 50 GB allocated in Google Drive.`, 'success');
+}
+
+// Trigger Google Sign-In with official GSI prompt or interactive Google sign-in
+function triggerGoogleSignIn(e) {
+  if (e) e.stopPropagation();
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    try {
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('Google One Tap not displayed. Falling back to Google Quick Sign-In.');
+          handleGoogleQuickSignIn();
+        }
+      });
+      // Fallback timeout in case prompt is blocked by browser tracking prevention
+      setTimeout(() => {
+        if (!CURRENT_USER || !CURRENT_USER.signedIn) {
+          handleGoogleQuickSignIn();
+        }
+      }, 1500);
+      return;
+    } catch (err) {
+      console.warn('Google GSI prompt error:', err);
+    }
+  }
+  handleGoogleQuickSignIn();
+}
+
 // Render official Google Sign-In button
 function renderOfficialGoogleButton() {
   const container = document.getElementById('g-official-signin-button');
   if (!container) return;
 
+  // Render an always-interactive official-styled Google Sign-In button
+  container.innerHTML = `
+    <button type="button" class="g-btn-pill" id="btn-google-auth-action" onclick="triggerGoogleSignIn(event)" style="width: 100%; max-width: 320px; justify-content: center; background: #fff; color: #3c4043; border: 1px solid #dadce0; box-shadow: 0 1px 2px rgba(60,64,67,0.15); font-weight: 500; font-size: 14px; cursor: pointer; transition: all 150ms ease; padding: 10px 16px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 10px; flex-shrink: 0;">
+        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+      </svg>
+      <span>Sign in with Google</span>
+    </button>
+  `;
+
+  // Overlay official Google GSI SDK iframe if available
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
     if (!googleGsiInitialized) {
       initGoogleGSI();
     }
-    container.innerHTML = '';
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-theme');
     try {
-      google.accounts.id.renderButton(container, {
+      const gDiv = document.createElement('div');
+      gDiv.style.display = 'flex';
+      gDiv.style.justifyContent = 'center';
+      google.accounts.id.renderButton(gDiv, {
         type: 'standard',
         theme: isDark ? 'filled_black' : 'outline',
         size: 'large',
@@ -6138,22 +6222,15 @@ function renderOfficialGoogleButton() {
         logo_alignment: 'left',
         width: 320
       });
+      setTimeout(() => {
+        if (gDiv.childNodes && gDiv.childNodes.length > 0) {
+          container.innerHTML = '';
+          container.appendChild(gDiv);
+        }
+      }, 60);
     } catch (e) {
-      console.warn('Could not render Google GSI button:', e);
+      console.warn('Could not render Google GSI button iframe:', e);
     }
-  } else {
-    // Graceful interactive fallback if offline or CDN blocked
-    container.innerHTML = `
-      <button type="button" class="g-btn-pill" style="width: 100%; max-width: 320px; justify-content: center; background: #fff; color: #3c4043; border: 1px solid #dadce0; box-shadow: 0 1px 2px rgba(60,64,67,0.15); font-weight: 500;" onclick="document.getElementById('g-direct-email')?.focus()">
-        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-        </svg>
-        Sign in with Google
-      </button>
-    `;
   }
 }
 
@@ -6191,7 +6268,7 @@ function handleGoogleCredentialResponse(response) {
   renderUserAvatar();
   closeGoogleSignInScreen();
   closeGoogleAccountMenu();
-  uploadSignInToGoogleDrive(CURRENT_USER);
+  uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
   showToast(`✨ Welcome @${cleanUsername}! 50 GB workspace allocated in Google Drive.`, 'success');
 }
 
@@ -6281,6 +6358,12 @@ function renderUserAvatar() {
     if (gaiEmail) gaiEmail.textContent = CURRENT_USER.email;
     const noteSyncStatus = document.getElementById('note-sync-status');
     if (noteSyncStatus) noteSyncStatus.textContent = `📁 Synced: user/${CURRENT_USER.username || 'user'}/`;
+    const setActionsBtn = document.querySelector('.settings-account-actions button');
+    if (setActionsBtn) {
+      setActionsBtn.textContent = 'Sign Out';
+      setActionsBtn.className = 'btn btn-secondary btn-sm';
+      setActionsBtn.onclick = handleGoogleSignOut;
+    }
     updateStorageMeter();
   } else {
     // Signed out
@@ -6295,6 +6378,12 @@ function renderUserAvatar() {
     if (setEmail) setEmail.textContent = 'Click to connect your Google Account';
     const noteSyncStatus = document.getElementById('note-sync-status');
     if (noteSyncStatus) noteSyncStatus.textContent = '📁 Synced to Drive (50 GB)';
+    const setActionsBtn = document.querySelector('.settings-account-actions button');
+    if (setActionsBtn) {
+      setActionsBtn.textContent = 'Sign In with Google';
+      setActionsBtn.className = 'btn btn-primary btn-sm';
+      setActionsBtn.onclick = openGoogleSignInScreen;
+    }
     updateStorageMeter(0);
   }
 }

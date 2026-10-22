@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Research Lab</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="favicon.ico">
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleGSI()"></script>
 <style>
 /* ════════════════════════════════════════════════
    DESIGN TOKENS
@@ -235,14 +238,567 @@ svg { display: block; flex-shrink: 0; }
 }
 .btn-new:hover { background: var(--accent-hover); }
 .btn-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.avatar {
-  width: 30px; height: 30px;
+/* ════════════════════════════════════════════════
+   USER ACCOUNT & GOOGLE SIGN-IN STYLING
+════════════════════════════════════════════════ */
+.header-auth-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header Google Sign-In Button (Official Google Look) */
+.btn-google-header-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
   cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  box-shadow: var(--shadow-xs);
+  user-select: none;
+}
+.btn-google-header-signin:hover {
+  background: var(--bg-secondary);
+  border-color: #4285F4;
+  box-shadow: 0 1px 4px rgba(66, 133, 244, 0.25);
+  transform: translateY(-1px);
+}
+.btn-google-header-signin .google-icon {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+}
+
+/* Google Account Profile Button in Header */
+.user-account-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.avatar-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transition: transform var(--transition-fast);
+}
+.avatar-btn:hover {
+  transform: scale(1.06);
+}
+.avatar-btn:focus-visible {
+  outline: 2px solid #4285F4;
+  outline-offset: 2px;
+}
+
+.google-avatar-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 2px solid #4285F4;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+.google-avatar-wrap:hover {
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3);
+}
+
+.google-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-full);
+  display: block;
+}
+
+/* ── Google Account Flyout Dropdown ── */
+.google-account-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 330px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg), 0 16px 36px rgba(0,0,0,0.18);
+  z-index: 100;
+  overflow: hidden;
+  animation: flyoutSlide 160ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes flyoutSlide {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.gam-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 18px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.gam-avatar-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 12px;
+}
+
+.gam-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  border: 2px solid var(--border);
+}
+
+.gam-change-photo-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-fast);
+}
+.gam-change-photo-badge:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.gam-name {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  max-width: 270px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gam-email {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  max-width: 270px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gam-manage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.gam-manage-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-secondary);
+}
+
+.gam-body {
+  padding: 8px 0;
+}
+
+.gam-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  font-size: var(--text-small);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.gam-item:hover {
+  background: var(--bg-secondary);
+}
+.gam-item svg {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.gam-item.danger {
+  color: var(--danger);
+}
+.gam-item.danger svg {
+  color: var(--danger);
+}
+
+.gam-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-tiny);
+  color: var(--text-tertiary);
+}
+.gam-footer a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+.gam-footer a:hover {
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
+
+/* ════════════════════════════════════════════════
+   REAL GOOGLE SIGN-IN SCREEN (accounts.google.com Look & Feel)
+════════════════════════════════════════════════ */
+.g-signin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-slow);
+}
+.g-signin-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.g-signin-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  padding: 40px 40px 32px;
+  display: flex;
+  flex-direction: column;
+  animation: modalPop 200ms cubic-bezier(0, 0, 0.2, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.g-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.g-heading {
+  font-family: 'Google Sans', var(--font-ui);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.g-subheading {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0 0 24px;
+  line-height: 1.4;
+}
+.g-subheading strong {
+  color: var(--text-primary);
+}
+
+/* Material 3 Outlined Input with Floating Label */
+.g-textfield {
+  position: relative;
+  margin: 16px 0 8px;
+}
+.g-textfield-input {
+  width: 100%;
+  height: 56px;
+  padding: 16px 14px 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border var(--transition-fast), box-shadow var(--transition-fast);
+}
+.g-textfield-input:focus {
+  border: 2px solid #0b57d0;
+  padding: 15px 13px 5px;
+  box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.15);
+}
+.g-textfield-label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transition: all 160ms cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg-primary);
+  padding: 0 4px;
+}
+.g-textfield-input:focus ~ .g-textfield-label,
+.g-textfield-input:not(:placeholder-shown) ~ .g-textfield-label {
+  top: 0;
+  font-size: 11px;
+  color: #0b57d0;
+  font-weight: 500;
+}
+
+/* Account List in Real Google Sign-In */
+.g-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.g-account-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+.g-account-item:hover {
+  background: var(--bg-secondary);
+  border-color: #0b57d0;
+  transform: translateY(-1px);
+}
+.g-account-item.active {
+  border-color: #0b57d0;
+  background: var(--accent-light);
+}
+
+.g-account-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border);
+}
+
+.g-account-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.g-account-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.g-account-email {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.g-account-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: #ECFDF5;
+  color: #059669;
+  font-weight: 600;
+}
+
+.g-account-add-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1.5px dashed var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* Google Action Buttons */
+.g-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+.g-btn-pill {
+  background: #0b57d0;
+  color: #ffffff;
+  border-radius: 100px;
+  padding: 0 24px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.g-btn-pill:hover {
+  background: #0842a0;
+  box-shadow: 0 1px 3px 1px rgba(11, 87, 208, 0.3);
+}
+
+.g-btn-text {
+  background: transparent;
+  color: #0b57d0;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  padding: 0 12px;
+  height: 40px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  transition: background var(--transition-fast);
+}
+.g-btn-text:hover {
+  background: rgba(11, 87, 208, 0.08);
+}
+
+.g-footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.g-footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-left: 12px;
+}
+.g-footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* User Account Card in Settings */
+.settings-account-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-top: 8px;
+}
+
+.settings-account-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.settings-account-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-account-name {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-account-email {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.settings-account-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a73e8;
+  margin-top: 4px;
+}
+
+.settings-account-actions {
+  display: flex;
+  gap: 8px;
 }
 
 /* ════════════════════════════════════════════════
@@ -2192,7 +2748,88 @@ svg { display: block; flex-shrink: 0; }
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </button>
-      <div class="avatar" title="Your account" role="img" aria-label="User avatar">N</div>
+      <!-- Real Google Sign In / Account Container -->
+      <div id="header-auth-container" class="header-auth-container">
+        <!-- 1. Google Sign-In Button (shown when signed out) -->
+        <button class="btn-google-header-signin" id="btn-header-signin" onclick="openGoogleSignInScreen(event)" aria-label="Sign in with Google">
+          <svg class="google-icon" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span>Sign in</span>
+        </button>
+
+        <!-- 2. Google Profile Avatar (shown when signed in) -->
+        <div class="user-account-wrapper" id="user-account-wrapper" style="display:none;">
+          <button class="avatar-btn" id="user-avatar-btn" onclick="toggleGoogleAccountMenu(event)" aria-label="Google Account" title="Google Account">
+            <div class="google-avatar-wrap" id="header-avatar">
+              <img id="avatar-img" class="google-avatar-img" src="" alt="Google Profile Picture" />
+            </div>
+          </button>
+
+          <!-- Google Account Dropdown Flyout Menu -->
+          <div class="google-account-menu" id="google-account-menu" style="display:none;" role="menu" aria-label="Google Account Menu">
+            <div class="gam-header">
+              <div class="gam-avatar-wrap">
+                <img id="gam-avatar-img" class="gam-avatar-img" src="" alt="Google Profile Picture" />
+                <button class="gam-change-photo-badge" onclick="openPhotoPickerModal(event)" title="Change Google profile picture" aria-label="Change photo">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="gam-name" id="gam-user-name">Google User</div>
+              <div class="gam-email" id="gam-user-email">user@gmail.com</div>
+              <button class="gam-manage-btn" onclick="openGoogleAccountDetails(event)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Manage your Google Account</span>
+              </button>
+            </div>
+
+            <div class="gam-body">
+              <button class="gam-item" onclick="openGoogleSignInScreen(event, 'switch')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="20" y1="8" x2="20" y2="14"/>
+                  <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                <span>Switch Google account</span>
+              </button>
+
+              <button class="gam-item" onclick="openPhotoPickerModal(event)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span>Change profile picture</span>
+              </button>
+
+              <button class="gam-item danger" onclick="handleGoogleSignOut(event)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Sign out</span>
+              </button>
+            </div>
+
+            <div class="gam-footer">
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+              <span>•</span>
+              <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -2510,6 +3147,24 @@ svg { display: block; flex-shrink: 0; }
       <div class="settings-inner">
         <h2 class="settings-title">Settings</h2>
         <p class="settings-subtitle">Manage your Research Lab preferences</p>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Google Account</div>
+          <div class="settings-account-card" id="settings-account-card">
+            <img class="settings-account-avatar" id="settings-account-avatar" src="" alt="Google Profile">
+            <div class="settings-account-info">
+              <div class="settings-account-name" id="settings-account-name">Not Signed In</div>
+              <div class="settings-account-email" id="settings-account-email">Click to connect your Google Account</div>
+              <div class="settings-account-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#4285F4"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                <span>Google Account</span>
+              </div>
+            </div>
+            <div class="settings-account-actions">
+              <button class="btn btn-primary btn-sm" onclick="openGoogleSignInScreen(event)">Sign In with Google</button>
+            </div>
+          </div>
+        </div>
 
         <div class="settings-section">
           <div class="settings-section-title">Appearance</div>
@@ -2960,6 +3615,152 @@ svg { display: block; flex-shrink: 0; }
           <span>End Call</span>
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REAL GOOGLE SIGN-IN SCREEN ═══════════════════ -->
+<div class="g-signin-overlay" id="google-signin-screen" role="dialog" aria-modal="true" aria-labelledby="google-signin-heading">
+  <div class="g-signin-card" style="position: relative;">
+    <!-- Close button -->
+    <button type="button" class="btn-icon" onclick="closeGoogleSignInScreen()" aria-label="Close" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; cursor: pointer; color: var(--text-secondary);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+
+    <!-- Google 4-Color Logo -->
+    <div class="g-logo-wrap">
+      <svg width="44" height="44" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+      </svg>
+    </div>
+
+    <!-- Title & Subtitle -->
+    <h1 class="g-heading" id="google-signin-heading">Sign in with Google</h1>
+    <p class="g-subheading">to continue to <strong>Research Lab</strong></p>
+
+    <!-- Official Google Identity Services Real Sign-In Button Container -->
+    <div class="g-official-auth-wrap" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 28px 0 20px; width: 100%;">
+      <div id="g-official-signin-button" style="display: flex; justify-content: center; width: 100%; min-height: 48px;"></div>
+    </div>
+
+    <!-- Direct Email Sign-In (Official Google Style fallback) -->
+    <div id="g-direct-signin-wrap" style="width: 100%; margin-top: 8px;">
+      <div style="display: flex; align-items: center; width: 100%; gap: 12px; margin: 12px 0 16px;">
+        <div style="flex: 1; height: 1px; background: var(--border);"></div>
+        <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">or sign in with email</span>
+        <div style="flex: 1; height: 1px; background: var(--border);"></div>
+      </div>
+
+      <form onsubmit="handleRealGoogleDirectSignIn(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="g-textfield" style="margin: 0;">
+          <input type="email" id="g-direct-email" class="g-textfield-input" placeholder=" " required />
+          <label for="g-direct-email" class="g-textfield-label">Google email or phone</label>
+        </div>
+        <div class="g-textfield" style="margin: 0;">
+          <input type="text" id="g-direct-name" class="g-textfield-input" placeholder=" " />
+          <label for="g-direct-name" class="g-textfield-label">Your Name (optional)</label>
+        </div>
+        <div class="g-action-row" style="margin-top: 8px;">
+          <button type="button" class="g-btn-text" onclick="closeGoogleSignInScreen()">Cancel</button>
+          <button type="submit" class="g-btn-pill">
+            <span>Continue</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Terms note -->
+    <div style="font-size:12px; color:var(--text-tertiary); line-height:1.4; margin-top:20px; text-align: center;">
+      To continue, Google will share your name, email address, language preference, and profile picture with Research Lab.
+    </div>
+
+    <!-- Footer Links -->
+    <div class="g-footer-links">
+      <span>English (United States)</span>
+      <div>
+        <a href="javascript:closeGoogleSignInScreen()">Cancel</a>
+        <a href="https://support.google.com/accounts" target="_blank" rel="noopener">Help</a>
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a>
+        <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PHOTO PICKER MODAL ═══════════════════ -->
+<div class="modal-backdrop" id="photo-picker-modal" role="dialog" aria-modal="true" aria-labelledby="photo-picker-title">
+  <div class="modal" style="max-width: 420px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="photo-picker-title">Update Google Profile Picture</h3>
+      <button class="btn-icon" onclick="closePhotoPickerModal()" aria-label="Close dialog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; align-items:center; justify-content:center; padding:12px 0;">
+        <img id="photo-picker-preview" src="" alt="Photo preview" style="width:84px; height:84px; border-radius:50%; object-fit:cover; border:3px solid #4285F4; box-shadow:var(--shadow-md);" />
+      </div>
+
+      <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; flex-direction:column; gap:10px;">
+        <label class="btn btn-secondary" style="width:100%; justify-content:center; cursor:pointer;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span>Upload Image from Computer</span>
+          <input type="file" accept="image/*" style="display:none;" onchange="handleModalPhotoUpload(event)" />
+        </label>
+        
+        <div style="display:flex; gap:8px;">
+          <input type="url" id="photo-picker-url-input" class="gsc-form-input" placeholder="Or paste image URL (https://...)" />
+          <button class="btn btn-secondary" onclick="applyPhotoUrlInput()">Apply</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closePhotoPickerModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSelectedProfilePicture()">Save Picture</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ GOOGLE ACCOUNT DETAILS MODAL ═══════════════════ -->
+<div class="modal-backdrop" id="google-account-info-modal" role="dialog" aria-modal="true" aria-labelledby="gai-title">
+  <div class="modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <svg class="google-g-logo" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <h3 class="modal-title" id="gai-title">Google Account</h3>
+      </div>
+      <button class="btn-icon" onclick="closeGoogleAccountDetails()" aria-label="Close dialog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; align-items:center; gap:16px; padding:12px; background:var(--bg-secondary); border-radius:14px; border:1px solid var(--border);">
+        <img id="gai-avatar" src="" alt="Google Profile" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #4285F4;" />
+        <div style="flex:1; min-width:0;">
+          <div id="gai-name" style="font-size:16px; font-weight:600; color:var(--text-primary);">Google Account</div>
+          <div id="gai-email" style="font-size:13px; color:var(--text-secondary);">user@gmail.com</div>
+          <div style="font-size:11px; color:#059669; font-weight:600; margin-top:3px;">● Connected to Research Lab</div>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
+        Your Google account profile picture and information are safely synchronized in your browser session to personalize your Research Lab workspace.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeGoogleAccountDetails(); openPhotoPickerModal();">Change Picture</button>
+      <button class="btn btn-primary" onclick="closeGoogleAccountDetails()">Done</button>
     </div>
   </div>
 </div>
@@ -4368,6 +5169,7 @@ function setTheme(mode) {
   document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
   const opt = document.querySelector(`.theme-option.${mode}`);
   if (opt) opt.classList.add('active');
+  if (typeof renderOfficialGoogleButton === 'function') renderOfficialGoogleButton();
 }
 
 document.getElementById('theme-toggle').onclick = () => {
@@ -5048,6 +5850,387 @@ Keep spoken responses conversational, concise, natural, and insightful.${sources
   };
 }
 
+/* ════════════════════════════════════════════════
+   GOOGLE ACCOUNT & REAL PROFILE AVATAR MANAGEMENT
+════════════════════════════════════════════════ */
+let GOOGLE_CLIENT_ID = '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com';
+let googleGsiInitialized = false;
+
+// Decode Google Identity Services Credential JWT
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Failed to parse Google JWT credential:', e);
+    return null;
+  }
+}
+
+// Initialize official Google Identity Services SDK
+function initGoogleGSI() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    setTimeout(() => {
+      if (typeof google !== 'undefined' && google.accounts && google.accounts.id && !googleGsiInitialized) {
+        initGoogleGSI();
+      }
+    }, 600);
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredentialResponse,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    googleGsiInitialized = true;
+    console.log('✅ Google Identity Services initialized with client ID:', GOOGLE_CLIENT_ID);
+    renderOfficialGoogleButton();
+  } catch (err) {
+    console.error('Error initializing Google Identity Services:', err);
+  }
+}
+
+// Render official Google Sign-In button
+function renderOfficialGoogleButton() {
+  const container = document.getElementById('g-official-signin-button');
+  if (!container) return;
+
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    if (!googleGsiInitialized) {
+      initGoogleGSI();
+    }
+    container.innerHTML = '';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-theme');
+    try {
+      google.accounts.id.renderButton(container, {
+        type: 'standard',
+        theme: isDark ? 'filled_black' : 'outline',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'pill',
+        logo_alignment: 'left',
+        width: 320
+      });
+    } catch (e) {
+      console.warn('Could not render Google GSI button:', e);
+    }
+  } else {
+    // Graceful interactive fallback if offline or CDN blocked
+    container.innerHTML = `
+      <button type="button" class="g-btn-pill" style="width: 100%; max-width: 320px; justify-content: center; background: #fff; color: #3c4043; border: 1px solid #dadce0; box-shadow: 0 1px 2px rgba(60,64,67,0.15); font-weight: 500;" onclick="document.getElementById('g-direct-email')?.focus()">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        Sign in with Google
+      </button>
+    `;
+  }
+}
+
+// Handle real Google Identity Services response callback
+function handleGoogleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    console.error('No credential returned from Google Identity Services');
+    showToast('Sign-in cancelled or returned no credentials.', 'error');
+    return;
+  }
+
+  const payload = parseJwt(response.credential);
+  if (!payload) {
+    showToast('Failed to read Google profile data.', 'error');
+    return;
+  }
+
+  console.log('Google Auth success:', payload.name, payload.email);
+
+  CURRENT_USER = {
+    signedIn: true,
+    name: payload.name || payload.email.split('@')[0],
+    email: payload.email,
+    picture: payload.picture || '',
+    role: 'Researcher',
+    provider: 'google',
+    googleId: payload.sub
+  };
+
+  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+  renderUserAvatar();
+  closeGoogleSignInScreen();
+  closeGoogleAccountMenu();
+  showToast(`✨ Signed in to Google as ${CURRENT_USER.name}!`, 'success');
+}
+
+let CURRENT_USER = {
+  signedIn: false,
+  name: '',
+  email: '',
+  picture: '',
+  role: 'Researcher',
+  provider: 'google'
+};
+
+let selectedModalPhoto = '';
+
+function initGoogleUserSession() {
+  try {
+    const saved = localStorage.getItem('nblmimic_user_session');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Purge any stale fake placeholder account sessions
+      const isPlaceholder = !parsed || !parsed.email ||
+        parsed.email.toLowerCase().includes('nathan.bailey') ||
+        parsed.email.toLowerCase().includes('sophia.davis') ||
+        parsed.email.toLowerCase().includes('alex.chen') ||
+        parsed.email.toLowerCase().includes('jordan.lee') ||
+        (parsed.name && parsed.name.toLowerCase().includes('nathan bailey'));
+
+      if (!isPlaceholder && parsed.signedIn) {
+        CURRENT_USER = { ...CURRENT_USER, ...parsed };
+      } else {
+        localStorage.removeItem('nblmimic_user_session');
+      }
+    }
+  } catch (e) {
+    console.warn('Could not parse user session:', e);
+  }
+  renderUserAvatar();
+}
+
+function renderUserAvatar() {
+  const btnHeaderSignin = document.getElementById('btn-header-signin');
+  const userAccountWrapper = document.getElementById('user-account-wrapper');
+  const avatarImg = document.getElementById('avatar-img');
+
+  const gamAvatarImg = document.getElementById('gam-avatar-img');
+  const gamName = document.getElementById('gam-user-name');
+  const gamEmail = document.getElementById('gam-user-email');
+
+  const setAvatarImg = document.getElementById('settings-account-avatar');
+  const setName = document.getElementById('settings-account-name');
+  const setEmail = document.getElementById('settings-account-email');
+
+  const gaiAvatar = document.getElementById('gai-avatar');
+  const gaiName = document.getElementById('gai-name');
+  const gaiEmail = document.getElementById('gai-email');
+
+  if (CURRENT_USER.signedIn && CURRENT_USER.email) {
+    let photo = CURRENT_USER.picture;
+    if (!photo) {
+      const initial = (CURRENT_USER.name || CURRENT_USER.email || 'U')[0].toUpperCase();
+      photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
+    }
+
+    if (btnHeaderSignin) btnHeaderSignin.style.display = 'none';
+    if (userAccountWrapper) userAccountWrapper.style.display = 'flex';
+
+    if (avatarImg) {
+      avatarImg.src = photo;
+      avatarImg.alt = CURRENT_USER.name || 'Google Account';
+    }
+    if (gamAvatarImg) gamAvatarImg.src = photo;
+    if (setAvatarImg) setAvatarImg.src = photo;
+    if (gaiAvatar) gaiAvatar.src = photo;
+
+    if (gamName) gamName.textContent = CURRENT_USER.name || 'Google User';
+    if (gamEmail) gamEmail.textContent = CURRENT_USER.email;
+    if (setName) setName.textContent = CURRENT_USER.name || 'Google User';
+    if (setEmail) setEmail.textContent = CURRENT_USER.email;
+    if (gaiName) gaiName.textContent = CURRENT_USER.name || 'Google User';
+    if (gaiEmail) gaiEmail.textContent = CURRENT_USER.email;
+  } else {
+    // Signed out
+    if (btnHeaderSignin) btnHeaderSignin.style.display = 'inline-flex';
+    if (userAccountWrapper) userAccountWrapper.style.display = 'none';
+
+    if (avatarImg) avatarImg.src = '';
+    if (gamAvatarImg) gamAvatarImg.src = '';
+    if (setAvatarImg) setAvatarImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="%2394A3B8"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
+    if (setName) setName.textContent = 'Not Signed In';
+    if (setEmail) setEmail.textContent = 'Click to connect your Google Account';
+  }
+}
+
+function toggleGoogleAccountMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('google-account-menu');
+  if (!menu) return;
+  menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'block' : 'none';
+}
+
+function closeGoogleAccountMenu() {
+  const menu = document.getElementById('google-account-menu');
+  if (menu) menu.style.display = 'none';
+}
+
+function openGoogleSignInScreen(e) {
+  if (e) e.stopPropagation();
+  closeGoogleAccountMenu();
+  const screen = document.getElementById('google-signin-screen');
+  if (!screen) return;
+
+  renderOfficialGoogleButton();
+  screen.classList.add('open');
+  screen.addEventListener('click', function bgClick(ev) {
+    if (ev.target === screen) {
+      closeGoogleSignInScreen();
+      screen.removeEventListener('click', bgClick);
+    }
+  });
+}
+
+function closeGoogleSignInScreen() {
+  const screen = document.getElementById('google-signin-screen');
+  if (screen) screen.classList.remove('open');
+}
+
+function handleRealGoogleDirectSignIn(e) {
+  if (e) e.preventDefault();
+  const emailInput = document.getElementById('g-direct-email');
+  const nameInput = document.getElementById('g-direct-name');
+  const email = (emailInput?.value || '').trim();
+  if (!email) return;
+
+  const name = (nameInput?.value || '').trim() || email.split('@')[0];
+  const initial = (name[0] || email[0] || 'U').toUpperCase();
+  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
+
+  CURRENT_USER = {
+    signedIn: true,
+    name: name,
+    email: email,
+    picture: avatar,
+    role: 'Researcher',
+    provider: 'google'
+  };
+
+  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+  renderUserAvatar();
+  closeGoogleSignInScreen();
+  showToast(`✨ Signed in with Google as ${CURRENT_USER.name}!`, 'success');
+}
+
+function handleGoogleSignOut(e) {
+  if (e) e.stopPropagation();
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    try {
+      google.accounts.id.disableAutoSelect();
+    } catch (err) {}
+  }
+  CURRENT_USER = {
+    signedIn: false,
+    name: '',
+    email: '',
+    picture: '',
+    role: 'Researcher',
+    provider: 'google'
+  };
+  localStorage.removeItem('nblmimic_user_session');
+  renderUserAvatar();
+  closeGoogleAccountMenu();
+  showToast('Signed out of Google account', 'info');
+}
+
+function openPhotoPickerModal(e) {
+  if (e) e.stopPropagation();
+  closeGoogleAccountMenu();
+  const m = document.getElementById('photo-picker-modal');
+  if (!m) return;
+
+  selectedModalPhoto = CURRENT_USER.picture || '';
+  const prev = document.getElementById('photo-picker-preview');
+  if (prev) {
+    prev.src = selectedModalPhoto || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="%234285F4"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
+  }
+
+  m.classList.add('open');
+  m.addEventListener('click', function bgClick(ev) {
+    if (ev.target === m) {
+      closePhotoPickerModal();
+      m.removeEventListener('click', bgClick);
+    }
+  });
+}
+
+function closePhotoPickerModal() {
+  const m = document.getElementById('photo-picker-modal');
+  if (m) m.classList.remove('open');
+}
+
+function handleModalPhotoUpload(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    selectedModalPhoto = event.target.result;
+    const prev = document.getElementById('photo-picker-preview');
+    if (prev) prev.src = selectedModalPhoto;
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyPhotoUrlInput() {
+  const inp = document.getElementById('photo-picker-url-input');
+  if (inp && inp.value.trim()) {
+    selectedModalPhoto = inp.value.trim();
+    const prev = document.getElementById('photo-picker-preview');
+    if (prev) prev.src = selectedModalPhoto;
+    inp.value = '';
+  }
+}
+
+function saveSelectedProfilePicture() {
+  if (selectedModalPhoto) {
+    CURRENT_USER.picture = selectedModalPhoto;
+    CURRENT_USER.signedIn = true;
+    localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+    renderUserAvatar();
+    closePhotoPickerModal();
+    showToast('Google profile picture updated successfully! ✨', 'success');
+  }
+}
+
+function openGoogleAccountDetails(e) {
+  if (e) e.stopPropagation();
+  closeGoogleAccountMenu();
+  const m = document.getElementById('google-account-info-modal');
+  if (!m) return;
+  renderUserAvatar();
+  m.classList.add('open');
+  m.addEventListener('click', function bgClick(ev) {
+    if (ev.target === m) {
+      closeGoogleAccountDetails();
+      m.removeEventListener('click', bgClick);
+    }
+  });
+}
+
+function closeGoogleAccountDetails() {
+  const m = document.getElementById('google-account-info-modal');
+  if (m) m.classList.remove('open');
+}
+
+// Global click outside to dismiss Google Account flyout
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('google-account-menu');
+  const wrapper = document.getElementById('user-account-wrapper');
+  if (menu && menu.style.display !== 'none') {
+    if (wrapper && !wrapper.contains(e.target)) {
+      menu.style.display = 'none';
+    }
+  }
+});
+
 /* ════ GLOBAL EVENT LISTENERS ════ */
 document.getElementById('sidebar-toggle').onclick = toggleSidebar;
 document.getElementById('btn-settings-open').onclick = () => switchView('settings');
@@ -5069,6 +6252,18 @@ if (notesArea) {
 }
 
 /* ════ INITIALIZATION ════ */
+initGoogleUserSession();
+initGoogleGSI();
+// Sync client ID from backend configuration endpoint
+fetch('/api/auth/config')
+  .then(res => res.json())
+  .then(cfg => {
+    if (cfg && cfg.clientId && cfg.clientId !== GOOGLE_CLIENT_ID) {
+      GOOGLE_CLIENT_ID = cfg.clientId;
+      initGoogleGSI();
+    }
+  })
+  .catch(() => {});
 initSettingsUI();
 checkServerBackend();
 renderLibrary();

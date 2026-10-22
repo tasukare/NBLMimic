@@ -42,11 +42,14 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
+  '.dhtml': 'text/html; charset=utf-8',
   '.css':  'text/css; charset=utf-8',
   '.js':   'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.png':  'image/png',
   '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.svg':  'image/svg+xml',
   '.ico':  'image/x-icon'
 };
@@ -313,6 +316,15 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Google OAuth Client Configuration Endpoint
+  if (pathname === '/api/auth/config') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      clientId: process.env.GOOGLE_CLIENT_ID || '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com'
+    }));
+    return;
+  }
+
   // 2. Secure Gemini Chat Proxy Endpoint with Smart Auto-Fallback & Latency Protection
   if (pathname === '/api/chat' && req.method === 'POST') {
     let body = '';
@@ -419,8 +431,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 3. Static File Server
-  let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
+  // 3. Static File Server (supports root '/' and '/index.dhtml' mapping)
+  const normalizedPath = (pathname === '/' || pathname === '/index.dhtml') ? 'index.html' : pathname;
+  let filePath = path.join(__dirname, normalizedPath);
 
   // Security: Prevent directory traversal outside folder
   if (!filePath.startsWith(__dirname)) {

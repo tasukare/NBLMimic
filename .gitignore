@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+*client_secret*.json
+google_client_secret.json
 
 # Dependencies & Build artifacts
 node_modules/

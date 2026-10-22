@@ -951,59 +951,95 @@ svg { display: block; flex-shrink: 0; }
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 32px 0;
+  padding: 14px 32px 4px;
   flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar {
+  display: none;
 }
 .filter-btn {
-  display: flex; align-items: center; gap: 5px;
-  height: 28px;
-  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
   font-size: var(--text-tiny);
   font-weight: 500;
   color: var(--text-secondary);
-  background: transparent;
+  background: var(--bg-surface, var(--bg-primary));
   border: 1.5px solid var(--border);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
   white-space: nowrap;
   cursor: pointer;
+  user-select: none;
 }
-.filter-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.filter-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  transform: translateY(-1px);
+}
 .filter-btn.active {
   background: var(--accent-light);
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
+}
+.filter-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+.filter-label {
+  font-size: 11.5px;
 }
 .filter-count {
   font-size: 10px;
   font-weight: 700;
-  padding: 1px 5px;
+  padding: 1.5px 6px;
   border-radius: var(--radius-full);
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.06);
+  color: inherit;
   margin-left: 2px;
 }
 .filter-btn.active .filter-count {
-  background: rgba(37, 99, 235, 0.15);
+  background: rgba(37, 99, 235, 0.2);
+  color: var(--accent);
 }
-.filter-sep { width: 1px; height: 16px; background: var(--border); margin: 0 2px; }
-.sort-select {
+.filter-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+.sort-wrap {
   margin-left: auto;
-  height: 28px;
-  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.sort-select {
+  height: 30px;
+  padding: 0 10px;
   font-size: var(--text-tiny);
   font-weight: 600;
   color: var(--text-primary);
-  background: var(--bg-surface);
+  background: var(--bg-surface, var(--bg-primary));
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
   transition: all var(--transition-fast);
+  outline: none;
 }
 .sort-select:hover, .sort-select:focus {
   border-color: var(--accent);
-  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-subtle);
 }
 
 /* Real-time Live News Banner */
@@ -1048,24 +1084,29 @@ svg { display: block; flex-shrink: 0; }
   flex: 1;
 }
 
-/* Category Badges */
+/* Category Badges & Distinct Color System */
 .category-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 7px;
+  padding: 2.5px 8px;
   border-radius: var(--radius-full);
   font-size: 10.5px;
   font-weight: 600;
   border: 1px solid transparent;
   line-height: 1.3;
+  letter-spacing: 0.01em;
 }
 .cat-ai       { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; border-color: rgba(139, 92, 246, 0.25); }
 .cat-science  { background: rgba(5, 150, 105, 0.12);  color: #059669; border-color: rgba(5, 150, 105, 0.25); }
 .cat-tech     { background: rgba(37, 99, 235, 0.12);  color: #2563EB; border-color: rgba(37, 99, 235, 0.25); }
 .cat-business { background: rgba(217, 119, 6, 0.12);  color: #D97706; border-color: rgba(217, 119, 6, 0.25); }
 .cat-world    { background: rgba(2, 132, 199, 0.12);  color: #0284C7; border-color: rgba(2, 132, 199, 0.25); }
+.cat-docs     { background: rgba(220, 38, 38, 0.12);  color: #DC2626; border-color: rgba(220, 38, 38, 0.25); }
+.cat-data     { background: rgba(14, 165, 233, 0.12); color: #0284C7; border-color: rgba(14, 165, 233, 0.25); }
+.cat-code     { background: rgba(245, 158, 11, 0.12); color: #D97706; border-color: rgba(245, 158, 11, 0.25); }
 .cat-notes    { background: rgba(79, 70, 229, 0.12);  color: #4F46E5; border-color: rgba(79, 70, 229, 0.25); }
+.cat-media    { background: rgba(236, 72, 153, 0.12); color: #DB2777; border-color: rgba(236, 72, 153, 0.25); }
 .cat-general  { background: var(--bg-tertiary);        color: var(--text-secondary); border-color: var(--border); }
 
 .doc-icon.news { background: rgba(16, 185, 129, 0.12); color: #10B981; }
@@ -1081,8 +1122,8 @@ svg { display: block; flex-shrink: 0; }
   overflow-y: auto;
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
   align-content: start;
 }
 .doc-card {
@@ -1091,7 +1132,7 @@ svg { display: block; flex-shrink: 0; }
   border-radius: var(--radius-md);
   padding: 16px;
   cursor: pointer;
-  transition: box-shadow var(--transition-normal), border-color var(--transition-normal), transform var(--transition-normal);
+  transition: all var(--transition-normal);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1103,8 +1144,28 @@ svg { display: block; flex-shrink: 0; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .doc-card:hover {
-  box-shadow: var(--shadow-sm);
-  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.doc-card.active-context {
+  border-color: rgba(37, 99, 235, 0.45);
+  background: linear-gradient(to bottom, var(--bg-primary), rgba(37, 99, 235, 0.03));
+}
+.doc-card-reading-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.badge-accent {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
 }
 .doc-card:hover .doc-card-actions { opacity: 1; }
 .doc-card-header { display: flex; align-items: flex-start; gap: 10px; }
@@ -2846,7 +2907,7 @@ svg { display: block; flex-shrink: 0; }
             <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.3"/>
           </svg>
           All Documents
-          <span class="nav-item-count">24</span>
+          <span class="nav-item-count" id="sidebar-all-count">0</span>
         </button>
         <button class="nav-item" data-view="chat" onclick="switchView('chat', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -2871,33 +2932,10 @@ svg { display: block; flex-shrink: 0; }
       <div class="sidebar-divider"></div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-label">Tags</div>
+        <div class="sidebar-section-label">Categories</div>
       </div>
-      <nav class="sidebar-nav">
-        <button class="nav-item">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle cx="7" cy="7" r="3" fill="currentColor" opacity=".3"/>
-            <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.2"/>
-          </svg>
-          research
-          <span class="nav-item-count">12</span>
-        </button>
-        <button class="nav-item">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle cx="7" cy="7" r="3" fill="#059669" opacity=".25"/>
-            <circle cx="7" cy="7" r="3" stroke="#059669" stroke-width="1.2"/>
-          </svg>
-          reading-list
-          <span class="nav-item-count">7</span>
-        </button>
-        <button class="nav-item">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle cx="7" cy="7" r="3" fill="#D97706" opacity=".25"/>
-            <circle cx="7" cy="7" r="3" stroke="#D97706" stroke-width="1.2"/>
-          </svg>
-          citations
-          <span class="nav-item-count">5</span>
-        </button>
+      <nav class="sidebar-nav" id="sidebar-categories-nav">
+        <!-- Rendered dynamically by renderSidebarCategories() -->
       </nav>
 
       <div class="sidebar-footer">
@@ -2932,10 +2970,25 @@ svg { display: block; flex-shrink: 0; }
 
       <div class="library-header">
         <div>
-          <h1 class="library-title" id="library-title">Research Library & Sources</h1>
-          <p class="library-subtitle" id="library-subtitle">Personal research documents & notes · Synced with Google Drive (50 GB)</p>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <h1 class="library-title" id="library-title">Research Library & Sources</h1>
+            <span class="badge-accent" id="library-badge-count">0 items</span>
+          </div>
+          <p class="library-subtitle" id="library-subtitle">Live news stream, uploaded documents & notes · Synced with Google Drive (50 GB)</p>
         </div>
         <div class="library-actions">
+          <button class="btn btn-secondary btn-sm" id="btn-refresh-news" onclick="fetchLiveNews(true)" title="Fetch and auto-categorize latest research stories">
+            <svg id="refresh-news-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span id="refresh-news-label">Refresh News</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-toggle-all-context" onclick="toggleSelectAllSources()" title="Toggle including all visible sources in research context">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span id="btn-toggle-all-label">Toggle Context</span>
+          </button>
           <button class="btn btn-secondary btn-sm" id="btn-sync-drive" onclick="syncWithGoogleDrive(true)" title="Sync your workspace with Google Drive">
             <svg id="sync-drive-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
@@ -2944,7 +2997,7 @@ svg { display: block; flex-shrink: 0; }
             </svg>
             <span id="sync-drive-label">Sync Drive</span>
           </button>
-          <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()" title="Upload PDF, notes, or import web URLs">
+          <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()" title="Upload PDF, notes, code, or import web URLs">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
@@ -2954,37 +3007,7 @@ svg { display: block; flex-shrink: 0; }
       </div>
 
       <div class="filter-bar" id="category-filter-bar">
-        <button class="filter-btn active" data-category="all" onclick="setCategoryFilter('all', this)">
-          🌐 All <span class="filter-count" id="count-all">0</span>
-        </button>
-        <button class="filter-btn" data-category="AI & ML" onclick="setCategoryFilter('AI & ML', this)">
-          🤖 AI & ML <span class="filter-count" id="count-ai">0</span>
-        </button>
-        <button class="filter-btn" data-category="Tech & Dev" onclick="setCategoryFilter('Tech & Dev', this)">
-          💻 Tech & Dev <span class="filter-count" id="count-tech">0</span>
-        </button>
-        <button class="filter-btn" data-category="Science" onclick="setCategoryFilter('Science', this)">
-          🔬 Science <span class="filter-count" id="count-science">0</span>
-        </button>
-        <button class="filter-btn" data-category="Business" onclick="setCategoryFilter('Business', this)">
-          💼 Business <span class="filter-count" id="count-biz">0</span>
-        </button>
-        <button class="filter-btn" data-category="World & Policy" onclick="setCategoryFilter('World & Policy', this)">
-          🌍 World <span class="filter-count" id="count-world">0</span>
-        </button>
-        <button class="filter-btn" data-category="Notes & Uploads" onclick="setCategoryFilter('Notes & Uploads', this)">
-          📝 Notes & Uploads <span class="filter-count" id="count-notes">0</span>
-        </button>
-
-        <div class="filter-sep"></div>
-
-        <select class="sort-select" id="sort-select" aria-label="Sort documents" onchange="handleSortChange(this.value)">
-          <option value="latest" selected>⏱️ Auto-Sort: Newest First</option>
-          <option value="alpha">🔤 Alphabetical (A → Z)</option>
-          <option value="category">🏷️ By Category</option>
-          <option value="source">📰 By Publication</option>
-          <option value="active">⭐ Active in Context First</option>
-        </select>
+        <!-- Injected dynamically by renderCategoryFilterBar() -->
       </div>
 
       <div class="library-grid" id="doc-grid">
@@ -3811,9 +3834,7 @@ let DOCS = (() => {
     const saved = localStorage.getItem('nblmimic_user_sources');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Clean up any old news scraping articles from previous versions
-      const cleaned = parsed.filter(d => d.source !== 'Hacker News' && d.source !== 'Ars Technica' && d.source !== 'ScienceDaily' && d.source !== 'Google AI Research' && d.source !== 'Reuters / Policy');
-      if (cleaned.length > 0) return cleaned;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
     return DEFAULT_DOCS;
   } catch (e) {
@@ -4580,37 +4601,66 @@ function clearChatHistory() {
 }
 
 /* ════ REAL-TIME LIVE NEWS, CATEGORY & AUTO-SORT ENGINE ════ */
-let CURRENT_CATEGORY_FILTER = 'all';
-let CURRENT_SORT_MODE = 'latest';
+const CATEGORY_DEFINITIONS = [
+  { id: 'all', label: 'All Sources', icon: '🌐', colorClass: 'cat-general' },
+  { id: 'AI & ML', label: 'AI & ML', icon: '🧠', colorClass: 'cat-ai', keywords: /\b(ai|llm|gpt|gemini|claude|machine learning|neural|deep learning|transformer|diffusion|robot|robotics|vision|anthropic|openai|qwen|copilot|deepmind|agentic|agents|hugging face|mistral|rlhf|multimodal)\b/i },
+  { id: 'Tech & Dev', label: 'Tech & Dev', icon: '💻', colorClass: 'cat-tech', keywords: /\b(software|hardware|developer|programming|linux|apple|google|microsoft|meta|nvidia|chips|semiconductor|cloud|database|api|cybersecurity|crypto|app|framework|git|web)\b/i },
+  { id: 'Science', label: 'Science', icon: '🔬', colorClass: 'cat-science', keywords: /\b(space|nasa|asteroid|physics|biology|rna|dna|cell|genome|medical|health|disease|vaccine|climate|earth|quantum|science|planet|mars|crispr|astronomy|neuro|molecule|biotech|genetics|pharma)\b/i },
+  { id: 'Business', label: 'Business', icon: '📈', colorClass: 'cat-business', keywords: /\b(market|stock|invest|economy|startup|merger|tesla|spacex|revenue|funding|business|bank|trade|cost|price|inflation|etf|nasdaq|venture|valuation|acquisition|earnings|ipo)\b/i },
+  { id: 'World & Policy', label: 'World & Policy', icon: '🌍', colorClass: 'cat-world', keywords: /\b(war|court|judge|president|police|cops|treaty|government|policy|law|un|global|sanction|election|senate|congress|geopolitics|treaties|diplomacy|nato|defense|military)\b/i },
+  { id: 'Documents', label: 'Documents', icon: '📄', colorClass: 'cat-docs', types: ['pdf', 'docx', 'doc', 'pptx', 'ppt', 'epub', 'rtf'] },
+  { id: 'Data & Research', label: 'Data & Research', icon: '📊', colorClass: 'cat-data', types: ['json', 'csv', 'xlsx', 'xls', 'xml', 'yaml', 'yml', 'sql'] },
+  { id: 'Code & Scripts', label: 'Code & Scripts', icon: '⚡', colorClass: 'cat-code', types: ['code', 'py', 'js', 'ts', 'go', 'rs', 'java', 'c', 'cpp', 'sh'] },
+  { id: 'Notes & Uploads', label: 'Notes & Uploads', icon: '📝', colorClass: 'cat-notes', types: ['note', 'txt', 'md', 'html', 'htm'] },
+  { id: 'Images & Media', label: 'Images & Media', icon: '🖼️', colorClass: 'cat-media', types: ['image', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'] }
+];
+
+let CURRENT_CATEGORY_FILTER = (() => {
+  try { return localStorage.getItem('nblmimic_category_filter') || 'all'; } catch (e) { return 'all'; }
+})();
+let CURRENT_SORT_MODE = (() => {
+  try { return localStorage.getItem('nblmimic_sort_mode') || 'latest'; } catch (e) { return 'latest'; }
+})();
 let isFetchingNews = false;
 
-function detectCategory(title = '', content = '') {
-  const text = (title + ' ' + content).toLowerCase();
-  if (/\b(ai|llm|gpt|gemini|claude|machine learning|neural|deep learning|transformer|model|robot|vision|anthropic|openai|qwen|copilot)\b/.test(text)) {
-    return 'AI & ML';
+function detectCategory(title = '', content = '', type = '') {
+  // 1. Match by explicit file/source type
+  if (type) {
+    const t = String(type).toLowerCase();
+    for (const def of CATEGORY_DEFINITIONS) {
+      if (def.types && def.types.includes(t)) {
+        return def.id;
+      }
+    }
   }
-  if (/\b(space|nasa|asteroid|physics|biology|rna|dna|cell|genome|medical|health|disease|vaccine|climate|earth|quantum|science|planet)\b/.test(text)) {
-    return 'Science';
+
+  // 2. Match by content/title semantics
+  const text = (String(title) + ' ' + String(content)).toLowerCase();
+  for (const def of CATEGORY_DEFINITIONS) {
+    if (def.keywords && def.keywords.test(text)) {
+      return def.id;
+    }
   }
-  if (/\b(market|stock|invest|economy|startup|merger|tesla|spacex|revenue|funding|business|bank|trade|cost|price|inflation|crypto)\b/.test(text)) {
-    return 'Business';
-  }
-  if (/\b(war|court|judge|president|police|cops|treaty|government|policy|law|un|global|sanction|election|senate)\b/.test(text)) {
-    return 'World & Policy';
-  }
+
+  // 3. Fallback
   return 'Tech & Dev';
 }
 
 function getCategoryColor(cat) {
-  switch (cat) {
-    case 'AI & ML': return 'cat-ai';
-    case 'Science': return 'cat-science';
-    case 'Tech & Dev': return 'cat-tech';
-    case 'Business': return 'cat-business';
-    case 'World & Policy': return 'cat-world';
-    case 'Notes & Uploads': return 'cat-notes';
-    default: return 'cat-general';
-  }
+  const match = CATEGORY_DEFINITIONS.find(c => c.id.toLowerCase() === (cat || '').toLowerCase());
+  return match ? match.colorClass : 'cat-general';
+}
+
+function getCategoryIcon(cat) {
+  const match = CATEGORY_DEFINITIONS.find(c => c.id.toLowerCase() === (cat || '').toLowerCase());
+  return match ? match.icon : '📰';
+}
+
+function calcReadingTime(text = '') {
+  if (!text) return '< 1 min read';
+  const words = String(text).trim().split(/\s+/).length;
+  const mins = Math.max(1, Math.ceil(words / 180));
+  return `${mins} min read`;
 }
 
 function sortDocsList(docs, sortMode = CURRENT_SORT_MODE) {
@@ -4618,18 +4668,32 @@ function sortDocsList(docs, sortMode = CURRENT_SORT_MODE) {
   switch (sortMode) {
     case 'latest':
       return list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    case 'oldest':
+      return list.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
     case 'alpha':
       return list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    case 'alpha-desc':
+      return list.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
     case 'category':
-      return list.sort((a, b) => (a.category || '').localeCompare(b.category || '') || ((b.timestamp || 0) - (a.timestamp || 0)));
+      return list.sort((a, b) => {
+        const catA = a.category || detectCategory(a.title, a.content, a.type);
+        const catB = b.category || detectCategory(b.title, b.content, b.type);
+        return catA.localeCompare(catB) || ((b.timestamp || 0) - (a.timestamp || 0));
+      });
     case 'source':
-      return list.sort((a, b) => (a.source || '').localeCompare(b.source || ''));
+      return list.sort((a, b) => (a.source || '').localeCompare(b.source || '') || ((b.timestamp || 0) - (a.timestamp || 0)));
     case 'active':
       return list.sort((a, b) => {
-        const aAct = activeSourceIds.has(a.id) ? 1 : 0;
-        const bAct = activeSourceIds.has(b.id) ? 1 : 0;
+        const aAct = Array.from(activeSourceIds).some(id => String(id) === String(a.id)) ? 1 : 0;
+        const bAct = Array.from(activeSourceIds).some(id => String(id) === String(b.id)) ? 1 : 0;
         if (aAct !== bAct) return bAct - aAct;
         return (b.timestamp || 0) - (a.timestamp || 0);
+      });
+    case 'size':
+      return list.sort((a, b) => {
+        const aLen = (a.content ? a.content.length : 0) || (a.sizeBytes || 0);
+        const bLen = (b.content ? b.content.length : 0) || (b.sizeBytes || 0);
+        return bLen - aLen;
       });
     default:
       return list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -4638,16 +4702,119 @@ function sortDocsList(docs, sortMode = CURRENT_SORT_MODE) {
 
 function handleSortChange(val) {
   CURRENT_SORT_MODE = val;
+  try { localStorage.setItem('nblmimic_sort_mode', val); } catch (e) {}
   renderLibrary();
   renderSidepanelSources();
-  showToast(`Auto-sorted library by ${val === 'latest' ? 'Recency (Latest)' : val === 'alpha' ? 'Alphabetical' : val === 'category' ? 'Category' : val === 'source' ? 'Publication' : 'Active Status'}`, 'info');
+  const sortNames = {
+    'latest': 'Recency (Newest First)',
+    'oldest': 'Oldest First',
+    'alpha': 'Title (A → Z)',
+    'alpha-desc': 'Title (Z → A)',
+    'category': 'Grouped by Category',
+    'source': 'Grouped by Publication',
+    'active': 'Active in Context First',
+    'size': 'Content Length / File Size'
+  };
+  showToast(`Auto-sorted library by ${sortNames[val] || val}`, 'info');
 }
 
-function setCategoryFilter(category, btn) {
+function setCategoryFilter(category) {
   CURRENT_CATEGORY_FILTER = category;
-  document.querySelectorAll('#category-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  try { localStorage.setItem('nblmimic_category_filter', category); } catch (e) {}
   renderLibrary();
+  const filterLabel = category === 'all' ? 'All Sources' : category;
+  showToast(`Filter applied: ${filterLabel}`, 'info');
+}
+
+function filterByCategoryFromSidebar(catId) {
+  CURRENT_CATEGORY_FILTER = catId;
+  try { localStorage.setItem('nblmimic_category_filter', catId); } catch (e) {}
+  switchView('library');
+  renderLibrary();
+}
+
+function renderCategoryFilterBar(counts) {
+  const container = document.getElementById('category-filter-bar');
+  if (!container) return;
+
+  // Filter definitions to display: 'all' + categories that have items > 0 or are the currently selected filter
+  const visibleCategories = CATEGORY_DEFINITIONS.filter(def => {
+    if (def.id === 'all') return true;
+    if (def.id.toLowerCase() === CURRENT_CATEGORY_FILTER.toLowerCase()) return true;
+    return (counts[def.id] || 0) > 0;
+  });
+
+  const buttonsHtml = visibleCategories.map(def => {
+    const isActive = CURRENT_CATEGORY_FILTER.toLowerCase() === def.id.toLowerCase();
+    const count = def.id === 'all' ? (counts.all || 0) : (counts[def.id] || 0);
+    return `
+      <button class="filter-btn ${isActive ? 'active' : ''}" 
+              data-cat="${def.id}" 
+              onclick="setCategoryFilter('${def.id}')"
+              title="Filter by ${def.label} (${count})">
+        <span class="filter-icon">${def.icon}</span>
+        <span class="filter-label">${def.label}</span>
+        <span class="filter-count">${count}</span>
+      </button>
+    `;
+  }).join('');
+
+  const sortSelectHtml = `
+    <div class="sort-wrap">
+      <label for="sort-select" style="font-size:11px; font-weight:600; color:var(--text-tertiary); display:flex; align-items:center; gap:4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="21" y1="10" x2="3" y2="10"></line>
+          <line x1="21" y1="6" x2="3" y2="6"></line>
+          <line x1="21" y1="14" x2="3" y2="14"></line>
+          <line x1="21" y1="18" x2="3" y2="18"></line>
+        </svg>
+        Sort:
+      </label>
+      <select id="sort-select" class="sort-select" onchange="handleSortChange(this.value)" title="Choose auto-sort mode">
+        <option value="latest" ${CURRENT_SORT_MODE === 'latest' ? 'selected' : ''}>⏱️ Newest First</option>
+        <option value="oldest" ${CURRENT_SORT_MODE === 'oldest' ? 'selected' : ''}>⌛ Oldest First</option>
+        <option value="alpha" ${CURRENT_SORT_MODE === 'alpha' ? 'selected' : ''}>🔤 Title (A → Z)</option>
+        <option value="alpha-desc" ${CURRENT_SORT_MODE === 'alpha-desc' ? 'selected' : ''}>🔠 Title (Z → A)</option>
+        <option value="category" ${CURRENT_SORT_MODE === 'category' ? 'selected' : ''}>📁 Category</option>
+        <option value="source" ${CURRENT_SORT_MODE === 'source' ? 'selected' : ''}>📰 Publication</option>
+        <option value="active" ${CURRENT_SORT_MODE === 'active' ? 'selected' : ''}>⚡ In Context First</option>
+        <option value="size" ${CURRENT_SORT_MODE === 'size' ? 'selected' : ''}>📄 Size / Length</option>
+      </select>
+    </div>
+  `;
+
+  container.innerHTML = buttonsHtml + '<div class="filter-sep"></div>' + sortSelectHtml;
+}
+
+function renderSidebarCategories(counts) {
+  const nav = document.getElementById('sidebar-categories-nav');
+  if (!nav) return;
+
+  const categoriesWithItems = CATEGORY_DEFINITIONS.filter(def => def.id !== 'all' && (counts[def.id] || 0) > 0);
+
+  if (categoriesWithItems.length === 0) {
+    nav.innerHTML = `
+      <div style="padding: 6px 14px; font-size: 11px; color: var(--text-tertiary);">
+        No categories yet
+      </div>
+    `;
+    return;
+  }
+
+  nav.innerHTML = categoriesWithItems.map(def => {
+    const isActive = (typeof CURRENT_VIEW === 'undefined' || CURRENT_VIEW === 'library') && 
+                     CURRENT_CATEGORY_FILTER.toLowerCase() === def.id.toLowerCase();
+    const count = counts[def.id] || 0;
+    return `
+      <button class="nav-item ${isActive ? 'active' : ''}" 
+              onclick="filterByCategoryFromSidebar('${def.id}')"
+              title="Show ${def.label} (${count} sources)">
+        <span style="font-size:13px; line-height:1;">${def.icon}</span>
+        <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${def.label}</span>
+        <span class="nav-item-count">${count}</span>
+      </button>
+    `;
+  }).join('');
 }
 
 function toggleSourceActive(docId, event) {
@@ -4696,11 +4863,11 @@ async function fetchLiveNews(force = false) {
     if (res.ok) {
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
-        // Retain user custom notes or uploaded PDFs
-        const userCustomDocs = DOCS.filter(d => d.type === 'note' || (d.type === 'pdf' && d.source === 'User Upload'));
+        // Retain user custom notes or uploaded files
+        const userCustomDocs = DOCS.filter(d => d.type === 'note' || d.type === 'pdf' || d.source === 'User Upload' || String(d.id).startsWith('drive-'));
         const incomingNews = data.articles;
         const merged = [...incomingNews, ...userCustomDocs];
-        merged.forEach((item, i) => { item.id = i + 1; });
+        merged.forEach((item, i) => { if (!item.id) item.id = i + 1; });
 
         DOCS = sortDocsList(merged, CURRENT_SORT_MODE);
         DOCS.forEach(d => activeSourceIds.add(d.id));
@@ -4731,88 +4898,116 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
   if (!grid) return;
   grid.innerHTML = '';
 
-  // 1. Update Category Counts
-  const counts = {
-    all: DOCS.length,
-    'AI & ML': 0,
-    'Tech & Dev': 0,
-    'Science': 0,
-    'Business': 0,
-    'World & Policy': 0,
-    'Notes & Uploads': 0
-  };
+  if (categoryFilter !== undefined && categoryFilter !== null) {
+    CURRENT_CATEGORY_FILTER = categoryFilter;
+  }
 
-  DOCS.forEach(d => {
-    const c = d.category || detectCategory(d.title, d.content);
-    if (counts[c] !== undefined) counts[c]++;
-    else counts['Tech & Dev']++;
+  // If searchQuery wasn't explicitly passed, check header search input
+  if (searchQuery === '' && typeof document !== 'undefined') {
+    const sInput = document.querySelector('.search-input');
+    if (sInput && sInput.value.trim()) {
+      searchQuery = sInput.value.trim();
+    }
+  }
+
+  // 1. Calculate dynamic counts across all categories
+  const counts = { all: DOCS.length };
+  CATEGORY_DEFINITIONS.forEach(def => {
+    if (def.id !== 'all') counts[def.id] = 0;
   });
 
-  const countAll = document.getElementById('count-all');
-  const countAi = document.getElementById('count-ai');
-  const countTech = document.getElementById('count-tech');
-  const countScience = document.getElementById('count-science');
-  const countBiz = document.getElementById('count-biz');
-  const countWorld = document.getElementById('count-world');
-  const countNotes = document.getElementById('count-notes');
+  DOCS.forEach(d => {
+    const c = d.category || detectCategory(d.title, d.content, d.type);
+    if (counts[c] !== undefined) {
+      counts[c]++;
+    } else {
+      counts['Tech & Dev'] = (counts['Tech & Dev'] || 0) + 1;
+    }
+  });
 
-  if (countAll) countAll.textContent = counts.all;
-  if (countAi) countAi.textContent = counts['AI & ML'];
-  if (countTech) countTech.textContent = counts['Tech & Dev'];
-  if (countScience) countScience.textContent = counts['Science'];
-  if (countBiz) countBiz.textContent = counts['Business'];
-  if (countWorld) countWorld.textContent = counts['World & Policy'];
-  if (countNotes) countNotes.textContent = counts['Notes & Uploads'];
+  // 2. Render filter pills and sidebar categories
+  renderCategoryFilterBar(counts);
+  renderSidebarCategories(counts);
 
-  // 2. Filter by Category
+  // Update sidebar all count and library badge count if present
+  const sidebarAllCount = document.getElementById('sidebar-all-count');
+  if (sidebarAllCount) sidebarAllCount.textContent = DOCS.length;
+  const badgeCount = document.getElementById('library-badge-count');
+  if (badgeCount) badgeCount.textContent = DOCS.length;
+
+  // 3. Filter by Category
   let filtered = DOCS;
-  if (categoryFilter && categoryFilter !== 'all') {
+  if (CURRENT_CATEGORY_FILTER && CURRENT_CATEGORY_FILTER !== 'all') {
     filtered = filtered.filter(d => {
-      const c = d.category || detectCategory(d.title, d.content);
-      return c.toLowerCase() === categoryFilter.toLowerCase();
+      const c = d.category || detectCategory(d.title, d.content, d.type);
+      return c.toLowerCase() === CURRENT_CATEGORY_FILTER.toLowerCase();
     });
   }
 
-  // 3. Filter by Search Query
+  // 4. Filter by Search Query
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(d => 
       (d.title || '').toLowerCase().includes(q) || 
       (d.source || '').toLowerCase().includes(q) || 
       (d.excerpt || '').toLowerCase().includes(q) ||
+      (d.content || '').toLowerCase().includes(q) ||
       (d.category || '').toLowerCase().includes(q) ||
       (d.tags && d.tags.some(t => t.toLowerCase().includes(q)))
     );
   }
 
-  // 4. Auto-Sort
+  // 5. Auto-Sort
   filtered = sortDocsList(filtered, CURRENT_SORT_MODE);
 
   // Update header subtitle
   const subtitle = document.getElementById('library-subtitle');
   const activeCount = DOCS.filter(d => Array.from(activeSourceIds).some(id => String(id) === String(d.id))).length;
   if (subtitle) {
-    subtitle.textContent = `${DOCS.length} total sources · ${activeCount} active in research context · Auto-sorted by ${CURRENT_SORT_MODE}`;
+    const sortLabel = CURRENT_SORT_MODE === 'latest' ? 'Newest' :
+                      CURRENT_SORT_MODE === 'oldest' ? 'Oldest' :
+                      CURRENT_SORT_MODE === 'alpha' ? 'A → Z' :
+                      CURRENT_SORT_MODE === 'alpha-desc' ? 'Z → A' :
+                      CURRENT_SORT_MODE === 'category' ? 'Category' :
+                      CURRENT_SORT_MODE === 'source' ? 'Publication' :
+                      CURRENT_SORT_MODE === 'active' ? 'Active' : 'Size';
+    subtitle.textContent = `${DOCS.length} sources · ${activeCount} active in context · Sorted by ${sortLabel}`;
   }
 
+  // 6. Handle Empty State
   if (filtered.length === 0) {
+    const isFiltered = CURRENT_CATEGORY_FILTER !== 'all' || searchQuery;
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align:center; padding: 48px 16px; color:var(--text-tertiary);">
-        <div style="font-size:32px; margin-bottom:8px;">🔍</div>
-        <div style="font-size:14px; font-weight:600; color:var(--text-secondary);">No documents match this category</div>
-        <div style="font-size:12px; margin-top:4px;">Try selecting another category or click "Refresh News".</div>
+        <div style="font-size:36px; margin-bottom:12px;">🔍</div>
+        <div style="font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">No documents found</div>
+        <div style="font-size:12.5px; color:var(--text-secondary); max-width:420px; margin:0 auto 16px;">
+          ${searchQuery ? `No sources match "${searchQuery}" in ${CURRENT_CATEGORY_FILTER === 'all' ? 'any category' : CURRENT_CATEGORY_FILTER}.` : `No sources found in category "${CURRENT_CATEGORY_FILTER}".`}
+        </div>
+        ${isFiltered ? `
+          <button class="btn btn-secondary btn-sm" onclick="setCategoryFilter('all'); const si = document.querySelector('.search-input'); if(si){si.value='';}" style="margin:0 auto;">
+            Reset Filters
+          </button>
+        ` : `
+          <button class="btn btn-primary btn-sm" onclick="fetchLiveNews(true)" style="margin:0 auto;">
+            Refresh Live News
+          </button>
+        `}
       </div>
     `;
     return;
   }
 
+  // 7. Render Document Cards
   filtered.forEach((doc, i) => {
     const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
-    const cat = doc.category || detectCategory(doc.title, doc.content);
+    const cat = doc.category || detectCategory(doc.title, doc.content, doc.type);
     const catClass = getCategoryColor(cat);
+    const catIcon = getCategoryIcon(cat);
+    const readingTime = calcReadingTime(doc.content || doc.excerpt);
 
     const card = document.createElement('div');
-    card.className = 'doc-card';
+    card.className = `doc-card ${isChecked ? 'active-context' : ''}`;
     card.style.animationDelay = `${Math.min(i * 25, 250)}ms`;
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
@@ -4828,11 +5023,17 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
 
     card.innerHTML = `
       <div class="doc-card-header">
-        <div class="doc-icon ${doc.type || 'news'}">${doc.icon || '📰'}</div>
+        <div class="doc-icon ${doc.type || 'news'}">${doc.icon || catIcon}</div>
         <div class="doc-card-meta">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:3px;">
-            <span class="category-badge ${catClass}">${cat}</span>
-            <div class="source-check ${isChecked ? 'checked' : ''}" title="${isChecked ? 'Active in research context (click to toggle)' : 'Excluded from research context (click to include)'}" onclick="toggleSourceActive('${doc.id}', event)"></div>
+            <span class="category-badge ${catClass}">
+              <span>${catIcon}</span>
+              <span>${cat}</span>
+            </span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="doc-card-reading-time" title="Estimated reading time">⏱️ ${readingTime}</span>
+              <div class="source-check ${isChecked ? 'checked' : ''}" title="${isChecked ? 'Active in research context (click to toggle)' : 'Excluded from research context (click to include)'}" onclick="toggleSourceActive('${doc.id}', event)"></div>
+            </div>
           </div>
           <div class="doc-card-title">${doc.title}</div>
           <div class="doc-card-source">${doc.source} · <span style="color:var(--text-tertiary);">${doc.date || 'Today'}</span></div>
@@ -4846,6 +5047,11 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
         </div>
         <div style="display:flex; align-items:center; gap:6px; margin-left:auto;">
           ${sourceLink}
+          <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${(doc.title || '').replace(/"/g, '&quot;')}&quot; from ${doc.source || 'this source'}.'); switchView('chat');">
+            <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
+              <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <button class="btn-icon" title="Rename Document" aria-label="Rename document" style="width:24px; height:24px; padding:3px; color:var(--text-secondary);" onclick="event.stopPropagation(); renameDocument('${doc.id}')">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
               <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/>
@@ -4871,7 +5077,7 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
             <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
           </svg>
         </button>
-        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.'); switchView('chat');">
+        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${(doc.title || '').replace(/"/g, '&quot;')}&quot; from ${doc.source || 'this source'}.'); switchView('chat');">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
@@ -4897,17 +5103,21 @@ function renderSidepanelSources() {
 
   sorted.forEach(doc => {
     const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
-    const cat = doc.category || detectCategory(doc.title, doc.content);
+    const cat = doc.category || detectCategory(doc.title, doc.content, doc.type);
     const catClass = getCategoryColor(cat);
+    const catIcon = getCategoryIcon(cat);
 
     const item = document.createElement('div');
-    item.className = 'source-item';
+    item.className = `source-item ${isChecked ? 'active' : ''}`;
     item.innerHTML = `
-      <div class="source-check ${isChecked ? 'checked' : ''}" role="checkbox" aria-checked="${isChecked}" tabindex="0"></div>
-      <div class="source-item-icon doc-icon ${doc.type || 'news'}">${doc.icon || '📰'}</div>
+      <div class="source-check ${isChecked ? 'checked' : ''}" role="checkbox" aria-checked="${isChecked}" tabindex="0" title="${isChecked ? 'Click to exclude from agent context' : 'Click to include in agent context'}"></div>
+      <div class="source-item-icon doc-icon ${doc.type || 'news'}">${doc.icon || catIcon}</div>
       <div class="source-item-body">
         <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
-          <span class="category-badge ${catClass}" style="font-size:9.5px; padding:1px 5px;">${cat}</span>
+          <span class="category-badge ${catClass}" style="font-size:9.5px; padding:1px 6px;">
+            <span style="font-size:10px;">${catIcon}</span>
+            <span>${cat}</span>
+          </span>
         </div>
         <div class="source-item-title">${doc.title}</div>
         <div class="source-item-meta">${doc.source} · ${doc.date || 'Today'}</div>
@@ -4948,8 +5158,10 @@ function openSourcePanel(num) {
   const doc = DOCS.find(d => String(d.id) === String(num));
   const contextTab = document.getElementById('sp-context');
   if (doc && contextTab) {
-    const cat = doc.category || detectCategory(doc.title, doc.content);
+    const cat = doc.category || detectCategory(doc.title, doc.content, doc.type);
     const catClass = getCategoryColor(cat);
+    const catIcon = getCategoryIcon(cat);
+    const readingTime = calcReadingTime(doc.content || doc.excerpt);
     const sourceLink = doc.url ? `<div style="margin-top:8px;"><a href="${doc.url}" target="_blank" rel="noopener" style="font-size:12px; color:var(--accent); text-decoration:none;">🔗 Open Original Live Article (${doc.source})</a></div>` : '';
 
     contextTab.innerHTML = `
@@ -4967,8 +5179,14 @@ function openSourcePanel(num) {
         </div>
         <div class="insight-card">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-            <span class="category-badge ${catClass}">${cat}</span>
-            <span style="font-size:11px; color:var(--text-tertiary);">${doc.date || 'Today'}</span>
+            <span class="category-badge ${catClass}">
+              <span>${catIcon}</span>
+              <span>${cat}</span>
+            </span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="doc-card-reading-time">⏱️ ${readingTime}</span>
+              <span style="font-size:11px; color:var(--text-tertiary);">${doc.date || 'Today'}</span>
+            </div>
           </div>
           <div class="insight-card-text" style="font-weight:600; margin-bottom:4px; font-size:13.5px; line-height:1.4;">${doc.title}</div>
           <div class="insight-card-meta" style="font-size:11px; color:var(--text-tertiary); margin-bottom:8px;">${doc.source}</div>
@@ -4978,7 +5196,7 @@ function openSourcePanel(num) {
           </div>
           ${sourceLink}
         </div>
-        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="askPreset('Provide a detailed breakdown and synthesis of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.')">
+        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="askPreset('Provide a detailed breakdown and synthesis of &quot;${(doc.title || '').replace(/"/g, '&quot;')}&quot; from ${doc.source || 'this source'}.')">
           Ask Agent about this source
         </button>
       </div>
@@ -5325,18 +5543,23 @@ function deleteNotebook(id) {
 }
 
 /* ════ VIEW SWITCHING ════ */
+let CURRENT_VIEW = 'library';
 function switchView(viewId, btn) {
+  CURRENT_VIEW = viewId;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById('view-' + viewId);
   if (target) target.classList.add('active');
 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  else {
+  if (btn) {
+    btn.classList.add('active');
+  } else {
     document.querySelectorAll(`.nav-item[data-view="${viewId}"]`).forEach(n => n.classList.add('active'));
   }
 
-  if (viewId === 'chat') {
+  if (viewId === 'library') {
+    renderLibrary();
+  } else if (viewId === 'chat') {
     renderChat();
     updateApiKeyBanner();
   }
@@ -7016,7 +7239,25 @@ if (searchInput) {
   searchInput.addEventListener('input', (e) => {
     renderLibrary(CURRENT_CATEGORY_FILTER, e.target.value.trim());
   });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchInput.value = '';
+      searchInput.blur();
+      renderLibrary(CURRENT_CATEGORY_FILTER, '');
+    }
+  });
 }
+
+// Global keyboard shortcut: Ctrl+K / Cmd+K for fast searching
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.select();
+    }
+  }
+});
 
 // Notes auto-save
 const notesArea = document.querySelector('#sp-notes textarea');
@@ -7045,6 +7286,11 @@ renderSidebarNotebooks();
 renderLibrary();
 renderSidepanelSources();
 renderChat();
+
+// Auto-fetch fresh live research articles on startup
+setTimeout(() => {
+  fetchLiveNews(false);
+}, 600);
 
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
   setTheme('dark');

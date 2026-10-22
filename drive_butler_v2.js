@@ -106,7 +106,51 @@ function doPost(e) {
     const action = data.action || "saveNote";
     const userFolder = getOrCreateUserFolder(username);
     
-    if (action === "signIn") {
+    if (action === "signIn" || action === "register") {
+      const profileFiles = userFolder.getFilesByName("profile.json");
+      let profile = {};
+      let profileFileObj = null;
+      if (profileFiles.hasNext()) {
+        profileFileObj = profileFiles.next();
+        try {
+          profile = JSON.parse(profileFileObj.getBlob().getDataAsString());
+        } catch (err) {}
+      }
+
+      // Check if registration conflicts with an existing password-protected user
+      if (action === "register" && profile.passwordHash && data.passwordHash) {
+        if (profile.passwordHash !== data.passwordHash) {
+          return ContentService.createTextOutput(JSON.stringify({
+            status: "error",
+            code: "USERNAME_TAKEN",
+            message: "Username @" + username + " is already registered in Google Drive. Please sign in or choose another username."
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+
+      // Check if sign-in password matches
+      if (action === "signIn" && profile.passwordHash && data.passwordHash) {
+        if (profile.passwordHash !== data.passwordHash) {
+          return ContentService.createTextOutput(JSON.stringify({
+            status: "error",
+            code: "INCORRECT_PASSWORD",
+            message: "Incorrect password for user @" + username + " in Google Drive."
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+
+      // If user provided a password and profile didn't have one yet, record it
+      if (data.passwordHash && !profile.passwordHash) {
+        profile.passwordHash = data.passwordHash;
+        profile.email = data.email || profile.email;
+        profile.displayName = data.displayName || profile.displayName;
+        if (profileFileObj) {
+          profileFileObj.setContent(JSON.stringify(profile, null, 2));
+        } else {
+          userFolder.createFile("profile.json", JSON.stringify(profile, null, 2), MimeType.PLAIN_TEXT);
+        }
+      }
+
       // User registered or signed in!
       const storage = calculateFolderStorage(userFolder);
       return ContentService.createTextOutput(JSON.stringify({

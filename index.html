@@ -3439,10 +3439,10 @@ svg { display: block; flex-shrink: 0; }
             </svg>
           </div>
           <div class="dropzone-title">Drop files here or click to browse</div>
-          <div class="dropzone-subtitle">PDF, EPUB, TXT, Markdown, DOCX, Images (PNG, JPG, WebP)</div>
+          <div class="dropzone-subtitle">PDF, EPUB, TXT, MD, JSON, CSV, DOCX, XLSX, PPTX, RTF, HTML, YAML, Code files, Images</div>
           <div class="dropzone-hint">Max 100 MB per file · Multiple files supported</div>
         </div>
-        <input type="file" id="file-input" multiple accept=".pdf,.epub,.txt,.md,.docx,.png,.jpg,.jpeg,.gif,.webp,image/*" style="display:none" onchange="handleFileSelect(this)">
+        <input type="file" id="file-input" multiple accept=".pdf,.epub,.txt,.md,.markdown,.json,.csv,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.rtf,.html,.htm,.xml,.yaml,.yml,.py,.js,.ts,.go,.rs,.java,.c,.cpp,.sh,.sql,.png,.jpg,.jpeg,.gif,.webp,.svg,.bmp,.avif,image/*,text/*" style="display:none" onchange="handleFileSelect(this)">
 
         <div class="upload-progress" id="upload-progress">
           <div class="upload-file-item" id="upload-file-1" style="display:none">
@@ -3625,22 +3625,45 @@ svg { display: block; flex-shrink: 0; }
     <div id="g-direct-signin-wrap" style="width: 100%; margin-top: 8px;">
       <div style="display: flex; align-items: center; width: 100%; gap: 12px; margin: 12px 0 16px;">
         <div style="flex: 1; height: 1px; background: var(--border);"></div>
-        <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">or sign in with email</span>
+        <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;" id="g-signin-mode-label">or sign in with email</span>
         <div style="flex: 1; height: 1px; background: var(--border);"></div>
       </div>
 
+      <!-- Mode indicator: Sign In / Register -->
+      <div style="display:flex; gap:4px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:3px; margin-bottom:14px;">
+        <button type="button" id="g-mode-signin" onclick="switchSigninMode('signin')" style="flex:1; padding:6px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:var(--accent); color:#fff; transition:background 150ms;">Sign In</button>
+        <button type="button" id="g-mode-register" onclick="switchSigninMode('register')" style="flex:1; padding:6px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:transparent; color:var(--text-secondary); transition:background 150ms;">Register</button>
+      </div>
+
+      <!-- Error / info message -->
+      <div id="g-signin-error" style="display:none; background:#fef2f2; border:1px solid #fca5a5; border-radius:var(--radius-sm); padding:8px 12px; font-size:12px; color:#b91c1c; margin-bottom:10px; line-height:1.4;"></div>
+
       <form onsubmit="handleRealGoogleDirectSignIn(event)" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="g-textfield" style="margin: 0;">
-          <input type="text" id="g-direct-username" class="g-textfield-input" placeholder=" " required pattern="[a-zA-Z0-9_\-]+" />
+          <input type="text" id="g-direct-username" class="g-textfield-input" placeholder=" " required pattern="[a-zA-Z0-9_\-]+" oninput="onSigninUsernameInput()" />
           <label for="g-direct-username" class="g-textfield-label">Username</label>
         </div>
         <div class="g-textfield" style="margin: 0;">
           <input type="email" id="g-direct-email" class="g-textfield-input" placeholder=" " required />
-          <label for="g-direct-email" class="g-textfield-label">Google email or phone</label>
+          <label for="g-direct-email" class="g-textfield-label">Email</label>
         </div>
-        <div class="g-textfield" style="margin: 0;">
+        <div class="g-textfield" id="g-name-field-wrap" style="margin: 0; display:none;">
           <input type="text" id="g-direct-name" class="g-textfield-input" placeholder=" " />
-          <label for="g-direct-name" class="g-textfield-label">Your Name (optional)</label>
+          <label for="g-direct-name" class="g-textfield-label">Display Name (optional)</label>
+        </div>
+        <div class="g-textfield" style="margin: 0; position:relative;">
+          <input type="password" id="g-direct-password" class="g-textfield-input" placeholder=" " required minlength="6" autocomplete="current-password" />
+          <label for="g-direct-password" class="g-textfield-label">Password</label>
+          <button type="button" tabindex="-1" onclick="togglePasswordVisibility('g-direct-password', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); border:none; background:transparent; cursor:pointer; color:var(--text-tertiary); padding:4px;" title="Toggle password visibility">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="g-textfield" id="g-confirm-pw-wrap" style="margin: 0; display:none; position:relative;">
+          <input type="password" id="g-direct-password-confirm" class="g-textfield-input" placeholder=" " autocomplete="new-password" />
+          <label for="g-direct-password-confirm" class="g-textfield-label">Confirm Password</label>
+          <button type="button" tabindex="-1" onclick="togglePasswordVisibility('g-direct-password-confirm', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); border:none; background:transparent; cursor:pointer; color:var(--text-tertiary); padding:4px;" title="Toggle password visibility">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
         <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px; font-size:12px; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
           <span>Cloud Storage Quota:</span>
@@ -3648,8 +3671,8 @@ svg { display: block; flex-shrink: 0; }
         </div>
         <div class="g-action-row" style="margin-top: 8px;">
           <button type="button" class="g-btn-text" onclick="closeGoogleSignInScreen()">Cancel</button>
-          <button type="submit" class="g-btn-pill">
-            <span>Continue</span>
+          <button type="submit" class="g-btn-pill" id="g-submit-btn">
+            <span id="g-submit-label">Sign In</span>
           </button>
         </div>
       </form>
@@ -5010,44 +5033,109 @@ function handleImportModal() {
 
 function processUploadedFile(file) {
   if (!file) return;
-  const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(file.name);
+  const ext = file.name.split('.').pop().toLowerCase();
+  const isImage = file.type.startsWith('image/') || /^(png|jpe?g|gif|webp|svg|bmp|tiff?|ico|avif)$/i.test(ext);
   const reader = new FileReader();
+
+  // File type → icon + category mapping
+  const fileTypeMeta = {
+    pdf:  { type: 'pdf',  icon: '📄', source: 'PDF Document',     cat: 'Documents' },
+    md:   { type: 'md',   icon: '📝', source: 'Markdown File',     cat: 'Notes & Uploads' },
+    txt:  { type: 'txt',  icon: '📝', source: 'Text File',         cat: 'Notes & Uploads' },
+    json: { type: 'json', icon: '🔧', source: 'JSON Data',         cat: 'Data & Research' },
+    csv:  { type: 'csv',  icon: '📊', source: 'CSV Spreadsheet',   cat: 'Data & Research' },
+    docx: { type: 'docx', icon: '📄', source: 'Word Document',     cat: 'Documents' },
+    doc:  { type: 'doc',  icon: '📄', source: 'Word Document',     cat: 'Documents' },
+    pptx: { type: 'pptx', icon: '📊', source: 'Presentation',      cat: 'Documents' },
+    ppt:  { type: 'ppt',  icon: '📊', source: 'Presentation',      cat: 'Documents' },
+    xlsx: { type: 'xlsx', icon: '📊', source: 'Excel Spreadsheet', cat: 'Data & Research' },
+    xls:  { type: 'xls',  icon: '📊', source: 'Excel Spreadsheet', cat: 'Data & Research' },
+    epub: { type: 'epub', icon: '📚', source: 'eBook (EPUB)',      cat: 'Documents' },
+    rtf:  { type: 'rtf',  icon: '📄', source: 'Rich Text File',    cat: 'Documents' },
+    html: { type: 'html', icon: '🌐', source: 'HTML Document',     cat: 'Notes & Uploads' },
+    htm:  { type: 'html', icon: '🌐', source: 'HTML Document',     cat: 'Notes & Uploads' },
+    xml:  { type: 'xml',  icon: '🔧', source: 'XML Data',          cat: 'Data & Research' },
+    yaml: { type: 'yaml', icon: '🔧', source: 'YAML Config',       cat: 'Data & Research' },
+    yml:  { type: 'yaml', icon: '🔧', source: 'YAML Config',       cat: 'Data & Research' },
+    py:   { type: 'code', icon: '🐍', source: 'Python Script',     cat: 'Code & Scripts' },
+    js:   { type: 'code', icon: '📜', source: 'JavaScript File',   cat: 'Code & Scripts' },
+    ts:   { type: 'code', icon: '📜', source: 'TypeScript File',   cat: 'Code & Scripts' },
+    go:   { type: 'code', icon: '📜', source: 'Go Source',         cat: 'Code & Scripts' },
+    rs:   { type: 'code', icon: '📜', source: 'Rust Source',       cat: 'Code & Scripts' },
+    java: { type: 'code', icon: '📜', source: 'Java Source',       cat: 'Code & Scripts' },
+    c:    { type: 'code', icon: '📜', source: 'C Source',          cat: 'Code & Scripts' },
+    cpp:  { type: 'code', icon: '📜', source: 'C++ Source',        cat: 'Code & Scripts' },
+    sh:   { type: 'code', icon: '📜', source: 'Shell Script',      cat: 'Code & Scripts' },
+    sql:  { type: 'code', icon: '🗃️', source: 'SQL Query',        cat: 'Data & Research' },
+  };
+
   if (isImage) {
     reader.onload = (evt) => {
-      addNewSource(file.name, evt.target.result || '', 'image');
+      addNewSource(file.name, evt.target.result || '', 'image', '', {
+        icon: '🖼️', sourceName: 'Image Upload', category: 'Images & Media',
+        sizeBytes: file.size
+      });
       closeModal();
-      showToast(`"${file.name}" picture imported and ready for analysis!`, 'success');
+      showToast(`"${file.name}" image imported!`, 'success');
     };
     reader.readAsDataURL(file);
   } else {
+    const meta = fileTypeMeta[ext] || { type: 'txt', icon: '📄', source: 'User Upload', cat: 'Notes & Uploads' };
     reader.onload = (evt) => {
-      const ext = file.name.split('.').pop().toLowerCase();
-      const type = (ext === 'pdf') ? 'pdf' : (ext === 'epub' ? 'epub' : 'txt');
-      addNewSource(file.name, evt.target.result || `Content of ${file.name}`, type);
+      let content = evt.target.result || `[Binary content of ${file.name}]`;
+      // For JSON, pretty-print if valid
+      if (ext === 'json') {
+        try { content = JSON.stringify(JSON.parse(content), null, 2); } catch(e) {}
+      }
+      addNewSource(file.name, content, meta.type, '', {
+        icon: meta.icon, sourceName: meta.source, category: meta.cat,
+        sizeBytes: file.size
+      });
       closeModal();
       showToast(`"${file.name}" imported and ready for analysis!`, 'success');
     };
-    reader.readAsText(file);
+    reader.onerror = () => {
+      showToast(`Failed to read "${file.name}". Try a different format.`, 'error');
+    };
+    reader.readAsText(file, 'UTF-8');
   }
 }
 
-function addNewSource(title, content, type = 'note', url = '') {
+
+function addNewSource(title, content, type = 'note', url = '', meta = {}) {
   const newId = 'doc_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-  const icons = { pdf: '📄', web: '🌐', note: '✏️', txt: '📝', epub: '📚', news: '📰', image: '🖼️', docx: '📄' };
-  const cat = type === 'note' ? 'Notes & Uploads' : (type === 'image' ? 'Images & Media' : detectCategory(title, content));
+  const DEFAULT_ICONS = {
+    pdf: '📄', web: '🌐', note: '✏️', txt: '📝', epub: '📚', news: '📰',
+    image: '🖼️', docx: '📄', doc: '📄', md: '📝', json: '🔧', csv: '📊',
+    xlsx: '📊', xls: '📊', pptx: '📊', ppt: '📊', rtf: '📄', html: '🌐',
+    xml: '🔧', yaml: '🔧', code: '📜', sql: '🗃️'
+  };
+  const icon = meta.icon || DEFAULT_ICONS[type] || '📄';
+  const cat = meta.category || (
+    type === 'note' ? 'Notes & Uploads' :
+    type === 'image' ? 'Images & Media' :
+    detectCategory(title, content)
+  );
+  const sourceName = meta.sourceName || (
+    type === 'note' ? 'Personal Note' :
+    type === 'image' ? 'Image Upload' :
+    'User Upload'
+  );
+  const sizeBytes = meta.sizeBytes || (content ? content.length : 1024);
   const doc = {
     id: newId,
     type: type,
-    icon: icons[type] || (type === 'image' ? '🖼️' : '📄'),
+    icon: icon,
     title: title,
-    source: type === 'note' ? 'Personal Note' : (type === 'image' ? 'Image Upload' : 'User Upload'),
+    source: sourceName,
     category: cat,
-    excerpt: type === 'image' ? `Image document: ${title}` : (content.slice(0, 180) + (content.length > 180 ? '…' : '')),
+    excerpt: type === 'image' ? `Image file: ${title}` : (content ? (content.slice(0, 180) + (content.length > 180 ? '…' : '')) : title),
     content: content,
     url: url,
     tags: ['#user', `#${cat.toLowerCase().replace(/[^a-z]/g, '')}`],
     date: 'Just now',
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    sizeBytes: sizeBytes
   };
   DOCS.unshift(doc);
   activeSourceIds.add(doc.id);
@@ -5055,9 +5143,10 @@ function addNewSource(title, content, type = 'note', url = '') {
   localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
   renderLibrary();
   renderSidepanelSources();
-  CURRENT_STORAGE_USED_BYTES += (content ? content.length : 1024);
+  CURRENT_STORAGE_USED_BYTES += sizeBytes;
   updateStorageMeter(CURRENT_STORAGE_USED_BYTES);
 }
+
 
 function renameDocument(docId) {
   const doc = DOCS.find(d => String(d.id) === String(docId));
@@ -6243,40 +6332,285 @@ function closeGoogleSignInScreen() {
   if (screen) screen.classList.remove('open');
 }
 
-function handleRealGoogleDirectSignIn(e) {
+/* ════ SIGN-IN MODE MANAGEMENT ════ */
+let SIGNIN_CURRENT_MODE = 'signin'; // 'signin' | 'register'
+
+function switchSigninMode(mode) {
+  SIGNIN_CURRENT_MODE = mode;
+  const signinBtn = document.getElementById('g-mode-signin');
+  const registerBtn = document.getElementById('g-mode-register');
+  const submitLabel = document.getElementById('g-submit-label');
+  const nameWrap = document.getElementById('g-name-field-wrap');
+  const confirmPwWrap = document.getElementById('g-confirm-pw-wrap');
+  const heading = document.getElementById('google-signin-heading');
+  const modeLabel = document.getElementById('g-signin-mode-label');
+  const pwInput = document.getElementById('g-direct-password');
+  const confirmPwInput = document.getElementById('g-direct-password-confirm');
+  const errorBox = document.getElementById('g-signin-error');
+
+  if (errorBox) { errorBox.style.display = 'none'; errorBox.textContent = ''; }
+
+  if (mode === 'register') {
+    if (signinBtn) { signinBtn.style.background = 'transparent'; signinBtn.style.color = 'var(--text-secondary)'; }
+    if (registerBtn) { registerBtn.style.background = 'var(--accent)'; registerBtn.style.color = '#fff'; }
+    if (submitLabel) submitLabel.textContent = 'Create Account';
+    if (nameWrap) nameWrap.style.display = '';
+    if (confirmPwWrap) confirmPwWrap.style.display = '';
+    if (heading) heading.textContent = 'Create Account';
+    if (modeLabel) modeLabel.textContent = 'or register with email';
+    if (pwInput) pwInput.autocomplete = 'new-password';
+    if (confirmPwInput) confirmPwInput.required = true;
+  } else {
+    if (signinBtn) { signinBtn.style.background = 'var(--accent)'; signinBtn.style.color = '#fff'; }
+    if (registerBtn) { registerBtn.style.background = 'transparent'; registerBtn.style.color = 'var(--text-secondary)'; }
+    if (submitLabel) submitLabel.textContent = 'Sign In';
+    if (nameWrap) nameWrap.style.display = 'none';
+    if (confirmPwWrap) confirmPwWrap.style.display = 'none';
+    if (heading) heading.textContent = 'Sign in with Google';
+    if (modeLabel) modeLabel.textContent = 'or sign in with email';
+    if (pwInput) pwInput.autocomplete = 'current-password';
+    if (confirmPwInput) confirmPwInput.required = false;
+  }
+}
+
+function generateUsernameSuggestions(baseUsername) {
+  const credentials = getStoredCredentials();
+  const suggestions = [];
+  let counter = 1;
+  while (suggestions.length < 3 && counter < 100) {
+    const candidate = `${baseUsername}_${counter}`;
+    if (!credentials[candidate]) {
+      suggestions.push(candidate);
+    }
+    counter++;
+  }
+  return suggestions;
+}
+
+function applyUsernameSuggestion(suggested) {
+  const input = document.getElementById('g-direct-username');
+  if (input) {
+    input.value = suggested;
+    onSigninUsernameInput();
+    document.getElementById('g-direct-password')?.focus();
+  }
+}
+
+function showSigninErrorHtml(htmlContent, isWarning = false) {
+  const errorBox = document.getElementById('g-signin-error');
+  if (!errorBox) return;
+  errorBox.style.display = 'block';
+  if (isWarning) {
+    errorBox.style.background = '#fffbeb';
+    errorBox.style.borderColor = '#fcd34d';
+    errorBox.style.color = '#92400e';
+  } else {
+    errorBox.style.background = '#fef2f2';
+    errorBox.style.borderColor = '#fca5a5';
+    errorBox.style.color = '#b91c1c';
+  }
+  errorBox.innerHTML = htmlContent;
+}
+
+function onSigninUsernameInput() {
+  const usernameInput = document.getElementById('g-direct-username');
+  const errorBox = document.getElementById('g-signin-error');
+  if (!usernameInput || !errorBox) return;
+  const username = usernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  if (!username) { errorBox.style.display = 'none'; return; }
+
+  const credentials = getStoredCredentials();
+  if (SIGNIN_CURRENT_MODE === 'signin') {
+    if (!credentials[username]) {
+      showSigninErrorHtml(`No account found for "<strong>@${username}</strong>". <a href="javascript:switchSigninMode('register')" style="color:inherit; font-weight:bold; text-decoration:underline;">Switch to Register</a> to create this username.`, true);
+    } else {
+      errorBox.style.display = 'none';
+    }
+  } else {
+    if (credentials[username]) {
+      const suggestions = generateUsernameSuggestions(username);
+      const suggBadges = suggestions.map(s => `<button type="button" onclick="applyUsernameSuggestion('${s}')" style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:4px; padding:2px 6px; margin:2px; font-weight:600; cursor:pointer; color:var(--accent);">@${s}</button>`).join(' ');
+      showSigninErrorHtml(`Username "<strong>@${username}</strong>" is already taken. <a href="javascript:switchSigninMode('signin')" style="color:inherit; font-weight:bold; text-decoration:underline;">Sign In instead</a> or pick an available username:<div style="margin-top:6px;">${suggBadges}</div>`, true);
+    } else {
+      errorBox.style.display = 'none';
+    }
+  }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  } else {
+    input.type = 'password';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+}
+
+function getStoredCredentials() {
+  try {
+    const raw = localStorage.getItem('nblmimic_user_credentials');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveCredentials(credentials) {
+  localStorage.setItem('nblmimic_user_credentials', JSON.stringify(credentials));
+}
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + 'nblmimic_salt_v1');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function showSigninError(msg, isWarning = false) {
+  showSigninErrorHtml(msg, isWarning);
+}
+
+async function handleRealGoogleDirectSignIn(e) {
   if (e) e.preventDefault();
   const usernameInput = document.getElementById('g-direct-username');
   const emailInput = document.getElementById('g-direct-email');
   const nameInput = document.getElementById('g-direct-name');
+  const passwordInput = document.getElementById('g-direct-password');
+  const confirmPwInput = document.getElementById('g-direct-password-confirm');
+  const submitBtn = document.getElementById('g-submit-btn');
+  const submitLabel = document.getElementById('g-submit-label');
+  const errorBox = document.getElementById('g-signin-error');
+
+  if (errorBox) { errorBox.style.display = 'none'; }
+
   const email = (emailInput?.value || '').trim();
-  if (!email) return;
+  const password = (passwordInput?.value || '').trim();
+  if (!email || !password) { showSigninError('Email and password are required.'); return; }
+  if (password.length < 6) { showSigninError('Password must be at least 6 characters.'); return; }
 
   const rawUsername = (usernameInput?.value || '').trim() || email.split('@')[0] || 'user';
   const cleanUsername = rawUsername.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
   const name = (nameInput?.value || '').trim() || cleanUsername;
-  const initial = (name[0] || email[0] || 'U').toUpperCase();
-  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
 
-  CURRENT_USER = {
-    signedIn: true,
-    username: cleanUsername,
-    name: name,
-    email: email,
-    picture: avatar,
-    role: 'Researcher',
-    provider: 'google',
-    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
-    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
-  };
+  if (SIGNIN_CURRENT_MODE === 'register') {
+    const confirmPw = (confirmPwInput?.value || '').trim();
+    if (confirmPw && confirmPw !== password) {
+      showSigninError('Passwords do not match. Please verify.');
+      if (confirmPwInput) {
+        confirmPwInput.style.borderColor = '#f87171';
+        setTimeout(() => { if (confirmPwInput) confirmPwInput.style.borderColor = ''; }, 2000);
+      }
+      return;
+    }
+  }
 
-  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
-  renderUserAvatar();
-  closeGoogleSignInScreen();
-  uploadSignInToGoogleDrive(CURRENT_USER);
-  showToast(`✨ Welcome @${cleanUsername}! 50 GB workspace allocated in Google Drive.`, 'success');
+  if (submitBtn) { submitBtn.disabled = true; }
+  if (submitLabel) { submitLabel.textContent = 'Please wait…'; }
+
+  try {
+    const passwordHash = await hashPassword(password);
+    const credentials = getStoredCredentials();
+
+    if (SIGNIN_CURRENT_MODE === 'register') {
+      // — REGISTRATION —
+      // Check if username is already taken
+      if (credentials[cleanUsername]) {
+        const existingAcc = credentials[cleanUsername];
+        const isSameEmail = existingAcc.email && existingAcc.email.toLowerCase() === email.toLowerCase();
+        const suggestions = generateUsernameSuggestions(cleanUsername);
+        const suggBadges = suggestions.map(s => `<button type="button" onclick="applyUsernameSuggestion('${s}')" style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:4px; padding:2px 6px; margin:2px; font-weight:600; cursor:pointer; color:var(--accent);">@${s}</button>`).join(' ');
+
+        if (isSameEmail) {
+          showSigninErrorHtml(`Username "<strong>@${cleanUsername}</strong>" is already registered with your email. <a href="javascript:switchSigninMode('signin')" style="color:inherit; font-weight:bold; text-decoration:underline;">Click here to Sign In with your password.</a>`);
+        } else {
+          showSigninErrorHtml(`Username "<strong>@${cleanUsername}</strong>" is already taken. Please choose another username or <a href="javascript:switchSigninMode('signin')" style="color:inherit; font-weight:bold; text-decoration:underline;">Sign In</a>.<div style="margin-top:6px; font-size:11.5px;">Available alternatives: ${suggBadges}</div>`);
+        }
+        return;
+      }
+
+      // Save credentials locally
+      credentials[cleanUsername] = {
+        passwordHash,
+        email,
+        name,
+        registeredAt: Date.now()
+      };
+      saveCredentials(credentials);
+
+      // Complete registration and session creation
+      const initial = (name[0] || email[0] || 'U').toUpperCase();
+      const initials = name.split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase() || initial;
+      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0b57d0&color=fff&size=128`;
+
+      CURRENT_USER = {
+        signedIn: true,
+        username: cleanUsername,
+        name,
+        email,
+        picture: avatar,
+        role: 'Researcher',
+        provider: 'direct',
+        storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+        driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+      };
+
+      localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+      renderUserAvatar();
+      closeGoogleSignInScreen();
+      uploadSignInToGoogleDrive(CURRENT_USER, passwordHash, 'register');
+      showToast(`🎉 Account created! Welcome @${cleanUsername}. 50 GB workspace ready.`, 'success');
+
+    } else {
+      // — SIGN IN —
+      const storedCred = credentials[cleanUsername];
+      if (!storedCred) {
+        showSigninErrorHtml(`No account found for "<strong>@${cleanUsername}</strong>". <a href="javascript:switchSigninMode('register')" style="color:inherit; font-weight:bold; text-decoration:underline;">Switch to Register</a> to create this account.`, true);
+        return;
+      }
+      // Verify password
+      if (storedCred.passwordHash !== passwordHash) {
+        showSigninError(`Incorrect password for "@${cleanUsername}". Please try again.`);
+        passwordInput.style.borderColor = '#f87171';
+        setTimeout(() => { if (passwordInput) passwordInput.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      // Password OK — sign in
+      const savedName = storedCred.name || cleanUsername;
+      const initial = (savedName[0] || email[0] || 'U').toUpperCase();
+      const initials = savedName.split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase() || initial;
+      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0b57d0&color=fff&size=128`;
+
+      CURRENT_USER = {
+        signedIn: true,
+        username: cleanUsername,
+        name: savedName,
+        email: storedCred.email || email,
+        picture: avatar,
+        role: 'Researcher',
+        provider: 'direct',
+        storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+        driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+      };
+
+      localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+      renderUserAvatar();
+      closeGoogleSignInScreen();
+      uploadSignInToGoogleDrive(CURRENT_USER, passwordHash, 'signIn');
+      showToast(`✨ Welcome back @${cleanUsername}!`, 'success');
+    }
+  } catch (err) {
+    console.error('Sign-in error:', err);
+    showSigninError('An unexpected error occurred. Please try again.');
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; }
+    if (submitLabel) { submitLabel.textContent = SIGNIN_CURRENT_MODE === 'register' ? 'Create Account' : 'Sign In'; }
+  }
 }
-
-/* ════ MULTI-USER STORAGE & GOOGLE DRIVE INTEGRATION ════ */
 
 function formatBytes(bytes) {
   if (!bytes || bytes <= 0) return '0.0 MB';
@@ -6319,17 +6653,18 @@ function updateStorageMeter(usedBytes = CURRENT_STORAGE_USED_BYTES) {
   }
 }
 
-async function uploadSignInToGoogleDrive(user) {
+async function uploadSignInToGoogleDrive(user, passwordHash = '', mode = 'signIn') {
   if (!user || !user.username) return;
   try {
     const res = await fetch(GOOGLE_DRIVE_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
-        action: 'signIn',
+        action: mode,
         username: user.username,
         displayName: user.name,
         email: user.email,
+        passwordHash: passwordHash,
         timestamp: new Date().toISOString()
       })
     });

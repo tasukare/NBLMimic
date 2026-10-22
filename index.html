@@ -2927,13 +2927,13 @@ svg { display: block; flex-shrink: 0; }
             Settings
           </button>
         </nav>
-        <div class="storage-indicator">
+        <div class="storage-indicator" id="sidebar-storage-indicator" style="cursor:pointer;" onclick="openGoogleAccountDetails(event)" title="Google Drive allocated storage (50 GB per user)">
           <div class="storage-label">
-            <span>Local Storage</span>
-            <span>3.4 GB / 10 GB</span>
+            <span id="storage-quota-label">Drive Storage</span>
+            <span id="storage-quota-text" style="font-variant-numeric:tabular-nums; font-weight:500;">0.0 MB / 50.0 GB</span>
           </div>
-          <div class="storage-bar">
-            <div class="storage-fill"></div>
+          <div class="storage-bar" style="background:var(--border); overflow:hidden;">
+            <div class="storage-fill" id="storage-quota-bar" style="width:0.1%; transition:width 300ms ease, background 300ms ease; background:var(--accent);"></div>
           </div>
         </div>
       </div>
@@ -2949,16 +2949,17 @@ svg { display: block; flex-shrink: 0; }
 
       <div class="library-header">
         <div>
-          <h1 class="library-title" id="library-title">Live Research Feed & Sources</h1>
-          <p class="library-subtitle" id="library-subtitle">Real-time live news auto-synced · Sources grounded in research context</p>
+          <h1 class="library-title" id="library-title">Research Library & Sources</h1>
+          <p class="library-subtitle" id="library-subtitle">Personal research documents & notes · Synced with Google Drive (50 GB)</p>
         </div>
         <div class="library-actions">
-          <button class="btn btn-secondary btn-sm" id="btn-refresh-news" onclick="fetchLiveNews(true)" title="Fetch and auto-sort newest live articles from Hacker News, Ars Technica, and ScienceDaily">
-            <svg id="refresh-news-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M1 8a7 7 0 0 1 12-4.9L15 5M15 1v4h-4"/>
-              <path d="M15 8a7 7 0 0 1-12 4.9L1 11M1 15v-4h4"/>
+          <button class="btn btn-secondary btn-sm" id="btn-sync-drive" onclick="syncWithGoogleDrive(true)" title="Sync your workspace with Google Drive">
+            <svg id="sync-drive-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
+              <polyline points="16 16 12 12 8 16"/>
+              <line x1="12" y1="12" x2="12" y2="21"/>
             </svg>
-            <span id="refresh-news-label">Refresh News</span>
+            <span id="sync-drive-label">Sync Drive</span>
           </button>
           <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()" title="Upload PDF, notes, or import web URLs">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -2967,15 +2968,6 @@ svg { display: block; flex-shrink: 0; }
             Import Source
           </button>
         </div>
-      </div>
-
-      <div class="live-news-banner" id="live-news-banner">
-        <div class="live-news-badge">
-          <span class="live-pulse"></span>
-          <span>LIVE NEWS STREAM</span>
-        </div>
-        <div class="live-news-info" id="live-news-info">Auto-synced with real-time news sources · Auto-sorted by recency</div>
-        <div style="font-size:11px; color:var(--text-tertiary);" id="live-news-last-updated">Updated just now</div>
       </div>
 
       <div class="filter-bar" id="category-filter-bar">
@@ -3656,12 +3648,20 @@ svg { display: block; flex-shrink: 0; }
 
       <form onsubmit="handleRealGoogleDirectSignIn(event)" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="g-textfield" style="margin: 0;">
+          <input type="text" id="g-direct-username" class="g-textfield-input" placeholder=" " required pattern="[a-zA-Z0-9_\-]+" />
+          <label for="g-direct-username" class="g-textfield-label">Username (Drive folder: user/&lt;username&gt;)</label>
+        </div>
+        <div class="g-textfield" style="margin: 0;">
           <input type="email" id="g-direct-email" class="g-textfield-input" placeholder=" " required />
           <label for="g-direct-email" class="g-textfield-label">Google email or phone</label>
         </div>
         <div class="g-textfield" style="margin: 0;">
           <input type="text" id="g-direct-name" class="g-textfield-input" placeholder=" " />
           <label for="g-direct-name" class="g-textfield-label">Your Name (optional)</label>
+        </div>
+        <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px; font-size:12px; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
+          <span>Cloud Storage Quota:</span>
+          <strong style="color:var(--text-primary); font-family:var(--font-mono)">50.00 GB</strong>
         </div>
         <div class="g-action-row" style="margin-top: 8px;">
           <button type="button" class="g-btn-text" onclick="closeGoogleSignInScreen()">Cancel</button>
@@ -3751,7 +3751,8 @@ svg { display: block; flex-shrink: 0; }
         <div style="flex:1; min-width:0;">
           <div id="gai-name" style="font-size:16px; font-weight:600; color:var(--text-primary);">Google Account</div>
           <div id="gai-email" style="font-size:13px; color:var(--text-secondary);">user@gmail.com</div>
-          <div style="font-size:11px; color:#059669; font-weight:600; margin-top:3px;">● Connected to Research Lab</div>
+          <div id="gai-drive-folder" style="font-size:11px; color:var(--accent); font-family:var(--font-mono); margin-top:2px;">📁 Drive: NBLMimic_Database/user/...</div>
+          <div id="gai-storage-stat" style="font-size:11px; color:#059669; font-weight:600; margin-top:3px;">● 0.0 MB / 50.0 GB (50 GB Cloud Quota)</div>
         </div>
       </div>
       <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
@@ -3775,129 +3776,38 @@ svg { display: block; flex-shrink: 0; }
    Powered by Google Gemini API
 ════════════════════════════════════════════════ */
 
-// Default documents (Real-time live news sources across categories)
+/* ════ GOOGLE DRIVE DATABASE & USER CONFIG ════ */
+const GOOGLE_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbzkuR4WPxjQWafcMrKb79fCiNpmZ7RIxrnTMH4Gu-CKpfnTiuksvBOOyjgy_i-Dp-XF/exec";
+const USER_STORAGE_LIMIT_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per user
+let CURRENT_STORAGE_USED_BYTES = 0;
+
+// Default research documents
 const DEFAULT_DOCS = [
   {
-    id: 1, type: 'news', icon: '🤖',
-    title: 'Qwen3-Coder and Large-Scale Code Synthesis: Benchmark Evaluation Across Secure Coding Personas',
-    source: 'Hacker News',
-    category: 'AI & ML',
-    excerpt: 'Detailed analysis evaluating code generation safety, vulnerability detection, and automated programming workflows under multi-turn prompting.',
-    content: 'Qwen3-Coder benchmark analysis. Research findings demonstrate performance across reasoning, algorithm generation, and test synthesis. When guided by defensive security instructions, code generation models reduce unsafe memory operations and input validation oversights by 43%.',
-    url: 'https://news.ycombinator.com',
-    date: '15m ago',
-    timestamp: Date.now() - 900000,
-    tags: ['#ai', '#coding', '#llm']
-  },
-  {
-    id: 2, type: 'news', icon: '🤖',
-    title: 'Gemini 3.5 Flash-Lite Architecture: Sub-Second Multimodal Reasoning at Scale',
-    source: 'Google AI Research',
-    category: 'AI & ML',
-    excerpt: 'Deep-dive into distilled latency optimizations enabling sub-second inference with high accuracy for multi-document research synthesis.',
-    content: 'Google AI technical release on Gemini 3.5 Flash-Lite. Optimizations include speculative decoding, dynamic sequence caching, and streamlined KV projections, delivering 800ms time-to-first-token while maintaining competitive MMLU and citation grounding accuracy.',
-    url: 'https://ai.google.dev',
-    date: '45m ago',
-    timestamp: Date.now() - 2700000,
-    tags: ['#ai', '#gemini', '#research']
-  },
-  {
-    id: 3, type: 'news', icon: '💻',
-    title: 'PHP Releases Emergency Patches for Critical Server Vulnerabilities Across Versions 8.2 to 8.5',
-    source: 'Ars Technica',
-    category: 'Tech & Dev',
-    excerpt: 'Security advisory urges immediate deployment of security releases addressing edge-case buffer overruns in web servers.',
-    content: 'PHP core security release notice. Versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 address two remote code execution avenues in CGI processing pipelines. System administrators are advised to verify package signatures and apply patch sets immediately.',
-    url: 'https://arstechnica.com',
-    date: '1h ago',
-    timestamp: Date.now() - 3600000,
-    tags: ['#security', '#tech', '#patch']
-  },
-  {
-    id: 4, type: 'news', icon: '💻',
-    title: 'Public Key Infrastructure Audit: Certificate Authority Vulnerabilities Resolved',
-    source: 'Hacker News',
-    category: 'Tech & Dev',
-    excerpt: 'Security researchers uncover entropy weakness in regional root keys, leading to automated certificate revocation and enhanced HSM requirements.',
-    content: 'Cryptographic investigation reveals mathematical weaknesses in short RSA seeds generated by legacy hardware modules. Modern WebPKI standards require 3072-bit minimum keys and mandatory Certificate Transparency logging to prevent unauthorized intermediate issuance.',
-    url: 'https://scotthelme.co.uk',
-    date: '2h ago',
-    timestamp: Date.now() - 7200000,
-    tags: ['#crypto', '#security', '#web']
-  },
-  {
-    id: 5, type: 'news', icon: '🔬',
-    title: 'Astrophysicists Unveil Ancient North Sea Impact Crater and Resulting 300-Foot Megatsunami',
-    source: 'ScienceDaily',
-    category: 'Science',
-    excerpt: 'Seismic acoustic mapping discovers submarine impact structure with sediment deposits confirming widespread coastal inundation across northern Europe.',
-    content: 'Oceanographic sediment core analysis reveals high-pressure shocked quartz and iridium anomalies off the British coast, dating to a catastrophic meteorite impact that triggered a 330-foot tsunami across the prehistoric North Sea basin.',
-    url: 'https://sciencedaily.com',
-    date: '3h ago',
-    timestamp: Date.now() - 10800000,
-    tags: ['#science', '#space', '#geology']
-  },
-  {
-    id: 6, type: 'news', icon: '🔬',
-    title: 'RNA Energy Regulation in Cellular Homeostasis: New Discoveries in Mitochondrial Signaling',
-    source: 'ScienceDaily',
-    category: 'Science',
-    excerpt: 'New study shows excess non-coding RNA transcription depletes cellular ATP reserves, opening new therapeutic vectors for metabolic diseases.',
-    content: 'Molecular biology findings published this week demonstrate how over-transcription of non-coding RNA loops competes directly with mitochondrial energy synthesis, identifying novel targets for neurodegenerative and metabolic disorders.',
-    url: 'https://sciencedaily.com',
-    date: '4h ago',
-    timestamp: Date.now() - 14400000,
-    tags: ['#biology', '#rna', '#health']
-  },
-  {
-    id: 7, type: 'news', icon: '💼',
-    title: 'SpaceX Starship Orbital Integration Milestone Ahead of Next Commercial Launch Cadence',
-    source: 'Ars Technica',
-    category: 'Business',
-    excerpt: 'Rapid testing iterations at Starbase demonstrate reusable booster catch systems and multi-engine relight in vacuum.',
-    content: 'Commercial space infrastructure update. Next launch iteration features upgraded heat shield tiles and hot-staging ring redesign to prepare for propellant transfer tests in low Earth orbit, lowering orbital launch costs toward sub-$100 per kilogram targets.',
-    url: 'https://arstechnica.com',
-    date: '5h ago',
-    timestamp: Date.now() - 18000000,
-    tags: ['#business', '#aerospace', '#spacex']
-  },
-  {
-    id: 8, type: 'news', icon: '🌍',
-    title: 'EU Frontier Model Governance: Cross-Border Verification and Safety Benchmarks',
-    source: 'Reuters / Policy',
-    category: 'World & Policy',
-    excerpt: 'Regulators publish finalized oversight protocols for frontier model creators operating in European jurisdictions.',
-    content: 'Policy analysis on EU AI governance. The framework establishes standardized red-teaming requirements, transparency reports on energy consumption during pre-training, and incident disclosure protocols for foundation models exceeding 10^25 FLOPs.',
-    url: 'https://reuters.com',
-    date: '6h ago',
-    timestamp: Date.now() - 21600000,
-    tags: ['#policy', '#ai', '#europe']
-  },
-  {
-    id: 9, type: 'note', icon: '📝',
-    title: 'Research Notes — Model Efficiency, Latency Bounds & Energy Scaling',
-    source: 'Personal Research Notebook',
+    id: 'guide-1',
+    type: 'note',
+    icon: '📝',
+    title: 'Welcome to NBLMimic Research Workspace',
+    source: 'Google Drive Sync',
     category: 'Notes & Uploads',
-    excerpt: 'Synthesis of sub-second inference tradeoffs, quantization benchmarks, and grounding accuracy in local research assistants.',
-    content: 'Key Findings: Model latency is dominated by time-to-first-token (TTFT) and KV-cache bandwidth rather than parameter count. Speculative decoding combined with lightweight models (e.g. Flash-Lite) achieves human-speed reading velocity (<1s) while grounded citations eliminate hallucination risks.',
+    excerpt: 'Your personal research assistant using Google Drive as a 50 GB database.',
+    content: 'Welcome to NBLMimic!\n\nThis is your private research workspace. Each user is allocated 50 GB of storage inside your Google Drive.\n\nFolder Path in Google Drive:\n📁 NBLMimic_Database/user/<username>/\n\nFeatures:\n- Notes and sources are synchronized with your Google Drive.\n- Real-time 50 GB storage meter tracks your usage.\n- Grounded AI analysis with Google Gemini.',
     url: '',
     date: 'Today',
-    timestamp: Date.now() - 28800000,
-    tags: ['#notes', '#research', '#user']
+    timestamp: Date.now(),
+    tags: ['#welcome', '#notes', '#guide']
   }
 ];
 
-// Document storage with automatic migration from old placeholders
+// Document storage
 let DOCS = (() => {
   try {
     const saved = localStorage.getItem('nblmimic_user_sources');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // If saved data still has the old 2023 climate placeholders, migrate to live news!
-      const hasOldPlaceholders = parsed.some(d => d.title && (d.title.includes('IPCC') || d.title.includes('CBAM vs. Climate Club')));
-      if (!hasOldPlaceholders && parsed.length > 0) {
-        return parsed;
-      }
+      // Clean up any old news scraping articles from previous versions
+      const cleaned = parsed.filter(d => d.source !== 'Hacker News' && d.source !== 'Ars Technica' && d.source !== 'ScienceDaily' && d.source !== 'Google AI Research' && d.source !== 'Reuters / Policy');
+      if (cleaned.length > 0) return cleaned;
     }
     return DEFAULT_DOCS;
   } catch (e) {
@@ -5952,22 +5862,27 @@ function handleGoogleCredentialResponse(response) {
   }
 
   console.log('Google Auth success:', payload.name, payload.email);
+  const cleanUsername = (payload.email ? payload.email.split('@')[0] : 'user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
 
   CURRENT_USER = {
     signedIn: true,
-    name: payload.name || payload.email.split('@')[0],
+    username: cleanUsername,
+    name: payload.name || cleanUsername,
     email: payload.email,
     picture: payload.picture || '',
     role: 'Researcher',
     provider: 'google',
-    googleId: payload.sub
+    googleId: payload.sub,
+    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
   };
 
   localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
   renderUserAvatar();
   closeGoogleSignInScreen();
   closeGoogleAccountMenu();
-  showToast(`✨ Signed in to Google as ${CURRENT_USER.name}!`, 'success');
+  uploadSignInToGoogleDrive(CURRENT_USER);
+  showToast(`✨ Welcome @${cleanUsername}! 50 GB workspace allocated in Google Drive.`, 'success');
 }
 
 let CURRENT_USER = {
@@ -5996,6 +5911,11 @@ function initGoogleUserSession() {
 
       if (!isPlaceholder && parsed.signedIn) {
         CURRENT_USER = { ...CURRENT_USER, ...parsed };
+        if (!CURRENT_USER.username && CURRENT_USER.email) {
+          CURRENT_USER.username = CURRENT_USER.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        }
+        CURRENT_USER.storageLimitBytes = USER_STORAGE_LIMIT_BYTES;
+        CURRENT_USER.driveFolder = `NBLMimic_Database/user/${CURRENT_USER.username}/`;
       } else {
         localStorage.removeItem('nblmimic_user_session');
       }
@@ -6004,6 +5924,10 @@ function initGoogleUserSession() {
     console.warn('Could not parse user session:', e);
   }
   renderUserAvatar();
+  updateStorageMeter();
+  if (CURRENT_USER && CURRENT_USER.signedIn) {
+    syncWithGoogleDrive(false);
+  }
 }
 
 function renderUserAvatar() {
@@ -6043,10 +5967,11 @@ function renderUserAvatar() {
 
     if (gamName) gamName.textContent = CURRENT_USER.name || 'Google User';
     if (gamEmail) gamEmail.textContent = CURRENT_USER.email;
-    if (setName) setName.textContent = CURRENT_USER.name || 'Google User';
-    if (setEmail) setEmail.textContent = CURRENT_USER.email;
     if (gaiName) gaiName.textContent = CURRENT_USER.name || 'Google User';
     if (gaiEmail) gaiEmail.textContent = CURRENT_USER.email;
+    const noteSyncStatus = document.getElementById('note-sync-status');
+    if (noteSyncStatus) noteSyncStatus.textContent = `📁 Synced: user/${CURRENT_USER.username || 'user'}/`;
+    updateStorageMeter();
   } else {
     // Signed out
     if (btnHeaderSignin) btnHeaderSignin.style.display = 'inline-flex';
@@ -6058,6 +5983,9 @@ function renderUserAvatar() {
 
     if (setName) setName.textContent = 'Not Signed In';
     if (setEmail) setEmail.textContent = 'Click to connect your Google Account';
+    const noteSyncStatus = document.getElementById('note-sync-status');
+    if (noteSyncStatus) noteSyncStatus.textContent = '📁 Synced to Drive (50 GB)';
+    updateStorageMeter(0);
   }
 }
 
@@ -6096,28 +6024,230 @@ function closeGoogleSignInScreen() {
 
 function handleRealGoogleDirectSignIn(e) {
   if (e) e.preventDefault();
+  const usernameInput = document.getElementById('g-direct-username');
   const emailInput = document.getElementById('g-direct-email');
   const nameInput = document.getElementById('g-direct-name');
   const email = (emailInput?.value || '').trim();
   if (!email) return;
 
-  const name = (nameInput?.value || '').trim() || email.split('@')[0];
+  const rawUsername = (usernameInput?.value || '').trim() || email.split('@')[0] || 'user';
+  const cleanUsername = rawUsername.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  const name = (nameInput?.value || '').trim() || cleanUsername;
   const initial = (name[0] || email[0] || 'U').toUpperCase();
   const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
 
   CURRENT_USER = {
     signedIn: true,
+    username: cleanUsername,
     name: name,
     email: email,
     picture: avatar,
     role: 'Researcher',
-    provider: 'google'
+    provider: 'google',
+    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
   };
 
   localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
   renderUserAvatar();
   closeGoogleSignInScreen();
-  showToast(`✨ Signed in with Google as ${CURRENT_USER.name}!`, 'success');
+  uploadSignInToGoogleDrive(CURRENT_USER);
+  showToast(`✨ Welcome @${cleanUsername}! 50 GB workspace allocated in Google Drive.`, 'success');
+}
+
+/* ════ MULTI-USER STORAGE & GOOGLE DRIVE INTEGRATION ════ */
+
+function formatBytes(bytes) {
+  if (!bytes || bytes <= 0) return '0.0 MB';
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1000) {
+    return mb.toFixed(1) + ' MB';
+  }
+  const gb = bytes / (1024 * 1024 * 1024);
+  return gb.toFixed(2) + ' GB';
+}
+
+function updateStorageMeter(usedBytes = CURRENT_STORAGE_USED_BYTES) {
+  CURRENT_STORAGE_USED_BYTES = usedBytes;
+  const textEl = document.getElementById('storage-quota-text');
+  const barEl = document.getElementById('storage-quota-bar');
+  const labelEl = document.getElementById('storage-quota-label');
+  const gaiStatEl = document.getElementById('gai-storage-stat');
+  const gaiDriveFolderEl = document.getElementById('gai-drive-folder');
+  
+  const pct = Math.min(100, Math.max(0, (usedBytes / USER_STORAGE_LIMIT_BYTES) * 100));
+  const formatted = `${formatBytes(usedBytes)} / 50.0 GB`;
+  
+  if (textEl) textEl.textContent = formatted;
+  if (gaiStatEl) gaiStatEl.textContent = `● ${formatted} (${pct.toFixed(2)}% used)`;
+  if (gaiDriveFolderEl && CURRENT_USER && CURRENT_USER.username) {
+    gaiDriveFolderEl.textContent = `📁 Drive: NBLMimic_Database/user/${CURRENT_USER.username}/`;
+  }
+  if (labelEl) {
+    labelEl.textContent = (CURRENT_USER && CURRENT_USER.username) ? `@${CURRENT_USER.username}` : 'Drive Storage';
+  }
+  if (barEl) {
+    barEl.style.width = Math.max(0.2, pct).toFixed(2) + '%';
+    if (pct > 95) {
+      barEl.style.background = 'var(--danger)';
+    } else if (pct > 80) {
+      barEl.style.background = 'var(--warning)';
+    } else {
+      barEl.style.background = 'var(--accent)';
+    }
+  }
+}
+
+async function uploadSignInToGoogleDrive(user) {
+  if (!user || !user.username) return;
+  try {
+    const res = await fetch(GOOGLE_DRIVE_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'signIn',
+        username: user.username,
+        displayName: user.name,
+        email: user.email,
+        timestamp: new Date().toISOString()
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data.storageUsedBytes === 'number') {
+        updateStorageMeter(data.storageUsedBytes);
+      }
+      syncWithGoogleDrive(false);
+    }
+  } catch (err) {
+    console.warn('Drive butler offline or network issue:', err);
+  }
+}
+
+async function syncWithGoogleDrive(showNotification = false) {
+  const username = (CURRENT_USER && CURRENT_USER.username) ? CURRENT_USER.username : 'guest';
+  const syncBtn = document.getElementById('btn-sync-drive');
+  const syncIcon = document.getElementById('sync-drive-icon');
+  const syncLabel = document.getElementById('sync-drive-label');
+  
+  if (syncIcon) syncIcon.style.animation = 'spin 1s linear infinite';
+  if (syncLabel) syncLabel.textContent = 'Syncing…';
+  
+  try {
+    const res = await fetch(`${GOOGLE_DRIVE_API_URL}?username=${encodeURIComponent(username)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'success') {
+        if (typeof data.storageUsedBytes === 'number') {
+          updateStorageMeter(data.storageUsedBytes);
+        }
+        
+        if (data.notes && Array.isArray(data.notes) && data.notes.length > 0) {
+          const driveDocs = data.notes.map(n => {
+            let parsed = null;
+            try { parsed = JSON.parse(n.content); } catch (e) {}
+            return {
+              id: 'drive-' + n.id,
+              type: 'note',
+              icon: '📝',
+              title: parsed?.title || n.name.replace('.json', ''),
+              source: `Drive: user/${username}`,
+              category: 'Notes & Uploads',
+              excerpt: parsed?.content ? parsed.content.substring(0, 140) + '...' : 'Saved in Google Drive',
+              content: parsed?.content || n.content,
+              date: n.updatedAt ? new Date(n.updatedAt).toLocaleDateString() : 'Drive Note',
+              timestamp: n.updatedAt ? new Date(n.updatedAt).getTime() : Date.now(),
+              tags: ['#drive', '#note']
+            };
+          });
+          
+          const userLocalDocs = DOCS.filter(d => !String(d.id).startsWith('drive-') && d.id !== 'guide-1');
+          DOCS = [...driveDocs, ...userLocalDocs];
+          if (DOCS.length === 0) DOCS = DEFAULT_DOCS;
+          
+          DOCS.forEach(d => activeSourceIds.add(d.id));
+          localStorage.setItem('nblmimic_user_sources', JSON.stringify(DOCS));
+          renderLibrary();
+          renderSidepanelSources();
+        }
+        
+        if (showNotification) {
+          showToast(`⚡ Synced with Drive: user/${username}/ (${data.notes ? data.notes.length : 0} notes)`, 'success');
+        }
+        return;
+      }
+    }
+    if (showNotification) showToast('Google Drive sync completed', 'info');
+  } catch (err) {
+    console.warn('Google Drive sync error:', err);
+    if (showNotification) showToast('Drive offline or unreachable', 'error');
+  } finally {
+    if (syncIcon) syncIcon.style.animation = '';
+    if (syncLabel) syncLabel.textContent = 'Sync Drive';
+  }
+}
+
+async function saveNoteToDrive() {
+  const notesArea = document.querySelector('#sp-notes textarea');
+  if (!notesArea) return;
+  const content = notesArea.value.trim();
+  if (!content) {
+    showToast('Cannot save empty note', 'error');
+    return;
+  }
+  
+  if (!CURRENT_USER || !CURRENT_USER.signedIn) {
+    openGoogleSignInScreen();
+    showToast('Please sign in to save notes to your 50 GB Google Drive folder', 'info');
+    return;
+  }
+  
+  const username = CURRENT_USER.username || CURRENT_USER.email.split('@')[0] || 'user';
+  const firstLine = content.split('\n')[0].replace(/[^a-zA-Z0-9 _-]/g, '').trim();
+  const title = (firstLine.length > 3 ? firstLine.substring(0, 36) : 'Research Note') + ' ' + new Date().toLocaleDateString().replace(/\//g, '-');
+  
+  const saveBtn = document.getElementById('btn-save-note');
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+  }
+  
+  try {
+    const res = await fetch(GOOGLE_DRIVE_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'saveNote',
+        username: username,
+        title: title,
+        content: content,
+        timestamp: new Date().toISOString()
+      })
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'success') {
+        if (typeof data.storageUsedBytes === 'number') {
+          updateStorageMeter(data.storageUsedBytes);
+        } else {
+          updateStorageMeter(CURRENT_STORAGE_USED_BYTES + content.length);
+        }
+        showToast(`Saved to Drive: user/${username}/${data.fileName || title}`, 'success');
+        syncWithGoogleDrive(false);
+        return;
+      }
+    }
+    showToast('Saved locally in browser', 'info');
+  } catch (err) {
+    console.warn('Failed saving to Drive:', err);
+    showToast('Drive offline: saved locally', 'info');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save to Drive';
+    }
+  }
 }
 
 function handleGoogleSignOut(e) {

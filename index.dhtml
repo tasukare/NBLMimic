@@ -2812,7 +2812,16 @@ svg { display: block; flex-shrink: 0; }
       <!-- Real Google Sign In / Account Container -->
       <div id="header-auth-container" class="header-auth-container">
         <!-- 1. Google Sign-In Button (shown when signed out) -->
-        <button class="btn-google-header-signin" id="btn-header-signin" onclick="openGoogleSignInScreen(event)" aria-label="Sign in with Google">
+        <!-- Notice badge for file:// protocol -->
+        <button id="file-protocol-badge" style="display:none; align-items:center; gap:6px; font-size:12px; height:32px; padding:0 10px; border-radius:var(--radius-full); background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-weight:600; cursor:pointer;" onclick="openFileProtocolModal()" title="Running via file://. Click for instructions to enable Google OAuth on localhost:3000">
+          <span>⚠️ file:// mode</span>
+        </button>
+
+        <!-- Official Google Identity Services button container -->
+        <div id="g-header-btn-container" class="g-header-btn-container" style="display:none;"></div>
+
+        <!-- Google Sign-In Button (shown when signed out or fallback) -->
+        <button class="btn-google-header-signin" id="btn-header-signin" onclick="triggerGoogleSignIn(event)" aria-label="Sign in with Google">
           <svg class="google-icon" width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
             <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
@@ -2854,7 +2863,7 @@ svg { display: block; flex-shrink: 0; }
             </div>
 
             <div class="gam-body">
-              <button class="gam-item" onclick="openGoogleSignInScreen(event, 'switch')">
+              <button class="gam-item" onclick="triggerGoogleSignIn(event, 'switch')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                   <circle cx="8.5" cy="7" r="4"/>
@@ -3159,7 +3168,8 @@ svg { display: block; flex-shrink: 0; }
               </div>
             </div>
             <div class="settings-account-actions">
-              <button class="btn btn-primary btn-sm" onclick="openGoogleSignInScreen(event)">Sign In with Google</button>
+              <button class="btn btn-primary btn-sm" id="btn-settings-signin" onclick="triggerGoogleSignIn(event)">Sign In with Google</button>
+              <button class="btn btn-ghost btn-sm" id="btn-settings-signout" onclick="handleGoogleSignOut(event)" style="display:none; color:var(--danger);">Sign Out</button>
             </div>
           </div>
         </div>
@@ -3636,8 +3646,8 @@ svg { display: block; flex-shrink: 0; }
     </div>
 
     <!-- Title & Subtitle -->
-    <h1 class="g-heading" id="google-signin-heading">Sign in with Google</h1>
-    <p class="g-subheading">to continue to <strong>Research Lab</strong></p>
+    <h1 class="g-heading" id="google-signin-heading">Research Lab Account</h1>
+    <p class="g-subheading">Sign in to your notebook & research workspace</p>
 
     <!-- Official Google Identity Services Real Sign-In Button Container -->
     <div class="g-official-auth-wrap" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 28px 0 20px; width: 100%;">
@@ -3715,6 +3725,40 @@ svg { display: block; flex-shrink: 0; }
         <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a>
         <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ FILE PROTOCOL NOTICE MODAL ═══════════════════ -->
+<div class="modal-backdrop" id="file-protocol-modal" role="dialog" aria-modal="true" aria-labelledby="fpm-title">
+  <div class="modal" style="max-width: 520px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:22px;">⚠️</span>
+        <h3 class="modal-title" id="fpm-title">Google Sign-In Requires Local Server</h3>
+      </div>
+      <button class="btn-icon" onclick="closeFileProtocolModal()" aria-label="Close dialog">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:14px; font-size:14px; color:var(--text-secondary); line-height:1.6;">
+      <p>
+        You opened this app directly from disk via <code>file://</code> protocol. Google OAuth blocks <code>file://</code> URLs for security, which causes <strong>Error 400: invalid_request</strong>.
+      </p>
+      <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:14px;">
+        <strong style="color:var(--text-primary); display:block; margin-bottom:8px;">How to enable Google Sign-In:</strong>
+        <ol style="margin-left:20px; display:flex; flex-direction:column; gap:6px;">
+          <li>In this project folder, double-click <code style="color:var(--accent); font-weight:600;">start.bat</code> (or run <code>npm start</code> in a terminal).</li>
+          <li>Open <a href="http://localhost:3000" target="_blank" style="color:var(--accent); font-weight:600; text-decoration:underline;">http://localhost:3000</a> in your browser.</li>
+        </ol>
+      </div>
+      <p style="font-size:13px; color:var(--text-tertiary);">
+        On <code>http://localhost:3000</code>, your Google Client ID is authorized and real Google Sign-In works with 1-click!
+      </p>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-ghost" onclick="closeFileProtocolModal()">Dismiss</button>
+      <a class="btn btn-primary" href="http://localhost:3000" target="_blank" style="text-decoration:none;">Open http://localhost:3000 ↗</a>
     </div>
   </div>
 </div>
@@ -6314,29 +6358,89 @@ function parseJwt(token) {
   }
 }
 
-// Initialize official Google Identity Services SDK
+let googleTokenClient = null;
+
+// Initialize official Google Identity Services SDK & OAuth 2.0 Token Client
 function initGoogleGSI() {
-  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+  if (typeof google === 'undefined' || !google.accounts) {
     setTimeout(() => {
-      if (typeof google !== 'undefined' && google.accounts && google.accounts.id && !googleGsiInitialized) {
+      if (typeof google !== 'undefined' && google.accounts && !googleGsiInitialized) {
         initGoogleGSI();
       }
-    }, 600);
+    }, 400);
     return;
   }
 
   try {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleCredentialResponse,
-      auto_select: false,
-      cancel_on_tap_outside: true
-    });
+    // 1. Google Identity Services ID token & One Tap
+    if (google.accounts.id) {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+    }
+
+    // 2. Google OAuth 2.0 Token Client for direct authentic popup window
+    if (google.accounts.oauth2) {
+      window.googleTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'email profile openid',
+        callback: handleGoogleTokenResponse
+      });
+    }
+
     googleGsiInitialized = true;
     console.log('✅ Google Identity Services initialized with client ID:', GOOGLE_CLIENT_ID);
     renderOfficialGoogleButton();
+
+    if (window.location.protocol !== 'file:' && !CURRENT_USER.signedIn && google.accounts.id) {
+      google.accounts.id.prompt();
+    }
   } catch (err) {
     console.error('Error initializing Google Identity Services:', err);
+  }
+}
+
+// Handle Google OAuth 2.0 Token response
+async function handleGoogleTokenResponse(resp) {
+  if (resp && resp.access_token) {
+    try {
+      const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${resp.access_token}` }
+      });
+      const data = await res.json();
+      if (data && (data.email || data.name)) {
+        const cleanUsername = data.email ? data.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_') : 'user';
+        CURRENT_USER = {
+          signedIn: true,
+          username: cleanUsername,
+          name: data.name || cleanUsername,
+          email: data.email || '',
+          picture: data.picture || '',
+          role: 'Researcher',
+          provider: 'google',
+          googleId: data.sub || '',
+          storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
+          driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
+        };
+        localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
+        renderUserAvatar();
+        closeGoogleSignInScreen();
+        closeGoogleAccountMenu();
+        if (typeof uploadSignInToGoogleDrive === 'function') {
+          uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
+        }
+        showToast(`✨ Signed in to Google as ${CURRENT_USER.name}!`, 'success');
+      }
+    } catch (e) {
+      console.error('Error fetching Google user profile:', e);
+      showToast('Signed in, but could not load profile details.', 'warning');
+    }
+  } else if (resp && resp.error) {
+    console.error('Google OAuth error:', resp.error);
+    showToast(`Google Sign-In error: ${resp.error}`, 'error');
   }
 }
 
@@ -6383,29 +6487,38 @@ function handleGoogleQuickSignIn(emailParam, nameParam) {
   showToast(`✨ Signed in with Google as ${CURRENT_USER.name} (@${cleanUsername})! 50 GB allocated in Google Drive.`, 'success');
 }
 
-// Trigger Google Sign-In with official GSI prompt or interactive Google sign-in
-function triggerGoogleSignIn(e) {
+// Trigger Google Sign-In with official Google OAuth 2.0 or GSI One Tap
+function triggerGoogleSignIn(e, mode = '') {
   if (e) e.stopPropagation();
+  closeGoogleAccountMenu();
+
+  // If running from file:// protocol, Google OAuth 2.0 strictly blocks the request with Error 400
+  if (window.location.protocol === 'file:') {
+    openFileProtocolModal();
+    return;
+  }
+
+  // 1. Try Token Client popup if initialized (real accounts.google.com popup)
+  if (window.googleTokenClient) {
+    try {
+      window.googleTokenClient.requestAccessToken({ prompt: mode === 'switch' ? 'select_account' : '' });
+      return;
+    } catch (err) {
+      console.warn('Token client request error:', err);
+    }
+  }
+
+  // 2. Try Google Identity Services One Tap / Prompt
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
     try {
-      google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('Google One Tap not displayed. Falling back to Google Quick Sign-In.');
-          handleGoogleQuickSignIn();
-        }
-      });
-      // Fallback timeout in case prompt is blocked by browser tracking prevention
-      setTimeout(() => {
-        if (!CURRENT_USER || !CURRENT_USER.signedIn) {
-          handleGoogleQuickSignIn();
-        }
-      }, 1500);
+      google.accounts.id.prompt();
       return;
     } catch (err) {
       console.warn('Google GSI prompt error:', err);
     }
   }
-  handleGoogleQuickSignIn();
+
+  showToast('Google Sign-In is initializing. Please wait a moment...', 'info');
 }
 
 // Render official Google Sign-In button
@@ -6564,8 +6677,14 @@ function renderUserAvatar() {
       photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
     }
 
+    const gHeaderBtn = document.getElementById('g-header-btn-container');
+    if (gHeaderBtn) gHeaderBtn.style.display = 'none';
     if (btnHeaderSignin) btnHeaderSignin.style.display = 'none';
     if (userAccountWrapper) userAccountWrapper.style.display = 'flex';
+    const setSignin = document.getElementById('btn-settings-signin');
+    const setSignout = document.getElementById('btn-settings-signout');
+    if (setSignin) setSignin.style.display = 'none';
+    if (setSignout) setSignout.style.display = 'inline-flex';
 
     if (avatarImg) {
       avatarImg.src = photo;
@@ -6592,6 +6711,10 @@ function renderUserAvatar() {
     // Signed out
     if (btnHeaderSignin) btnHeaderSignin.style.display = 'inline-flex';
     if (userAccountWrapper) userAccountWrapper.style.display = 'none';
+    const setSignin = document.getElementById('btn-settings-signin');
+    const setSignout = document.getElementById('btn-settings-signout');
+    if (setSignin) setSignin.style.display = 'inline-flex';
+    if (setSignout) setSignout.style.display = 'none';
 
     if (avatarImg) avatarImg.src = '';
     if (gamAvatarImg) gamAvatarImg.src = '';
@@ -6621,6 +6744,22 @@ function toggleGoogleAccountMenu(e) {
 function closeGoogleAccountMenu() {
   const menu = document.getElementById('google-account-menu');
   if (menu) menu.style.display = 'none';
+}
+
+
+function openFileProtocolModal() {
+  const m = document.getElementById('file-protocol-modal');
+  if (m) m.classList.add('open');
+}
+function closeFileProtocolModal() {
+  const m = document.getElementById('file-protocol-modal');
+  if (m) m.classList.remove('open');
+}
+function checkFileProtocol() {
+  if (window.location.protocol === 'file:') {
+    const badge = document.getElementById('file-protocol-badge');
+    if (badge) badge.style.display = 'inline-flex';
+  }
 }
 
 function openGoogleSignInScreen(e) {
@@ -7268,6 +7407,7 @@ if (notesArea) {
 }
 
 /* ════ INITIALIZATION ════ */
+checkFileProtocol();
 initGoogleUserSession();
 initGoogleGSI();
 // Sync client ID from backend configuration endpoint

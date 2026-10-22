@@ -117,6 +117,40 @@ function doPost(e) {
         storageLimitBytes: USER_STORAGE_LIMIT_BYTES
       })).setMimeType(ContentService.MimeType.JSON);
     }
+
+    if (action === "deleteFile") {
+      if (data.fileId) {
+        try {
+          DriveApp.getFileById(data.fileId).setTrashed(true);
+        } catch (e) {}
+      } else if (data.fileName) {
+        const files = userFolder.getFilesByName(data.fileName);
+        while (files.hasNext()) {
+          try { files.next().setTrashed(true); } catch(e) {}
+        }
+      }
+      const storage = calculateFolderStorage(userFolder);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        message: "File deleted from Drive",
+        storageUsedBytes: storage.totalBytes,
+        storageLimitBytes: USER_STORAGE_LIMIT_BYTES
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === "renameFile") {
+      if (data.fileId) {
+        try {
+          const file = DriveApp.getFileById(data.fileId);
+          const newName = (data.newTitle || "Renamed").replace(/[/\\?%*:|"<>]/g, "_") + ".json";
+          file.setName(newName);
+        } catch (e) {}
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        message: "File renamed in Drive"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
     
     // Save note or document in user folder
     const fileName = (data.title || "Note_" + Date.now()).replace(/[/\\?%*:|"<>]/g, "_") + ".json";

@@ -325,6 +325,17 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Google Drive Configuration Endpoint
+  if (pathname === '/api/drive/config' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      clientId: process.env.GOOGLE_CLIENT_ID || '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
+      webAppUrl: process.env.GOOGLE_DRIVE_WEBAPP_URL || '',
+      scope: 'https://www.googleapis.com/auth/drive.file'
+    }));
+    return;
+  }
+
   // 2. Secure Gemini Chat Proxy Endpoint with Smart Auto-Fallback & Latency Protection
   if (pathname === '/api/chat' && req.method === 'POST') {
     let body = '';

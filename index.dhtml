@@ -625,6 +625,12 @@
       display: flex;
       flex-direction: column;
       gap: 5px;
+      cursor: pointer;
+      transition: background 120ms ease;
+    }
+
+    .sidebar-footer-storage:hover {
+      background: var(--bg-subtle);
     }
 
     .storage-text-row {
@@ -632,6 +638,20 @@
       justify-content: space-between;
       font-size: 11px;
       color: var(--text-tertiary);
+    }
+
+    .drive-dot-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #a1a1aa;
+      display: inline-block;
+      transition: all 200ms ease;
+    }
+
+    .drive-dot-indicator.connected {
+      background: var(--success);
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
     }
 
     .storage-bar-track {
@@ -648,6 +668,119 @@
       border-radius: var(--radius-full);
       width: 0.2%;
       transition: width 300ms ease;
+    }
+
+    /* Popover Drive Card */
+    .user-popover-drive-card {
+      padding: 9px 10px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 120ms ease;
+    }
+
+    .user-popover-drive-card:hover {
+      background: var(--bg-muted);
+      border-color: var(--border-hover);
+    }
+
+    .badge-status-dot {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface);
+      color: var(--text-tertiary);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-status-dot.connected {
+      background: var(--success-subtle);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Drive Dialog Specifics */
+    .drive-modal-dialog {
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .drive-status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+    }
+
+    .drive-quota-card {
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .drive-folder-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: var(--radius-xs);
+      color: var(--text-main);
+    }
+
+    .drive-files-container {
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      margin-top: 8px;
+    }
+
+    .drive-file-row {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 120ms ease;
+    }
+
+    .drive-file-row:last-child {
+      border-bottom: none;
+    }
+
+    .drive-file-row:hover {
+      background: var(--accent-subtle);
+    }
+
+    .drive-file-meta {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
     }
 
     /* ══════════════════════════════════════════════════════════════
@@ -1512,11 +1645,23 @@
               </div>
             </div>
 
-            <div style="font-size:11px; color:var(--text-tertiary); padding:4px 8px;">
-              <span>Drive Cloud Storage: </span>
-              <strong style="color:var(--text-main); font-family:var(--font-mono);">0.2 MB / 50 GB</strong>
+            <div class="user-popover-drive-card" onclick="openDriveModal()" title="Manage Google Drive Cloud Vault">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:12px; color:var(--text-main);">
+                  <svg width="13" height="13" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+                  <span>Google Drive Vault</span>
+                </span>
+                <span id="popover-drive-badge" class="badge-status-dot">Local</span>
+              </div>
+              <div id="popover-drive-quota" style="font-size:11px; color:var(--text-secondary); font-family:var(--font-mono);">
+                Click to manage cloud storage
+              </div>
             </div>
 
+            <button class="user-popover-item" onclick="openDriveModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span>Drive Cloud Settings</span>
+            </button>
             <button class="user-popover-item" onclick="openAuthModal()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
               <span>Switch Account</span>
@@ -1567,13 +1712,16 @@
     </div>
 
     <!-- Sidebar Footer / Drive Storage -->
-    <div class="sidebar-footer-storage" onclick="openAuthModal()" title="Google Drive allocated cloud storage">
+    <div class="sidebar-footer-storage" onclick="openDriveModal()" title="Google Drive Cloud Vault & Quota">
       <div class="storage-text-row">
-        <span>Storage Vault</span>
-        <span style="font-weight:600; color:var(--text-main);" id="storage-status-text">0.2 MB / 50 GB</span>
+        <span style="display:flex; align-items:center; gap:5px;">
+          <span class="drive-dot-indicator" id="drive-conn-dot"></span>
+          <span id="drive-status-label">Drive Vault</span>
+        </span>
+        <span style="font-weight:600; color:var(--text-main); font-family:var(--font-mono);" id="storage-status-text">Connect Drive</span>
       </div>
       <div class="storage-bar-track">
-        <div class="storage-bar-fill" id="storage-bar-fill"></div>
+        <div class="storage-bar-fill" id="storage-bar-fill" style="width: 0.2%;"></div>
       </div>
     </div>
   </aside>
@@ -1678,6 +1826,10 @@
           <button class="btn-tiny-action" style="flex:1; height:30px; justify-content:center;" onclick="downloadNotes()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             <span>Export .md</span>
+          </button>
+          <button class="btn-tiny-action" id="btn-sync-notes-drive" style="flex:1; height:30px; justify-content:center; gap:5px;" onclick="syncCurrentNotesToDrive()" title="Sync notes to Google Drive folder">
+            <svg width="13" height="13" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+            <span id="label-sync-notes">Sync Drive</span>
           </button>
         </div>
       </div>
@@ -1789,6 +1941,11 @@
       <button class="auth-close-x" onclick="closeAddSourceModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
+    <button type="button" class="btn-tiny-action" style="width:100%; height:36px; justify-content:center; gap:8px; margin-bottom:12px; font-weight:500; font-size:12.5px;" onclick="openDriveFromAddSource()">
+      <svg width="15" height="15" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+      <span>Import Document from Google Drive</span>
+    </button>
+
     <div style="border:2px dashed var(--border-strong); border-radius:var(--radius-md); padding:24px 16px; text-align:center; background:var(--bg-subtle); cursor:pointer; margin-bottom:14px;" onclick="document.getElementById('input-file-select').click()">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin:0 auto 8px; color:var(--text-tertiary);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
       <div style="font-weight:600; font-size:13px; margin-bottom:2px;">Upload document or paper</div>
@@ -1880,6 +2037,85 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════
+     GOOGLE DRIVE CLOUD VAULT MODAL
+     ══════════════════════════════════════════════════════════════ -->
+<div class="auth-backdrop" id="drive-modal" role="dialog" aria-modal="true" aria-labelledby="drive-modal-title">
+  <div class="generic-dialog drive-modal-dialog">
+    <div class="generic-dialog-head">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <svg width="22" height="22" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+        <h3 class="generic-dialog-title" id="drive-modal-title">Google Drive Cloud Vault</h3>
+      </div>
+      <button class="auth-close-x" onclick="closeDriveModal()" aria-label="Close">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- Connection Status Banner -->
+    <div class="drive-status-banner">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="drive-dot-indicator" id="modal-drive-dot"></span>
+        <div>
+          <div style="font-weight:600; font-size:13px; color:var(--text-main);" id="modal-drive-status-text">Disconnected</div>
+          <div style="font-size:11.5px; color:var(--text-tertiary);" id="modal-drive-account-text">Not authorized with Google Drive</div>
+        </div>
+      </div>
+      <span class="badge-status-dot" id="modal-drive-badge">Local Vault</span>
+    </div>
+
+    <!-- Storage Quota Section -->
+    <div class="drive-quota-card">
+      <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-size:12px; font-weight:500; color:var(--text-secondary);">Google Drive Storage</span>
+        <span style="font-size:12px; font-weight:600; font-family:var(--font-mono); color:var(--text-main);" id="modal-quota-text">-- / --</span>
+      </div>
+      <div class="storage-bar-track" style="height:6px;">
+        <div class="storage-bar-fill" id="modal-quota-bar" style="width:0%;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-tertiary);">
+        <span>Cloud Folder:</span>
+        <span class="drive-folder-pill">📁 Research Lab (NBLMimic)</span>
+      </div>
+    </div>
+
+    <!-- Drive Actions Row -->
+    <div style="display:flex; gap:8px; margin-bottom:14px;">
+      <button class="btn-primary-auth-action" id="btn-drive-main-action" style="flex:1; margin:0;" onclick="handleDriveMainAction()">Connect Google Drive</button>
+      <button class="btn-tiny-action" id="btn-drive-refresh-files" style="height:38px; padding:0 12px; font-weight:500;" onclick="fetchUserDriveFiles()" title="Refresh file list">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+      </button>
+    </div>
+
+    <!-- File Browser & Import Section -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; margin-bottom:6px;">
+      <span style="font-size:12px; font-weight:600; color:var(--text-main);">Browse & Import from Drive</span>
+      <span style="font-size:11px; color:var(--text-tertiary);">Click any file to load into sources</span>
+    </div>
+
+    <div class="drive-files-container" id="drive-files-list-container">
+      <div style="padding:24px 16px; text-align:center; color:var(--text-tertiary); font-size:12px;" id="drive-files-empty-state">
+        Connect Google Drive above to list and import research papers, notes, and documents.
+      </div>
+    </div>
+
+    <!-- Collapsible Advanced Settings (Apps Script Butler URL) -->
+    <details style="margin-top:12px; font-size:11.5px; color:var(--text-tertiary);">
+      <summary style="cursor:pointer; user-select:none; margin-bottom:8px; color:var(--text-secondary); font-weight:500;">
+        Advanced: Google Apps Script Butler URL
+      </summary>
+      <div style="display:flex; gap:6px;">
+        <input type="text" class="field-input" id="input-drive-webapp-url" style="font-size:11.5px; height:32px;" placeholder="https://script.google.com/macros/s/.../exec">
+        <button class="btn-tiny-action" style="height:32px; padding:0 10px; flex-shrink:0;" onclick="saveDriveWebAppUrl()">Save</button>
+      </div>
+    </details>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+      <button class="btn-tiny-action" style="height:32px; padding:0 14px;" onclick="closeDriveModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Tray -->
 <div class="toast-tray" id="toast-tray"></div>
 
@@ -1959,7 +2195,15 @@ const state = {
   activeModel: 'gemini-3.5-flash-lite',
   notesContent: '',
   isSignUpMode: false,
-  googleClientId: '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com'
+  googleClientId: '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
+  // Google Drive Cloud State
+  driveToken: null,
+  driveTokenExpires: 0,
+  isDriveConnected: false,
+  driveFolderId: null,
+  driveStorage: null,
+  driveFiles: [],
+  driveWebAppUrl: ''
 };
 
 const SAMPLE_FALLBACKS = [
@@ -1991,9 +2235,11 @@ const SAMPLE_FALLBACKS = [
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initUserSession();
+  initDriveSession();
   initNotes();
   bindUIEvents();
   fetchServerAuth();
+  fetchServerDriveConfig();
   fetchNewsFeed();
   checkHealth();
 });
@@ -2035,6 +2281,8 @@ function initGoogleGSI() {
         width: 340
       });
     }
+
+    initDriveOAuth();
   } catch (err) {
     console.warn('[GSI] Init issue:', err);
   }
@@ -2249,6 +2497,25 @@ function closeSettings() {
   document.getElementById('settings-dialog').classList.remove('active');
 }
 
+function openDriveModal() {
+  document.getElementById('user-popover-menu').classList.remove('active');
+  document.getElementById('drive-modal').classList.add('active');
+  updateDriveUI();
+  if (state.isDriveConnected) {
+    fetchDriveQuota();
+    fetchUserDriveFiles();
+  }
+}
+
+function closeDriveModal() {
+  document.getElementById('drive-modal').classList.remove('active');
+}
+
+function openDriveFromAddSource() {
+  closeAddSourceModal();
+  openDriveModal();
+}
+
 // Keyboard Esc handler & Global clicks
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
@@ -2256,6 +2523,7 @@ window.addEventListener('keydown', (e) => {
     closeAddSourceModal();
     closeLiveDialog();
     closeSettings();
+    closeDriveModal();
     document.getElementById('user-popover-menu').classList.remove('active');
   }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -2588,11 +2856,21 @@ function clearChat() {
 // ══════════════════════════════════════════════════════════════
 
 const notesPad = document.getElementById('notes-pad');
+let driveSyncDebounceTimer = null;
 
 notesPad.addEventListener('input', () => {
   state.notesContent = notesPad.value;
   localStorage.setItem('nbl_lab_notes', state.notesContent);
   updateNotesWordCount();
+
+  if (state.isDriveConnected) {
+    const notesStatusLabel = document.getElementById('notes-status-label');
+    if (notesStatusLabel) notesStatusLabel.textContent = 'Unsynced edits...';
+    clearTimeout(driveSyncDebounceTimer);
+    driveSyncDebounceTimer = setTimeout(() => {
+      syncCurrentNotesToDrive(true);
+    }, 2500);
+  }
 });
 
 function initNotes() {
@@ -2903,6 +3181,555 @@ function bindUIEvents() {
       document.getElementById('chat-submit-form').dispatchEvent(new Event('submit'));
     }
   });
+}
+
+// ══════════════════════════════════════════════════════════════
+// GOOGLE DRIVE CLOUD VAULT INTEGRATION
+// ══════════════════════════════════════════════════════════════
+
+let driveTokenClient = null;
+let isSyncingNotes = false;
+
+function initDriveOAuth() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+    return;
+  }
+  try {
+    driveTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: state.googleClientId,
+      scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly',
+      callback: async (tokenResponse) => {
+        if (tokenResponse && tokenResponse.access_token) {
+          state.driveToken = tokenResponse.access_token;
+          const expiresIn = parseInt(tokenResponse.expires_in, 10) || 3600;
+          state.driveTokenExpires = Date.now() + expiresIn * 1000;
+          state.isDriveConnected = true;
+          localStorage.setItem('nbl_drive_token', state.driveToken);
+          localStorage.setItem('nbl_drive_token_expires', state.driveTokenExpires);
+
+          showToast('Google Drive connected successfully');
+          updateDriveUI();
+          await fetchDriveQuota();
+          await ensureDriveAppFolder();
+          syncCurrentNotesToDrive(true);
+          fetchUserDriveFiles();
+        } else if (tokenResponse && tokenResponse.error) {
+          console.error('[Drive Auth Error]', tokenResponse);
+          showToast(`Drive connection error: ${tokenResponse.error}`);
+        }
+      }
+    });
+  } catch (err) {
+    console.warn('[Drive] initTokenClient failed:', err);
+  }
+}
+
+function initDriveSession() {
+  try {
+    const savedToken = localStorage.getItem('nbl_drive_token');
+    const expires = parseInt(localStorage.getItem('nbl_drive_token_expires') || '0', 10);
+    const folderId = localStorage.getItem('nbl_drive_folder_id');
+    const webAppUrl = localStorage.getItem('nbl_drive_webapp_url');
+
+    if (folderId) state.driveFolderId = folderId;
+    if (webAppUrl) {
+      state.driveWebAppUrl = webAppUrl;
+      const input = document.getElementById('input-drive-webapp-url');
+      if (input) input.value = webAppUrl;
+    }
+
+    if (savedToken && expires > Date.now()) {
+      state.driveToken = savedToken;
+      state.driveTokenExpires = expires;
+      state.isDriveConnected = true;
+      updateDriveUI();
+      fetchDriveQuota();
+    } else {
+      state.isDriveConnected = false;
+      state.driveToken = null;
+      updateDriveUI();
+    }
+  } catch (e) {
+    console.warn('[Drive] Session load error:', e);
+  }
+}
+
+async function fetchServerDriveConfig() {
+  try {
+    const res = await fetch('/api/drive/config');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.clientId) state.googleClientId = data.clientId;
+      if (data.webAppUrl && !state.driveWebAppUrl) {
+        state.driveWebAppUrl = data.webAppUrl;
+        const input = document.getElementById('input-drive-webapp-url');
+        if (input) input.value = data.webAppUrl;
+      }
+    }
+  } catch (e) {}
+}
+
+function handleDriveMainAction() {
+  if (state.isDriveConnected) {
+    syncCurrentNotesToDrive(false);
+  } else {
+    connectGoogleDrive();
+  }
+}
+
+function connectGoogleDrive() {
+  if (!driveTokenClient) {
+    initDriveOAuth();
+  }
+  if (driveTokenClient) {
+    const promptConfig = state.user?.email ? { prompt: 'consent', hint: state.user.email } : { prompt: 'consent' };
+    driveTokenClient.requestAccessToken(promptConfig);
+  } else {
+    showToast('Google Drive authentication service loading. Please try again.');
+  }
+}
+
+function disconnectGoogleDrive() {
+  if (state.driveToken && typeof google !== 'undefined' && google.accounts?.oauth2?.revoke) {
+    try {
+      google.accounts.oauth2.revoke(state.driveToken, () => {});
+    } catch(e) {}
+  }
+  state.driveToken = null;
+  state.driveTokenExpires = 0;
+  state.isDriveConnected = false;
+  state.driveStorage = null;
+  state.driveFiles = [];
+  localStorage.removeItem('nbl_drive_token');
+  localStorage.removeItem('nbl_drive_token_expires');
+  updateDriveUI();
+  showToast('Google Drive disconnected');
+}
+
+function updateDriveUI() {
+  const connDot = document.getElementById('drive-conn-dot');
+  const modalDot = document.getElementById('modal-drive-dot');
+  const driveStatusLabel = document.getElementById('drive-status-label');
+  const storageStatusText = document.getElementById('storage-status-text');
+  const storageBarFill = document.getElementById('storage-bar-fill');
+  const popoverDriveBadge = document.getElementById('popover-drive-badge');
+  const popoverDriveQuota = document.getElementById('popover-drive-quota');
+  const modalDriveBadge = document.getElementById('modal-drive-badge');
+  const modalDriveStatusText = document.getElementById('modal-drive-status-text');
+  const modalDriveAccountText = document.getElementById('modal-drive-account-text');
+  const modalQuotaText = document.getElementById('modal-quota-text');
+  const modalQuotaBar = document.getElementById('modal-quota-bar');
+  const btnDriveMain = document.getElementById('btn-drive-main-action');
+  const syncNotesBtn = document.getElementById('btn-sync-notes-drive');
+
+  if (state.isDriveConnected && state.driveStorage) {
+    const usageNum = parseInt(state.driveStorage.usage || '0', 10);
+    const limitNum = state.driveStorage.limit ? parseInt(state.driveStorage.limit, 10) : 0;
+    const usageStr = formatBytes(usageNum);
+    const limitStr = limitNum > 0 ? formatBytes(limitNum) : 'Unlimited';
+    const pct = limitNum > 0 ? Math.min(100, Math.max(0.5, (usageNum / limitNum) * 100)) : 12;
+
+    if (connDot) connDot.classList.add('connected');
+    if (modalDot) modalDot.classList.add('connected');
+    if (driveStatusLabel) driveStatusLabel.textContent = 'Drive Vault';
+    if (storageStatusText) storageStatusText.textContent = `${usageStr} / ${limitStr}`;
+    if (storageBarFill) storageBarFill.style.width = `${pct.toFixed(1)}%`;
+
+    if (popoverDriveBadge) {
+      popoverDriveBadge.textContent = 'Connected';
+      popoverDriveBadge.classList.add('connected');
+    }
+    if (popoverDriveQuota) popoverDriveQuota.textContent = `${usageStr} / ${limitStr} used`;
+
+    if (modalDriveBadge) {
+      modalDriveBadge.textContent = 'Connected';
+      modalDriveBadge.classList.add('connected');
+    }
+    if (modalDriveStatusText) modalDriveStatusText.textContent = 'Connected to Google Drive';
+    if (modalDriveAccountText) modalDriveAccountText.textContent = state.user?.email ? `Authorized as ${state.user.email}` : 'Active OAuth session';
+    if (modalQuotaText) modalQuotaText.textContent = `${usageStr} of ${limitStr} (${pct.toFixed(1)}%)`;
+    if (modalQuotaBar) modalQuotaBar.style.width = `${pct.toFixed(1)}%`;
+    if (btnDriveMain) {
+      btnDriveMain.textContent = 'Sync Lab Notes Now';
+      btnDriveMain.style.background = 'var(--text-main)';
+    }
+    if (syncNotesBtn) syncNotesBtn.style.opacity = '1';
+  } else if (state.isDriveConnected) {
+    if (connDot) connDot.classList.add('connected');
+    if (modalDot) modalDot.classList.add('connected');
+    if (driveStatusLabel) driveStatusLabel.textContent = 'Drive Vault';
+    if (storageStatusText) storageStatusText.textContent = 'Drive Active';
+    if (storageBarFill) storageBarFill.style.width = '2%';
+    if (modalDriveBadge) {
+      modalDriveBadge.textContent = 'Connected';
+      modalDriveBadge.classList.add('connected');
+    }
+    if (modalDriveStatusText) modalDriveStatusText.textContent = 'Connected to Google Drive';
+    if (modalDriveAccountText) modalDriveAccountText.textContent = 'Checking quota...';
+    if (btnDriveMain) btnDriveMain.textContent = 'Sync Lab Notes Now';
+  } else {
+    if (connDot) connDot.classList.remove('connected');
+    if (modalDot) modalDot.classList.remove('connected');
+    if (driveStatusLabel) driveStatusLabel.textContent = 'Local Vault';
+    if (storageStatusText) storageStatusText.textContent = 'Connect Drive';
+    if (storageBarFill) storageBarFill.style.width = '0.2%';
+
+    if (popoverDriveBadge) {
+      popoverDriveBadge.textContent = 'Local';
+      popoverDriveBadge.classList.remove('connected');
+    }
+    if (popoverDriveQuota) popoverDriveQuota.textContent = 'Click to connect cloud vault';
+
+    if (modalDriveBadge) {
+      modalDriveBadge.textContent = 'Local Vault';
+      modalDriveBadge.classList.remove('connected');
+    }
+    if (modalDriveStatusText) modalDriveStatusText.textContent = 'Disconnected';
+    if (modalDriveAccountText) modalDriveAccountText.textContent = 'Notes stay saved locally until connected';
+    if (modalQuotaText) modalQuotaText.textContent = 'Not connected';
+    if (modalQuotaBar) modalQuotaBar.style.width = '0%';
+    if (btnDriveMain) {
+      btnDriveMain.textContent = 'Connect Google Drive';
+      btnDriveMain.style.background = 'var(--accent)';
+    }
+  }
+}
+
+async function fetchDriveQuota() {
+  if (!state.driveToken || !state.isDriveConnected) return null;
+  try {
+    const res = await fetch('https://www.googleapis.com/drive/v3/about?fields=storageQuota,user', {
+      headers: { Authorization: `Bearer ${state.driveToken}` }
+    });
+
+    if (res.status === 401) {
+      console.warn('[Drive] Token expired');
+      disconnectGoogleDrive();
+      return null;
+    }
+
+    if (res.ok) {
+      const data = await res.json();
+      state.driveStorage = data.storageQuota;
+      if (data.user && !state.user) {
+        state.user = {
+          name: data.user.displayName || 'Google User',
+          email: data.user.emailAddress || '',
+          picture: data.user.photoLink || ''
+        };
+        localStorage.setItem('nbl_user_session', JSON.stringify(state.user));
+        renderAuthUI();
+      }
+      updateDriveUI();
+      return data.storageQuota;
+    }
+  } catch (err) {
+    console.warn('[Drive Quota Error]', err);
+  }
+  return null;
+}
+
+async function ensureDriveAppFolder() {
+  if (!state.driveToken) return null;
+  if (state.driveFolderId) {
+    try {
+      const checkRes = await fetch(`https://www.googleapis.com/drive/v3/files/${state.driveFolderId}?fields=id,name,trashed`, {
+        headers: { Authorization: `Bearer ${state.driveToken}` }
+      });
+      if (checkRes.ok) {
+        const folder = await checkRes.json();
+        if (!folder.trashed) return state.driveFolderId;
+      }
+    } catch (e) {}
+  }
+
+  try {
+    const q = encodeURIComponent("name = 'Research Lab (NBLMimic)' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`, {
+      headers: { Authorization: `Bearer ${state.driveToken}` }
+    });
+    if (searchRes.ok) {
+      const data = await searchRes.json();
+      if (data.files && data.files.length > 0) {
+        state.driveFolderId = data.files[0].id;
+        localStorage.setItem('nbl_drive_folder_id', state.driveFolderId);
+        return state.driveFolderId;
+      }
+    }
+
+    const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.driveToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: 'Research Lab (NBLMimic)',
+        mimeType: 'application/vnd.google-apps.folder'
+      })
+    });
+    if (createRes.ok) {
+      const newFolder = await createRes.json();
+      state.driveFolderId = newFolder.id;
+      localStorage.setItem('nbl_drive_folder_id', newFolder.id);
+      return newFolder.id;
+    }
+  } catch (err) {
+    console.error('[Drive Folder Error]', err);
+  }
+  return null;
+}
+
+async function syncCurrentNotesToDrive(silent = false) {
+  if (!state.isDriveConnected || !state.driveToken) {
+    if (!silent) {
+      openDriveModal();
+      showToast('Connect Google Drive to sync notes');
+    }
+    return;
+  }
+
+  if (isSyncingNotes) return;
+  isSyncingNotes = true;
+
+  const syncLabel = document.getElementById('label-sync-notes');
+  const notesStatusLabel = document.getElementById('notes-status-label');
+  if (syncLabel) syncLabel.textContent = 'Syncing...';
+  if (notesStatusLabel) notesStatusLabel.textContent = 'Syncing to Google Drive...';
+
+  try {
+    const folderId = await ensureDriveAppFolder();
+    const content = state.notesContent || '# Research Lab Notes\n\nNo notes recorded yet.';
+    const fileName = 'Research_Notes.md';
+
+    let existingFileId = null;
+    if (folderId) {
+      const query = encodeURIComponent(`name = '${fileName}' and '${folderId}' in parents and trashed = false`);
+      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
+        headers: { Authorization: `Bearer ${state.driveToken}` }
+      });
+      if (searchRes.ok) {
+        const searchData = await searchRes.json();
+        if (searchData.files && searchData.files.length > 0) {
+          existingFileId = searchData.files[0].id;
+        }
+      }
+    }
+
+    let uploadRes;
+    if (existingFileId) {
+      uploadRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=media`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${state.driveToken}`,
+          'Content-Type': 'text/markdown; charset=utf-8'
+        },
+        body: content
+      });
+    } else {
+      const metadata = {
+        name: fileName,
+        mimeType: 'text/markdown',
+        parents: folderId ? [folderId] : []
+      };
+
+      const boundary = '-------314159265358979323846';
+      const delimiter = "\r\n--" + boundary + "\r\n";
+      const closeDelim = "\r\n--" + boundary + "--";
+
+      const multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: text/markdown; charset=UTF-8\r\n\r\n' +
+        content +
+        closeDelim;
+
+      uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${state.driveToken}`,
+          'Content-Type': `multipart/related; boundary=${boundary}`
+        },
+        body: multipartRequestBody
+      });
+    }
+
+    if (state.driveWebAppUrl) {
+      try {
+        fetch(state.driveWebAppUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: state.user?.name || 'researcher',
+            action: 'saveNote',
+            title: 'Research_Notes',
+            content: content
+          })
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    if (uploadRes && uploadRes.ok) {
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (notesStatusLabel) notesStatusLabel.textContent = `Synced to Google Drive (${timeStr})`;
+      if (syncLabel) syncLabel.textContent = 'Synced ✓';
+      setTimeout(() => { if (syncLabel) syncLabel.textContent = 'Sync Drive'; }, 2500);
+      if (!silent) showToast('Notes successfully backed up to Google Drive');
+      fetchDriveQuota();
+    } else {
+      throw new Error(`Upload failed with status ${uploadRes?.status}`);
+    }
+  } catch (err) {
+    console.error('[Drive Sync Error]', err);
+    if (notesStatusLabel) notesStatusLabel.textContent = 'Saved to local vault (Drive sync offline)';
+    if (syncLabel) syncLabel.textContent = 'Sync Failed';
+    setTimeout(() => { if (syncLabel) syncLabel.textContent = 'Sync Drive'; }, 3000);
+    if (!silent) showToast('Failed to sync to Google Drive. Check permissions.');
+  } finally {
+    isSyncingNotes = false;
+  }
+}
+
+async function fetchUserDriveFiles(queryFilter = '') {
+  if (!state.driveToken || !state.isDriveConnected) {
+    const listEl = document.getElementById('drive-files-list-container');
+    if (listEl) {
+      listEl.innerHTML = '<div style="padding:24px 16px; text-align:center; color:var(--text-tertiary); font-size:12px;">Connect Google Drive above to list and import files.</div>';
+    }
+    return [];
+  }
+
+  const listEl = document.getElementById('drive-files-list-container');
+  if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-tertiary); font-size:12px;">Loading your Google Drive documents...</div>';
+
+  try {
+    let q = "trashed = false and (mimeType = 'text/plain' or mimeType = 'text/markdown' or mimeType = 'application/json' or mimeType = 'application/pdf' or mimeType = 'application/vnd.google-apps.document')";
+    if (queryFilter) {
+      const cleanF = queryFilter.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      q += ` and name contains '${cleanF}'`;
+    }
+
+    const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&pageSize=30&orderBy=modifiedTime desc&fields=files(id,name,mimeType,size,modifiedTime)`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${state.driveToken}` }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      state.driveFiles = data.files || [];
+      renderDriveFilesList();
+      return state.driveFiles;
+    } else {
+      if (listEl) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--danger); font-size:12px;">Could not fetch Drive files. Token may need renewal.</div>';
+    }
+  } catch (err) {
+    if (listEl) listEl.innerHTML = `<div style="padding:20px; text-align:center; color:var(--danger); font-size:12px;">Error loading files: ${err.message}</div>`;
+  }
+  return [];
+}
+
+function renderDriveFilesList() {
+  const container = document.getElementById('drive-files-list-container');
+  if (!container) return;
+
+  if (!state.driveFiles || state.driveFiles.length === 0) {
+    container.innerHTML = '<div style="padding:24px 16px; text-align:center; color:var(--text-tertiary); font-size:12px;">No documents or text files found in your Drive.</div>';
+    return;
+  }
+
+  container.innerHTML = state.driveFiles.map(file => {
+    const isDoc = file.mimeType === 'application/vnd.google-apps.document';
+    const isPdf = file.mimeType === 'application/pdf';
+    const iconSvg = isDoc
+      ? '<span style="color:#2563eb; font-weight:700;">DOC</span>'
+      : (isPdf ? '<span style="color:#ef4444; font-weight:700;">PDF</span>' : '<span style="color:#10b981; font-weight:700;">TXT</span>');
+
+    const sizeStr = file.size ? formatBytes(file.size) : (isDoc ? 'Doc' : 'Text');
+    const modDate = file.modifiedTime ? new Date(file.modifiedTime).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
+
+    return `
+      <div class="drive-file-row" onclick="importDriveFileToNotebook('${file.id}', '${escapeHtml(file.name)}', '${file.mimeType}')" title="Click to import into research sources">
+        <div class="drive-file-item-name">
+          <span style="font-size:10px; font-family:var(--font-mono);">${iconSvg}</span>
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:260px;">${escapeHtml(file.name)}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="drive-file-meta">${sizeStr} &middot; ${modDate}</span>
+          <button class="btn-tiny-action" style="height:22px; font-size:11px; padding:0 6px;">Import</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function importDriveFileToNotebook(fileId, fileName, mimeType) {
+  showToast(`Importing ${fileName}...`);
+  try {
+    let content = '';
+    if (mimeType === 'application/vnd.google-apps.document') {
+      const expRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`, {
+        headers: { Authorization: `Bearer ${state.driveToken}` }
+      });
+      if (!expRes.ok) throw new Error('Could not export Google Doc');
+      content = await expRes.text();
+    } else if (mimeType === 'application/pdf') {
+      content = `# ${fileName}\n\n[Google Drive PDF Document]\nImported directly from user Google Drive vault.\nRefer to Google Drive to review native PDF graphics or export text.`;
+    } else {
+      const rawRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${state.driveToken}` }
+      });
+      if (!rawRes.ok) throw new Error('Could not download file media');
+      content = await rawRes.text();
+    }
+
+    const newDoc = {
+      id: Date.now(),
+      type: 'drive',
+      title: fileName,
+      source: 'Google Drive',
+      category: 'Notes & Uploads',
+      excerpt: content.slice(0, 140) + '…',
+      content: content,
+      date: 'Just now',
+      timestamp: Date.now(),
+      driveFileId: fileId
+    };
+
+    state.sources.unshift(newDoc);
+    state.activeSourceIds.add(newDoc.id);
+    renderSources();
+    viewDocument(newDoc.id);
+    closeDriveModal();
+    closeAddSourceModal();
+    showToast(`✓ "${fileName}" imported into research sources`);
+  } catch (err) {
+    console.error('[Drive Import Error]', err);
+    showToast(`Failed to import file: ${err.message}`);
+  }
+}
+
+function saveDriveWebAppUrl() {
+  const input = document.getElementById('input-drive-webapp-url');
+  if (input) {
+    const url = input.value.trim();
+    state.driveWebAppUrl = url;
+    localStorage.setItem('nbl_drive_webapp_url', url);
+    showToast('Apps Script Butler URL saved');
+  }
+}
+
+function formatBytes(bytes, decimals = 1) {
+  if (!bytes || bytes === 0) return '0 B';
+  const num = typeof bytes === 'string' ? parseInt(bytes, 10) : bytes;
+  if (isNaN(num) || num <= 0) return '0 B';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(num) / Math.log(k));
+  return parseFloat((num / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 function escapeHtml(str) {

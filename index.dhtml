@@ -1572,6 +1572,7 @@ svg { display: block; flex-shrink: 0; }
   border: 1px solid transparent;
 }
 .source-item:hover { background: var(--bg-primary); border-color: var(--border); }
+.source-item.selected { background: var(--accent-subtle); border-color: var(--accent); }
 .source-item-icon {
   width: 28px; height: 28px;
   border-radius: var(--radius-sm);
@@ -2678,6 +2679,18 @@ svg { display: block; flex-shrink: 0; }
 ::selection { background: var(--accent-light); color: var(--accent); }
 [data-theme="dark"] ::selection { background: rgba(37,99,235,0.25); color: var(--text-primary); }
 </style>
+<!-- Local Offline Document Text Extractors (PDF & Word DOCX) -->
+<script src="vendor/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) {
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = window.location.protocol === 'file:' 
+        ? 'vendor/pdf.worker.js' 
+        : '/vendor/pdf.worker.js';
+    } catch(e) {}
+  }
+</script>
+<script src="vendor/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -3817,10 +3830,20 @@ let NOTEBOOKS = (() => {
   }
 })();
 let activeNotebookId = localStorage.getItem('nblmimic_active_notebook_id') || (NOTEBOOKS.length > 0 ? NOTEBOOKS[0].id : null);
+let activeSourceChatId = null;
 
-// Helper to get active topic/notebook key
+// Helper to get active topic/notebook or individual source chat key
 function getActiveChatTopicId() {
+  if (activeSourceChatId) {
+    return 'source_' + activeSourceChatId;
+  }
   return activeNotebookId || 'default';
+}
+
+function clearSourceChatFocus() {
+  activeSourceChatId = null;
+  renderChat();
+  renderSidepanelSources();
 }
 
 // Helper to get chat history for current active topic
@@ -4208,15 +4231,30 @@ function renderChat() {
   const messagesContainer = document.getElementById('chat-messages');
   if (!messagesContainer) return;
 
-  // Sync notebook title in chat header
+  // Sync notebook or active source in chat header
   const titleEl = document.getElementById('chat-notebook-title');
   const metaEl = document.getElementById('chat-notebook-meta');
+  const activeDoc = activeSourceChatId ? DOCS.find(d => String(d.id) === String(activeSourceChatId)) : null;
   const activeNb = NOTEBOOKS.find(n => n.id === activeNotebookId);
-  if (titleEl) {
-    titleEl.textContent = activeNb ? activeNb.title : 'NBLMimic Agent';
-  }
-  if (metaEl) {
-    metaEl.textContent = `Topic: ${activeNb ? activeNb.title : 'General Workspace'} · Grounded in active sources`;
+
+  if (activeDoc) {
+    if (titleEl) {
+      titleEl.innerHTML = `<span style="margin-right:6px;">${activeDoc.icon || '📄'}</span>${activeDoc.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}`;
+    }
+    if (metaEl) {
+      metaEl.innerHTML = `<span style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap;">` +
+        `<span class="badge badge-blue" style="font-size:10px; padding:1px 6px;">Source Chat</span>` +
+        `<span>${activeDoc.source}</span> · ` +
+        `<button class="btn btn-secondary btn-sm" onclick="clearSourceChatFocus()" style="padding:1px 8px; font-size:11px; height:20px; line-height:18px;">Switch to Topic Chat</button>` +
+        `</span>`;
+    }
+  } else {
+    if (titleEl) {
+      titleEl.textContent = activeNb ? activeNb.title : 'NBLMimic Agent';
+    }
+    if (metaEl) {
+      metaEl.textContent = `Topic: ${activeNb ? activeNb.title : 'General Workspace'} · Grounded in active sources`;
+    }
   }
 
   // Preserve the api-key-banner
@@ -4230,19 +4268,36 @@ function renderChat() {
     const welcome = document.createElement('div');
     welcome.className = 'msg-group ai';
     welcome.id = 'chat-welcome-msg';
-    const topicHeading = activeNb ? `Workspace: ${activeNb.title}` : 'Welcome to the NBLMimic AI Agent';
-    welcome.innerHTML = `
-      <div class="msg-sender">NBLMimic Agent</div>
-      <div class="msg-bubble">
-        <p><strong>👋 ${topicHeading}</strong></p>
-        <p>This discussion thread is dedicated exclusively to this topic. All queries are grounded strictly in your selected active research sources.</p>
-        <div class="prompt-chips">
-          <button class="prompt-chip" onclick="askPreset('Summarize the key findings and major takeaways across all active sources.')">📑 Summarize active sources</button>
-          <button class="prompt-chip" onclick="askPreset('Synthesize an executive briefing note with key recommendations.')">📝 Generate briefing note</button>
-          <button class="prompt-chip" onclick="askPreset('Identify any gaps, limitations, or open questions in the current sources.')">🔍 Analyze gaps & questions</button>
+
+    if (activeDoc) {
+      const safeTitle = activeDoc.title.replace(/"/g, '&quot;');
+      welcome.innerHTML = `
+        <div class="msg-sender">NBLMimic Agent</div>
+        <div class="msg-bubble">
+          <p><strong>👋 Dedicated Source Chat: ${activeDoc.title}</strong></p>
+          <p>This discussion thread is dedicated exclusively to <strong>${activeDoc.title}</strong> (${activeDoc.source}). All queries and responses will focus specifically on this document's text and findings.</p>
+          <div class="prompt-chips">
+            <button class="prompt-chip" onclick="askPreset('Summarize the key arguments and main points of &quot;${safeTitle}&quot;.')">📑 Summarize this document</button>
+            <button class="prompt-chip" onclick="askPreset('Extract the key findings, data, and takeaways from &quot;${safeTitle}&quot;.')">🔑 Extract key findings</button>
+            <button class="prompt-chip" onclick="askPreset('What are the main questions, limitations, or implications discussed in &quot;${safeTitle}&quot;?')">🔍 Analyze limitations & questions</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    } else {
+      const topicHeading = activeNb ? `Workspace: ${activeNb.title}` : 'Welcome to the NBLMimic AI Agent';
+      welcome.innerHTML = `
+        <div class="msg-sender">NBLMimic Agent</div>
+        <div class="msg-bubble">
+          <p><strong>👋 ${topicHeading}</strong></p>
+          <p>This discussion thread is dedicated exclusively to this topic. All queries are grounded strictly in your selected active research sources.</p>
+          <div class="prompt-chips">
+            <button class="prompt-chip" onclick="askPreset('Summarize the key findings and major takeaways across all active sources.')">📑 Summarize active sources</button>
+            <button class="prompt-chip" onclick="askPreset('Synthesize an executive briefing note with key recommendations.')">📝 Generate briefing note</button>
+            <button class="prompt-chip" onclick="askPreset('Identify any gaps, limitations, or open questions in the current sources.')">🔍 Analyze gaps & questions</button>
+          </div>
+        </div>
+      `;
+    }
     messagesContainer.appendChild(welcome);
     return;
   }
@@ -4511,14 +4566,20 @@ async function sendMessage() {
   if (messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   try {
-    const activeDocs = DOCS.filter(d => activeSourceIds.has(d.id));
+    let sourcesForChat = DOCS.filter(d => activeSourceIds.has(d.id));
+    if (activeSourceChatId) {
+      const specificDoc = DOCS.find(d => String(d.id) === String(activeSourceChatId));
+      if (specificDoc) {
+        sourcesForChat = [specificDoc];
+      }
+    }
     const previousHistory = currentChat.slice(0, -1);
     
     let replyText = '';
     if (SETTINGS.provider === 'gemini') {
-      replyText = await callGemini(previousHistory, text, activeDocs);
+      replyText = await callGemini(previousHistory, text, sourcesForChat);
     } else {
-      replyText = await callOllama(previousHistory, text, activeDocs);
+      replyText = await callOllama(previousHistory, text, sourcesForChat);
     }
 
     if (typing) typing.style.display = 'none';
@@ -4852,8 +4913,7 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', doc.title);
     card.onclick = () => { 
-      openSourcePanel(doc.id);
-      switchView('chat');
+      openSourceChat(doc.id);
     };
     card.onkeydown = (e) => { if (e.key === 'Enter') card.click(); };
 
@@ -4905,7 +4965,7 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
             <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
           </svg>
         </button>
-        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.'); switchView('chat');">
+        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); openSourceChat('${doc.id}'); askPreset('Analyze and summarize the key implications of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.');">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
@@ -4931,11 +4991,12 @@ function renderSidepanelSources() {
 
   sorted.forEach(doc => {
     const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
+    const isSelected = activeSourceChatId && String(activeSourceChatId) === String(doc.id);
     const cat = doc.category || detectCategory(doc.title, doc.content);
     const catClass = getCategoryColor(cat);
 
     const item = document.createElement('div');
-    item.className = 'source-item';
+    item.className = 'source-item' + (isSelected ? ' selected' : '');
     item.innerHTML = `
       <div class="source-check ${isChecked ? 'checked' : ''}" role="checkbox" aria-checked="${isChecked}" tabindex="0"></div>
       <div class="source-item-icon doc-icon ${doc.type || 'news'}">${doc.icon || '📰'}</div>
@@ -4968,14 +5029,23 @@ function renderSidepanelSources() {
     });
 
     item.addEventListener('click', () => {
-      openSourcePanel(doc.id);
+      openSourceChat(doc.id);
     });
 
     container.appendChild(item);
   });
 }
 
+function openSourceChat(num) {
+  activeSourceChatId = String(num);
+  openSourcePanel(num);
+  switchView('chat');
+  renderChat();
+  renderSidepanelSources();
+}
+
 function openSourcePanel(num) {
+  activeSourceChatId = String(num);
   const app = document.getElementById('app');
   if (app) app.classList.remove('sidepanel-collapsed');
 
@@ -5012,7 +5082,7 @@ function openSourcePanel(num) {
           </div>
           ${sourceLink}
         </div>
-        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="askPreset('Provide a detailed breakdown and synthesis of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.')">
+        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="openSourceChat('${doc.id}'); askPreset('Provide a detailed breakdown and synthesis of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.')">
           Ask Agent about this source
         </button>
       </div>
@@ -5165,11 +5235,10 @@ async function handleImportModal() {
   }
 }
 
-function processUploadedFile(file) {
+async function processUploadedFile(file) {
   if (!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
   const isImage = file.type.startsWith('image/') || /^(png|jpe?g|gif|webp|svg|bmp|tiff?|ico|avif)$/i.test(ext);
-  const reader = new FileReader();
 
   // File type → icon + category mapping
   const fileTypeMeta = {
@@ -5204,48 +5273,137 @@ function processUploadedFile(file) {
   };
 
   if (isImage) {
+    const reader = new FileReader();
     reader.onload = (evt) => {
-      addNewSource(file.name, evt.target.result || '', 'image', '', {
+      const newDocId = addNewSource(file.name, evt.target.result || '', 'image', '', {
         icon: '🖼️', sourceName: 'Image Upload', category: 'Images & Media',
         sizeBytes: file.size
       });
       closeModal();
       showToast(`"${file.name}" image imported!`, 'success');
+      if (newDocId) openSourceChat(newDocId);
     };
     reader.readAsDataURL(file);
-  } else {
-    const meta = fileTypeMeta[ext] || { type: 'txt', icon: '📄', source: 'User Upload', cat: 'Notes & Uploads' };
-    reader.onload = (evt) => {
-      let content = evt.target.result || `[Binary content of ${file.name}]`;
-      // For JSON, pretty-print if valid
-      if (ext === 'json') {
-        try { content = JSON.stringify(JSON.parse(content), null, 2); } catch(e) {}
-      } else if (ext === 'pdf') {
-        // Extract readable text chunks from raw PDF stream
+    return;
+  }
+
+  const meta = fileTypeMeta[ext] || { type: 'txt', icon: '📄', source: 'User Upload', cat: 'Notes & Uploads' };
+  showToast(`Processing "${file.name}"…`, 'info');
+
+  let content = '';
+
+  // 1. PDF Extraction via pdfjsLib
+  if (ext === 'pdf') {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      if (window.pdfjsLib) {
         try {
-          const parts = [];
-          const tjMatches = content.match(/\((?:\\\(|\\\)|[^()])*\)\s*Tj/g) || [];
-          for (const m of tjMatches) {
-            const rawChunk = m.slice(1, m.lastIndexOf(')'));
-            const unescaped = rawChunk.replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
-            if (unescaped.trim()) parts.push(unescaped.trim());
+          if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = window.location.protocol === 'file:' 
+              ? 'vendor/pdf.worker.js' 
+              : '/vendor/pdf.worker.js';
           }
-          if (parts.length > 5) {
-            content = parts.join(' ');
+          const pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+          const pageTexts = [];
+          for (let p = 1; p <= pdfDoc.numPages; p++) {
+            const page = await pdfDoc.getPage(p);
+            const textData = await page.getTextContent();
+            const textItems = textData.items.map(item => item.str).join(' ').trim();
+            if (textItems) {
+              pageTexts.push(`[Page ${p}]\n${textItems}`);
+            }
           }
-        } catch (pdfErr) {}
+          if (pageTexts.length > 0) {
+            content = pageTexts.join('\n\n');
+          }
+        } catch (pdfErr) {
+          console.warn('pdf.js worker mode failed, trying inline mode...', pdfErr);
+          try {
+            const pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer), disableWorker: true }).promise;
+            const pageTexts = [];
+            for (let p = 1; p <= pdfDoc.numPages; p++) {
+              const page = await pdfDoc.getPage(p);
+              const textData = await page.getTextContent();
+              const textItems = textData.items.map(item => item.str).join(' ').trim();
+              if (textItems) {
+                pageTexts.push(`[Page ${p}]\n${textItems}`);
+              }
+            }
+            if (pageTexts.length > 0) {
+              content = pageTexts.join('\n\n');
+            }
+          } catch (inlineErr) {
+            console.warn('pdf.js inline mode failed:', inlineErr);
+          }
+        }
       }
-      addNewSource(file.name, content, meta.type, '', {
-        icon: meta.icon, sourceName: meta.source, category: meta.cat,
-        sizeBytes: file.size
-      });
-      closeModal();
-      showToast(`"${file.name}" imported and ready for analysis!`, 'success');
-    };
-    reader.onerror = () => {
-      showToast(`Failed to read "${file.name}". Try a different format.`, 'error');
-    };
-    reader.readAsText(file, 'UTF-8');
+
+      // If client PDF.js produced empty text or failed, query server fallback /api/extract-doc
+      if (!content && SERVER_STATUS.baseUrl) {
+        try {
+          const base64 = await new Promise((resolve, reject) => {
+            const r = new FileReader();
+            r.onload = () => resolve((r.result || '').split(',')[1] || '');
+            r.onerror = reject;
+            r.readAsDataURL(file);
+          });
+          const res = await fetch(`${SERVER_STATUS.baseUrl}/api/extract-doc`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: file.name, base64: base64 })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.text) content = data.text;
+          }
+        } catch (serverErr) {
+          console.warn('Server extract-doc fallback failed:', serverErr);
+        }
+      }
+    } catch (e) {
+      console.warn('PDF processing error:', e);
+    }
+  }
+
+  // 2. Word (.docx) Extraction via Mammoth
+  else if (ext === 'docx') {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      if (window.mammoth) {
+        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+        if (result && result.value) {
+          content = result.value.trim();
+        }
+      }
+    } catch (docxErr) {
+      console.warn('Word document extraction failed:', docxErr);
+    }
+  }
+
+  // 3. Plain Text / Code / JSON / Markdown
+  if (!content) {
+    try {
+      content = await file.text();
+      if (ext === 'json') {
+        try { content = JSON.stringify(JSON.parse(content), null, 2); } catch (je) {}
+      }
+    } catch (readErr) {
+      content = `[Content of ${file.name}]`;
+    }
+  }
+
+  if (!content || !content.trim()) {
+    content = `[Imported empty document: ${file.name}]`;
+  }
+
+  const newDocId = addNewSource(file.name, content, meta.type, '', {
+    icon: meta.icon, sourceName: meta.source, category: meta.cat,
+    sizeBytes: file.size
+  });
+  closeModal();
+  showToast(`"${file.name}" imported and ready for analysis!`, 'success');
+  if (newDocId) {
+    openSourceChat(newDocId);
   }
 }
 
@@ -5294,6 +5452,7 @@ function addNewSource(title, content, type = 'note', url = '', meta = {}) {
   renderSidebarTags();
   CURRENT_STORAGE_USED_BYTES += sizeBytes;
   updateStorageMeter(CURRENT_STORAGE_USED_BYTES);
+  return newId;
 }
 
 
@@ -5316,6 +5475,9 @@ function renameDocument(docId) {
   renderLibrary();
   renderSidepanelSources();
   renderSidebarTags();
+  if (activeSourceChatId && String(activeSourceChatId) === String(doc.id)) {
+    renderChat();
+  }
   const contextTab = document.getElementById('sp-context');
   if (contextTab && contextTab.querySelector('.insight-card-text')) {
     openSourcePanel(doc.id);
@@ -5336,6 +5498,12 @@ function deleteDocument(docId) {
   const deletedDoc = DOCS.splice(docIndex, 1)[0];
   activeSourceIds.delete(deletedDoc.id);
   activeSourceIds.delete(String(deletedDoc.id));
+  delete CHAT_HISTORIES['source_' + deletedDoc.id];
+  delete CHAT_HISTORIES['source_' + String(deletedDoc.id)];
+  localStorage.setItem('nblmimic_chat_histories_map', JSON.stringify(CHAT_HISTORIES));
+  if (activeSourceChatId && String(activeSourceChatId) === String(deletedDoc.id)) {
+    activeSourceChatId = null;
+  }
   
   // Update storage meter
   const docBytes = (deletedDoc.content ? deletedDoc.content.length : 1024);
@@ -5346,6 +5514,7 @@ function deleteDocument(docId) {
   renderLibrary();
   renderSidepanelSources();
   renderSidebarTags();
+  renderChat();
   
   const contextTab = document.getElementById('sp-context');
   if (contextTab) {
@@ -5461,9 +5630,11 @@ function renderSidebarTags() {
 }
 
 function selectNotebook(id) {
+  activeSourceChatId = null;
   activeNotebookId = id;
   localStorage.setItem('nblmimic_active_notebook_id', id);
   renderSidebarNotebooks();
+  renderSidepanelSources();
   switchView('chat');
   renderChat();
   const nb = NOTEBOOKS.find(n => n.id === id);
@@ -5488,9 +5659,11 @@ function createNewNotebook() {
   };
   NOTEBOOKS.push(newNb);
   localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
+  activeSourceChatId = null;
   activeNotebookId = id;
   localStorage.setItem('nblmimic_active_notebook_id', id);
   renderSidebarNotebooks();
+  renderSidepanelSources();
   switchView('chat');
   renderChat();
   showToast(`Created topic "${trimmed}"`, 'success');
@@ -5509,7 +5682,7 @@ function renameNotebook(id) {
   nb.title = trimmed;
   localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
   renderSidebarNotebooks();
-  if (activeNotebookId === id) {
+  if (!activeSourceChatId && activeNotebookId === id) {
     renderChat();
   }
   showToast(`Renamed topic to "${trimmed}"`, 'success');
@@ -5526,11 +5699,13 @@ function deleteNotebook(id) {
   localStorage.setItem('nblmimic_chat_histories_map', JSON.stringify(CHAT_HISTORIES));
   NOTEBOOKS.splice(index, 1);
   if (activeNotebookId === id) {
+    activeSourceChatId = null;
     activeNotebookId = NOTEBOOKS.length > 0 ? NOTEBOOKS[0].id : null;
     localStorage.setItem('nblmimic_active_notebook_id', activeNotebookId || '');
   }
   localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
   renderSidebarNotebooks();
+  renderSidepanelSources();
   renderChat();
   showToast(`Deleted topic "${nb.title}"`, 'info');
 }

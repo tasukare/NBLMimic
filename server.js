@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const dns = require('dns');
+const zlib = require('zlib');
 
 // Prioritize IPv4 DNS to eliminate IPv6 timeout delay on Windows
 try {
@@ -352,6 +353,64 @@ async function scrapeWebUrl(targetUrl) {
   };
 }
 
+// ════════════════════════════════════════════════
+// PDF Text Extraction Helper (Decompresses FlateDecode Streams)
+// ════════════════════════════════════════════════
+function extractPdfTextFromBuffer(buffer) {
+  const textParts = [];
+  let idx = 0;
+  while (true) {
+    const streamMarker = Buffer.from('stream');
+    const endstreamMarker = Buffer.from('endstream');
+    const start = buffer.indexOf(streamMarker, idx);
+    if (start === -1) break;
+    const end = buffer.indexOf(endstreamMarker, start);
+    if (end === -1) break;
+
+    let dataStart = start + 6;
+    if (buffer[dataStart] === 0x0d && buffer[dataStart + 1] === 0x0a) dataStart += 2;
+    else if (buffer[dataStart] === 0x0a || buffer[dataStart] === 0x0d) dataStart += 1;
+
+    let dataEnd = end;
+    if (buffer[dataEnd - 1] === 0x0a) dataEnd--;
+    if (buffer[dataEnd - 1] === 0x0d) dataEnd--;
+
+    const slice = buffer.slice(dataStart, dataEnd);
+    let decompressed = '';
+    try {
+      decompressed = zlib.inflateSync(slice).toString('utf-8');
+    } catch (e) {
+      try {
+        decompressed = zlib.inflateRawSync(slice).toString('utf-8');
+      } catch (e2) {
+        decompressed = slice.toString('utf-8');
+      }
+    }
+
+    if (decompressed) {
+      // 1. Tj operators: (text) Tj
+      const tjMatches = decompressed.match(/\((?:\\\(|\\\)|[^()])*\)\s*Tj/g) || [];
+      for (const m of tjMatches) {
+        const raw = m.slice(1, m.lastIndexOf(')'));
+        const unesc = raw.replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+        if (unesc.trim()) textParts.push(unesc.trim());
+      }
+      // 2. TJ array operators: [(chunk1) -10 (chunk2)] TJ
+      const tjArrayMatches = decompressed.match(/\[(.*?)\]\s*TJ/gs) || [];
+      for (const m of tjArrayMatches) {
+        const innerMatches = m.match(/\((?:\\\(|\\\)|[^()])*\)/g) || [];
+        for (const im of innerMatches) {
+          const raw = im.slice(1, -1);
+          const unesc = raw.replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+          if (unesc.trim()) textParts.push(unesc.trim());
+        }
+      }
+    }
+    idx = end + 9;
+  }
+  return textParts.join(' ').replace(/\s+/g, ' ').trim();
+}
+
 const server = http.createServer(async (req, res) => {
   // Enable CORS for local development
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -434,6 +493,44 @@ const server = http.createServer(async (req, res) => {
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: { message: `Scrape error: ${err.message}` } }));
+      }
+    });
+    return;
+  }
+
+  // 1e. Document & PDF Text Extraction Fallback Endpoint
+  if (pathname === '/api/extract-doc' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const filename = (payload.filename || '').toLowerCase();
+        const base64Data = payload.base64 || '';
+        if (!base64Data) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: { message: 'Missing document data' } }));
+          return;
+        }
+
+        const buffer = Buffer.from(base64Data, 'base64');
+        let extractedText = '';
+
+        if (filename.endsWith('.pdf')) {
+          extractedText = extractPdfTextFromBuffer(buffer);
+        } else {
+          // Plain text / Markdown / JSON / CSV
+          extractedText = buffer.toString('utf-8');
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: 'ok',
+          text: extractedText.trim()
+        }));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: { message: `Extraction error: ${err.message}` } }));
       }
     });
     return;

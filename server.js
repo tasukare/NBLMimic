@@ -278,7 +278,6 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'ok',
       hasServerKey: Boolean(key.trim()),
-      apiKey: key.trim(),
       defaultModel: 'gemini-3.5-flash-lite',
       liveModel: 'gemini-3.8-live'
     }));
@@ -290,7 +289,8 @@ const server = http.createServer(async (req, res) => {
     const key = process.env.GEMINI_API_KEY || '';
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
-      apiKey: key,
+      hasServerKey: Boolean(key.trim()),
+      apiKey: key.trim(),
       liveModel: 'gemini-3.8-live'
     }));
     return;
@@ -342,12 +342,13 @@ const server = http.createServer(async (req, res) => {
     req.on('end', async () => {
       try {
         const payload = JSON.parse(body || '{}');
-        const apiKey = process.env.GEMINI_API_KEY || payload.apiKey;
+        // BYOK precedence: Use client-supplied key if provided, otherwise fallback to server .env
+        const apiKey = (payload.apiKey && String(payload.apiKey).trim()) || (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
 
         if (!apiKey) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
-            error: { message: 'Missing Gemini API key. Please add GEMINI_API_KEY to your .env file or enter it in Settings.' }
+            error: { message: 'Missing Gemini API key. Please add GEMINI_API_KEY to your .env file or enter your key in Settings (BYOK).' }
           }));
           return;
         }

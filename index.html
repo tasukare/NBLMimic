@@ -2550,10 +2550,55 @@
       <button class="auth-close-x" onclick="closeSettings()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
+    <!-- Secure Bring Your Own Key (BYOK) Field Group -->
     <div class="field-group">
-      <label class="field-label" for="setting-gemini-key">Gemini API Key</label>
-      <input type="password" class="field-input" id="setting-gemini-key" placeholder="AIzaSy...">
-      <span style="font-size:11px; color:var(--text-tertiary);" id="setting-key-status">Auto-loaded from .env</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label class="field-label" for="setting-gemini-key" style="margin:0;">Gemini API Key (BYOK)</label>
+        <span style="font-size:11px; padding:2px 8px; border-radius:12px; font-weight:500;" id="setting-key-badge"></span>
+      </div>
+
+      <div style="position:relative; display:flex; align-items:center;">
+        <input 
+          type="password" 
+          class="field-input" 
+          id="setting-gemini-key" 
+          placeholder="AIzaSy... (Leave blank to use server .env)"
+          autocomplete="off"
+          spellcheck="false"
+          style="padding-right:72px;"
+        >
+        <button 
+          type="button" 
+          id="btn-toggle-key-visibility" 
+          onclick="toggleKeyVisibility()" 
+          title="Toggle Key Visibility"
+          style="position:absolute; right:8px; background:none; border:none; color:var(--text-tertiary); cursor:pointer; padding:4px 6px; font-size:12px; border-radius:4px;"
+        >
+          <svg id="eye-icon-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <svg id="eye-icon-hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:11.5px; color:var(--text-tertiary); line-height:1.4;" id="setting-key-status">
+          Ephemeral in-memory key (never written to disk).
+        </span>
+        <button 
+          type="button" 
+          class="btn-tiny-action" 
+          id="btn-clear-key" 
+          onclick="clearApiKey()" 
+          style="color:var(--danger, #ef4444); border-color:rgba(239, 68, 68, 0.3); height:24px; padding:0 8px; font-size:11px;"
+        >
+          Clear Key
+        </button>
+      </div>
+
+      <!-- Session Storage Toggle -->
+      <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:var(--text-secondary); cursor:pointer;">
+        <input type="checkbox" id="setting-remember-session" style="accent-color:var(--accent);">
+        <span>Keep key active across page reloads in this tab (<code style="font-size:11px;">sessionStorage</code>)</span>
+      </label>
     </div>
 
     <div class="field-group">
@@ -2875,6 +2920,9 @@ const state = {
   notesContent: '',
   isSignUpMode: false,
   googleClientId: '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
+  // Bring Your Own Key (BYOK) - In-Memory Ephemeral Only
+  geminiApiKey: null,
+  hasServerKey: false,
   // Google Drive Cloud State
   driveToken: null,
   driveTokenExpires: 0,
@@ -3163,6 +3211,7 @@ function closeAddSourceModal() {
 }
 
 function openSettings() {
+  updateKeySettingsUI();
   document.getElementById('settings-dialog').classList.add('active');
 }
 
@@ -3876,6 +3925,11 @@ If information is not contained in the sources, mention that clearly, and then o
     : `You are an elite research partner inside Research Lab (NBLMimic).
 Help the researcher brainstorm, explore concepts, summarize information, and plan experiments with rigorous depth.`;
 
+  // Check for server credentials or ephemeral BYOK key
+  if (!state.hasServerKey && !state.geminiApiKey) {
+    if (!ensureGeminiApiKey()) return;
+  }
+
   const thinkingId = addThinking();
   const model = document.getElementById('select-active-model').value || 'gemini-3.5-flash-lite';
 
@@ -3903,6 +3957,11 @@ Help the researcher brainstorm, explore concepts, summarize information, and pla
         reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
       } else {
         const err = await res.json().catch(() => ({}));
+        if (res.status === 400 && String(err.error?.message || '').toLowerCase().includes('api key')) {
+          removeThinking(thinkingId);
+          ensureGeminiApiKey();
+          return;
+        }
         reply = `Error: ${err.error?.message || 'Server error occurred'}`;
       }
     } catch (fetchErr) {
@@ -3911,10 +3970,10 @@ Help the researcher brainstorm, explore concepts, summarize information, and pla
 
     // 2. Secondary fallback: If proxy unreachable (e.g. running from file://), call Google directly
     if (proxyFailed) {
-      const key = state.geminiApiKey || (await CryptoVault.getSecureItem('gemini_api_key'));
+      const key = state.geminiApiKey;
       if (!key) {
         removeThinking(thinkingId);
-        addMessage('ai', `Connection error: Server is not running, and no Gemini API Key is stored. Please run \`node server.js\` or enter your key in Settings.`);
+        addMessage('ai', `Connection error: Server proxy is offline and no Gemini API Key is entered. Please click Settings to enter your key (BYOK).`);
         return;
       }
 
@@ -4319,22 +4378,25 @@ async function connectGeminiLive() {
   const dot = document.getElementById('live-connection-dot');
   const transcript = document.getElementById('voice-transcript');
 
-  // 1. Get API key (from state, encrypted vault, or server)
-  let apiKey = state.geminiApiKey || (await CryptoVault.getSecureItem('gemini_api_key')) || '';
+  // 1. Get API key (from in-memory state, session, or server loopback)
+  let apiKey = state.geminiApiKey || '';
   if (!apiKey) {
     try {
       const cfg = await fetch('/api/live-config').then(r => r.json());
       if (cfg.apiKey) {
         apiKey = cfg.apiKey;
         state.geminiApiKey = apiKey;
-        await CryptoVault.setSecureItem('gemini_api_key', apiKey);
       }
     } catch (e) {}
   }
 
   if (!apiKey) {
-    statusLabel.textContent = 'API key required in Settings or .env';
-    transcript.innerHTML = `<div style="color:#ef4444;">⚠️ No Gemini API key detected. Add your GEMINI_API_KEY to .env or click Settings (top right) to enter your API key.</div>`;
+    statusLabel.textContent = 'API key required in Settings (BYOK)';
+    transcript.innerHTML = `<div style="color:var(--danger, #ef4444); padding:16px; background:rgba(239,68,68,0.08); border-radius:8px; border:1px solid rgba(239,68,68,0.2);">
+      <div style="font-weight:600; margin-bottom:4px;">No Gemini API key configured</div>
+      <p style="font-size:12px; margin-bottom:10px;">To use real-time Gemini 3.8 Live Voice, please enter your Gemini API key in Settings (in-memory BYOK).</p>
+      <button onclick="openSettings()" class="btn-primary-auth-action" style="height:32px; font-size:12px; width:auto; padding:0 14px;">Open Settings</button>
+    </div>`;
     return;
   }
 
@@ -4687,6 +4749,10 @@ document.getElementById('btn-trigger-podcast').addEventListener('click', () => {
     return;
   }
 
+  if (!state.hasServerKey && !state.geminiApiKey) {
+    if (!ensureGeminiApiKey()) return;
+  }
+
   showToast('Synthesizing Audio Overview...');
   addMessage('user', `Generate an Audio Overview summarizing the ${activeSources.length} active research sources.`);
 
@@ -4742,51 +4808,174 @@ function toggleTheme() {
 }
 
 async function checkHealth() {
-  const savedKey = await CryptoVault.getSecureItem('gemini_api_key');
-  if (savedKey) {
-    state.geminiApiKey = savedKey;
-    const input = document.getElementById('setting-gemini-key');
-    if (input) input.value = savedKey;
-  }
+  // Purge any legacy persistent localStorage keys to ensure zero-disk persistence of credentials
+  try {
+    localStorage.removeItem('gemini_api_key');
+    localStorage.removeItem('nbl_gemini_api_key');
+  } catch (e) {}
+
+  // Check sessionStorage if the user explicitly opted into session persistence
+  try {
+    const sessionKey = sessionStorage.getItem('nbl_session_gemini_key');
+    if (sessionKey) {
+      state.geminiApiKey = sessionKey;
+      const rememberCheck = document.getElementById('setting-remember-session');
+      if (rememberCheck) rememberCheck.checked = true;
+      const input = document.getElementById('setting-gemini-key');
+      if (input) input.value = sessionKey;
+    }
+  } catch (e) {}
 
   try {
     const res = await fetch('/api/health');
     if (res.ok) {
       const data = await res.json();
-      if (data.hasServerKey && data.apiKey) {
-        state.geminiApiKey = data.apiKey;
-        await CryptoVault.setSecureItem('gemini_api_key', data.apiKey);
-        const statusEl = document.getElementById('setting-key-status');
-        if (statusEl) {
-          statusEl.textContent = '✓ Securely loaded from .env (Encrypted)';
-          statusEl.style.color = 'var(--success)';
-        }
-        const input = document.getElementById('setting-gemini-key');
-        if (input && !input.value) input.value = data.apiKey;
-      }
+      state.hasServerKey = Boolean(data.hasServerKey);
     }
-  } catch (e) {}
+  } catch (e) {
+    state.hasServerKey = false;
+  }
+
+  updateKeySettingsUI();
+}
+
+function updateKeySettingsUI() {
+  const badgeEl = document.getElementById('setting-key-badge');
+  const statusEl = document.getElementById('setting-key-status');
+  const input = document.getElementById('setting-gemini-key');
+  const clearBtn = document.getElementById('btn-clear-key');
+
+  if (state.geminiApiKey) {
+    if (input && !input.value) input.value = state.geminiApiKey;
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+    if (badgeEl) {
+      badgeEl.textContent = 'BYOK Active';
+      badgeEl.style.background = 'rgba(59, 130, 246, 0.15)';
+      badgeEl.style.color = '#3b82f6';
+      badgeEl.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+    }
+    if (statusEl) {
+      statusEl.textContent = 'Active in-memory BYOK (purged when tab closes).';
+      statusEl.style.color = 'var(--text-secondary)';
+    }
+  } else if (state.hasServerKey) {
+    if (input && !input.value) input.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    if (badgeEl) {
+      badgeEl.textContent = 'Server .env';
+      badgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+      badgeEl.style.color = 'var(--success)';
+      badgeEl.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+    }
+    if (statusEl) {
+      statusEl.textContent = 'Default server credentials active (.env). Custom key will override.';
+      statusEl.style.color = 'var(--success)';
+    }
+  } else {
+    if (clearBtn) clearBtn.style.display = 'none';
+    if (badgeEl) {
+      badgeEl.textContent = 'Key Required';
+      badgeEl.style.background = 'rgba(245, 158, 11, 0.15)';
+      badgeEl.style.color = '#f59e0b';
+      badgeEl.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+    }
+    if (statusEl) {
+      statusEl.textContent = 'No API key configured. Enter your Gemini API key to enable AI features.';
+      statusEl.style.color = '#f59e0b';
+    }
+  }
 }
 
 async function saveSettings() {
   const model = document.getElementById('setting-default-model').value;
   const keyInput = document.getElementById('setting-gemini-key').value.trim();
+  const rememberSession = document.getElementById('setting-remember-session')?.checked;
 
   state.activeModel = model;
   document.getElementById('select-active-model').value = model;
 
+  // Strict zero-disk persistence: scrub legacy localStorage
+  try {
+    localStorage.removeItem('gemini_api_key');
+    localStorage.removeItem('nbl_gemini_api_key');
+  } catch (e) {}
+
   if (keyInput) {
     state.geminiApiKey = keyInput;
-    await CryptoVault.setSecureItem('gemini_api_key', keyInput);
-    const statusEl = document.getElementById('setting-key-status');
-    if (statusEl) {
-      statusEl.textContent = '✓ API key encrypted with AES-256 in browser';
-      statusEl.style.color = 'var(--success)';
+    if (rememberSession) {
+      try {
+        sessionStorage.setItem('nbl_session_gemini_key', keyInput);
+        sessionStorage.setItem('nbl_remember_session_key', 'true');
+      } catch (e) {}
+    } else {
+      try {
+        sessionStorage.removeItem('nbl_session_gemini_key');
+        sessionStorage.removeItem('nbl_remember_session_key');
+      } catch (e) {}
     }
+    showToast('Gemini API key active in memory for this session');
+  } else {
+    state.geminiApiKey = null;
+    try {
+      sessionStorage.removeItem('nbl_session_gemini_key');
+      sessionStorage.removeItem('nbl_remember_session_key');
+    } catch (e) {}
+    showToast(state.hasServerKey ? 'Using server default key (.env)' : 'API key cleared');
   }
 
+  updateKeySettingsUI();
   closeSettings();
-  showToast('Settings saved securely');
+}
+
+function clearApiKey() {
+  state.geminiApiKey = null;
+  try {
+    sessionStorage.removeItem('nbl_session_gemini_key');
+    sessionStorage.removeItem('nbl_remember_session_key');
+    localStorage.removeItem('gemini_api_key');
+    localStorage.removeItem('nbl_gemini_api_key');
+  } catch (e) {}
+
+  const input = document.getElementById('setting-gemini-key');
+  if (input) input.value = '';
+
+  const check = document.getElementById('setting-remember-session');
+  if (check) check.checked = false;
+
+  updateKeySettingsUI();
+  showToast('API key immediately scrubbed from application memory');
+}
+
+function toggleKeyVisibility() {
+  const input = document.getElementById('setting-gemini-key');
+  const eyeShow = document.getElementById('eye-icon-show');
+  const eyeHide = document.getElementById('eye-icon-hide');
+  if (!input) return;
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (eyeShow) eyeShow.style.display = 'none';
+    if (eyeHide) eyeHide.style.display = 'block';
+  } else {
+    input.type = 'password';
+    if (eyeShow) eyeShow.style.display = 'block';
+    if (eyeHide) eyeHide.style.display = 'none';
+  }
+}
+
+function ensureGeminiApiKey() {
+  if (state.hasServerKey || state.geminiApiKey) {
+    return true;
+  }
+  showToast('Please enter your Gemini API key in Settings (BYOK)');
+  openSettings();
+  const input = document.getElementById('setting-gemini-key');
+  if (input) {
+    input.focus();
+    input.style.borderColor = 'var(--accent)';
+    setTimeout(() => { input.style.borderColor = ''; }, 2000);
+  }
+  return false;
 }
 
 function resetLocalCache() {

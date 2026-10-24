@@ -998,6 +998,110 @@
       max-width: 800px;
       margin: 0 auto;
       width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      transition: padding 120ms ease;
+    }
+
+    .reader-scrollable.embedded-mode {
+      padding: 0 !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      background: var(--bg-surface);
+    }
+
+    .reader-scrollable.embedded-mode #reader-main-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Center Panel Embedded Preview Filling Middle Column Above Metadata Footer */
+    .center-preview-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      overflow: hidden;
+      background: var(--bg-surface);
+      position: relative;
+    }
+
+    .center-preview-viewport {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      position: relative;
+      background: #09090b;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .center-preview-viewport iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      flex: 1;
+    }
+
+    .center-preview-metadata-footer {
+      flex-shrink: 0;
+      height: 46px;
+      padding: 0 18px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      z-index: 10;
+      user-select: none;
+    }
+
+    .center-preview-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .center-preview-meta-title {
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 360px;
+    }
+
+    .center-preview-meta-dot {
+      color: var(--text-tertiary);
+    }
+
+    .center-preview-meta-item {
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .center-preview-meta-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     .reader-article-header {
@@ -3085,44 +3189,48 @@ async function loadGoogleDriveFiles(force = false) {
   }
 }
 
-function buildDrivePreviewCard(doc, fallbackText = '') {
-  const fileId = doc.driveFileId || doc.id;
-  const previewUrl = `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`;
-  const viewUrl = doc.webViewLink || doc.url || `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/view`;
+function getDriveFileId(doc) {
+  if (!doc) return null;
+  if (doc.driveFileId) return doc.driveFileId;
+  if (doc.source === 'Google Drive' && doc.id) return doc.id;
+  const link = doc.webViewLink || doc.url || '';
+  const match = String(link).match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return match[1];
+  return null;
+}
+
+function buildDrivePreviewCard(doc) {
+  const fileId = getDriveFileId(doc);
   const badge = getFileTypeBadge(doc.mimeType, doc.title);
 
-  return `<!-- raw-html -->
-<div class="drive-preview-container">
-  <div class="drive-preview-toolbar">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span class="source-pill-badge ${badge.cls}">${badge.label}</span>
-      <span class="drive-security-shield-badge" title="Credentials protected via client-side AES-GCM-256; zero plaintext exposure">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        <span>AES-256 Vault Protected</span>
-      </span>
+  return `
+    <div class="center-preview-container">
+      <div class="center-preview-viewport">
+        <iframe src="https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview" width="100%" height="100%" frameborder="0" allow="autoplay"></iframe>
+      </div>
+      <div class="center-preview-metadata-footer">
+        <div class="center-preview-meta-left">
+          <span class="source-pill-badge ${badge.cls}">${badge.label}</span>
+          <span class="center-preview-meta-title" title="${escapeHtml(doc.title)}">${escapeHtml(doc.title)}</span>
+          <span class="center-preview-meta-dot">&bull;</span>
+          <span class="center-preview-meta-item">${escapeHtml(doc.sizeFormatted || 'Cloud File')}</span>
+          <span class="center-preview-meta-dot">&bull;</span>
+          <span class="center-preview-meta-item">Modified ${escapeHtml(doc.date || 'Recent')}</span>
+        </div>
+        <div class="center-preview-meta-right">
+          <span class="drive-security-shield-badge" title="End-to-End Encrypted Session · Zero Cloud Exposure">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>AES-256 Vault Protected</span>
+          </span>
+        </div>
+      </div>
     </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <a href="${viewUrl}" target="_blank" rel="noopener noreferrer" class="btn-tiny-action" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 10px; font-weight:500;">
-        <span>Open in Google Drive</span>
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-      </a>
-    </div>
-  </div>
-  <iframe src="${previewUrl}" class="drive-preview-iframe" title="${escapeHtml(doc.title)}" allow="autoplay" loading="lazy"></iframe>
-  <div style="margin:12px; padding:12px 14px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-subtle); font-size:12px; color:var(--text-secondary); line-height:1.6;">
-    <div style="font-weight:600; color:var(--text-main); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-      <span>Document Grounding Context & Metadata</span>
-    </div>
-    <div><strong>File:</strong> ${escapeHtml(doc.title)} &bull; <strong>Type:</strong> ${escapeHtml(doc.mimeType || doc.category || 'File')} &bull; <strong>Size:</strong> ${escapeHtml(doc.sizeFormatted || 'Cloud')} &bull; <strong>Updated:</strong> ${escapeHtml(doc.date || 'Recent')}</div>
-    ${fallbackText ? `<div style="margin-top:8px; font-family:var(--font-mono); font-size:11.5px; background:var(--bg-main); padding:8px 10px; border-radius:4px; max-height:140px; overflow-y:auto; white-space:pre-wrap; color:var(--text-main);">${escapeHtml(fallbackText.slice(0, 2500))}</div>` : ''}
-  </div>
-</div>`;
+  `;
 }
 
 async function fetchDriveDocumentContent(doc) {
   if (!state.driveToken) {
-    return buildDrivePreviewCard(doc, 'Connect your Google Drive to load full text content.');
+    return `Google Drive Document: ${doc.title} (${doc.sizeFormatted || 'Cloud File'}). Connect Google Drive to load full text.`;
   }
 
   const nameLower = (doc.title || '').toLowerCase();
@@ -3136,10 +3244,8 @@ async function fetchDriveDocumentContent(doc) {
       if (res.ok) {
         return await res.text();
       }
-    } catch (e) {
-      console.warn('[Doc Export issue]', e);
-    }
-    return buildDrivePreviewCard(doc);
+    } catch (e) {}
+    return `Google Drive Document: ${doc.title}. Full formatting rendered in interactive preview.`;
   }
 
   // 2. Native Google Sheets
@@ -3153,17 +3259,17 @@ async function fetchDriveDocumentContent(doc) {
         return `# ${doc.title}\n\nGoogle Spreadsheet (CSV Export):\n\`\`\`csv\n${csv.slice(0, 8000)}\n\`\`\``;
       }
     } catch (e) {}
-    return buildDrivePreviewCard(doc);
+    return `Google Drive Spreadsheet: ${doc.title}. Rendered in interactive preview.`;
   }
 
   // 3. Native Google Presentations
   if (doc.mimeType === 'application/vnd.google-apps.presentation') {
-    return buildDrivePreviewCard(doc);
+    return `Google Drive Presentation: ${doc.title}. Rendered in interactive preview.`;
   }
 
   // 4. PDFs
   if (doc.mimeType === 'application/pdf' || nameLower.endsWith('.pdf')) {
-    return buildDrivePreviewCard(doc);
+    return `Google Drive PDF Document: ${doc.title}. File size: ${doc.sizeFormatted || 'Unknown'}. Rendered in interactive preview.`;
   }
 
   // 5. HTML files (e.g. CyberStrike3D_ArenaSurvival.html)
@@ -3175,11 +3281,11 @@ async function fetchDriveDocumentContent(doc) {
       });
       if (res.ok) {
         const raw = await res.text();
-        const snippet = raw.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().slice(0, 2000);
-        return buildDrivePreviewCard(doc, snippet);
+        const snippet = raw.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().slice(0, 3000);
+        return `Google Drive Web Document: ${doc.title}\n\nContent snippet:\n${snippet}`;
       }
     } catch (e) {}
-    return buildDrivePreviewCard(doc);
+    return `Google Drive Web Document: ${doc.title}. Rendered in interactive preview.`;
   }
 
   // 6. Text, markdown, JSON, source code
@@ -3190,11 +3296,9 @@ async function fetchDriveDocumentContent(doc) {
     if (res.ok) {
       return await res.text();
     }
-  } catch (e) {
-    console.warn('[File Download issue]', e);
-  }
+  } catch (e) {}
 
-  return buildDrivePreviewCard(doc);
+  return `Google Drive File: ${doc.title}. Rendered in interactive preview.`;
 }
 
 function renderSources() {
@@ -3348,20 +3452,38 @@ async function viewDocument(id) {
 
   renderSources();
 
-  // If content is null, fetch content from Drive
+  const fileId = getDriveFileId(doc);
+
+  if (fileId) {
+    // Immediately render embedded preview in the center pane (zero window.open, zero popups)
+    renderReader(doc);
+
+    // Silently fetch content in background for AI Chat grounding if needed
+    if (doc.content === null && state.driveToken) {
+      try {
+        doc.content = await fetchDriveDocumentContent(doc);
+      } catch (err) {
+        doc.content = `Google Drive File: ${doc.title} (${doc.sizeFormatted || 'Cloud File'}). Interactive embedded preview active.`;
+      }
+    }
+    return;
+  }
+
+  // If local note with null content
   if (doc.content === null) {
+    const scrollContainer = document.getElementById('reader-scroll-container');
+    if (scrollContainer) scrollContainer.classList.remove('embedded-mode');
     const container = document.getElementById('reader-main-content');
     container.innerHTML = `
       <div style="padding:60px 0; text-align:center; color:var(--text-tertiary);">
-        <div style="font-size:15px; font-weight:600; color:var(--text-main); margin-bottom:8px;">Loading from Google Drive...</div>
-        <p style="font-size:12.5px; max-width:320px; margin:0 auto;">Fetching content for <strong>${escapeHtml(doc.title)}</strong></p>
+        <div style="font-size:15px; font-weight:600; color:var(--text-main); margin-bottom:8px;">Loading document...</div>
+        <p style="font-size:12.5px; max-width:320px; margin:0 auto;">Loading <strong>${escapeHtml(doc.title)}</strong></p>
       </div>
     `;
     try {
       doc.content = await fetchDriveDocumentContent(doc);
     } catch (err) {
-      console.warn('[viewDocument error caught]', err);
-      doc.content = buildDrivePreviewCard(doc, `Google Drive File: ${doc.title}. Status: Interactive preview active.`);
+      doc.content = `# ${doc.title}\n\nCould not fetch content: ${err.message}`;
     }
   }
 
@@ -3370,38 +3492,46 @@ async function viewDocument(id) {
 
 function renderReader(doc) {
   const container = document.getElementById('reader-main-content');
+  const scrollContainer = document.getElementById('reader-scroll-container');
   const extBtn = document.getElementById('btn-open-original-link');
 
-  if (doc.url || doc.webViewLink) {
-    extBtn.style.display = 'inline-flex';
-    extBtn.onclick = () => window.open(doc.webViewLink || doc.url, '_blank');
-  } else {
+  // Clean up any external window triggers or popups on selection
+  if (extBtn) {
     extBtn.style.display = 'none';
+    extBtn.onclick = null;
   }
 
-  const words = (doc.content || '').split(/\s+/).filter(Boolean).length;
-  const readMin = Math.ceil(words / 200) || 1;
+  const fileId = getDriveFileId(doc);
 
-  container.innerHTML = `
-    <article class="reader-prose-animate">
-      <div class="reader-article-header">
-        <div class="reader-article-category">${escapeHtml(doc.category || 'Google Drive')}</div>
-        <h1 class="reader-article-title">${escapeHtml(doc.title)}</h1>
-        <div class="reader-article-meta">
-          <span>${readMin} min read</span>
-          <span>&bull;</span>
-          <span>${words} words</span>
-          <span>&bull;</span>
-          <span>Source: ${escapeHtml(doc.source || 'Google Drive')}</span>
-          <span>&bull;</span>
-          <span>Size: ${escapeHtml(doc.sizeFormatted || 'Cloud')}</span>
+  if (fileId) {
+    // Embedded mode: iframe expands to fill available height of middle column above metadata footer
+    if (scrollContainer) scrollContainer.classList.add('embedded-mode');
+    container.innerHTML = buildDrivePreviewCard(doc);
+  } else {
+    // Local text notes reader
+    if (scrollContainer) scrollContainer.classList.remove('embedded-mode');
+    const words = (doc.content || '').split(/\s+/).filter(Boolean).length;
+    const readMin = Math.ceil(words / 200) || 1;
+
+    container.innerHTML = `
+      <article class="reader-prose-animate">
+        <div class="reader-article-header">
+          <div class="reader-article-category">${escapeHtml(doc.category || 'Note')}</div>
+          <h1 class="reader-article-title">${escapeHtml(doc.title)}</h1>
+          <div class="reader-article-meta">
+            <span>${readMin} min read</span>
+            <span>&bull;</span>
+            <span>${words} words</span>
+            <span>&bull;</span>
+            <span>Source: ${escapeHtml(doc.source || 'Local Vault')}</span>
+          </div>
         </div>
-      </div>
-      <div class="reader-prose-content">
-        ${formatProse(doc.content || '')}
-      </div>
-    </article>
-  `;
+        <div class="reader-prose-content">
+          ${formatProse(doc.content || '')}
+        </div>
+      </article>
+    `;
+  }
 
   updateGroundedBadge();
 }

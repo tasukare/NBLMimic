@@ -9,13 +9,95 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tokens.css">
+  
   <!-- Official Google Identity Services SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleGSI()"></script>
 
   <style>
     /* ══════════════════════════════════════════════════════════════
-       BASE RESET & LAYOUT SYSTEM (STYLEGUIDE.md & tokens.css)
+       DESIGN TOKENS — BESPOKE CRAFTED SAAS PALETTE (LINEAR/NOTION)
+       ══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg-canvas:       #fcfcfc;
+      --bg-surface:      #ffffff;
+      --bg-subtle:       #f4f4f5;
+      --bg-muted:        #e4e4e7;
+      
+      --border:          #e4e4e7;
+      --border-strong:   #d4d4d8;
+      --border-hover:    #a1a1aa;
+
+      --text-main:       #09090b;
+      --text-secondary:  #52525b;
+      --text-tertiary:   #a1a1aa;
+
+      --accent:          #2563eb;
+      --accent-hover:    #1d4ed8;
+      --accent-subtle:   #eff6ff;
+      --accent-border:   #bfdbfe;
+
+      --success:         #10b981;
+      --success-subtle:  #ecfdf5;
+      --warning:         #f59e0b;
+      --warning-subtle:  #fffbeb;
+      --danger:          #ef4444;
+      --danger-subtle:   #fef2f2;
+
+      --shadow-xs:       0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md:       0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg:       0 16px 36px -4px rgba(0, 0, 0, 0.12), 0 6px 12px -2px rgba(0, 0, 0, 0.06);
+
+      --radius-xs:       4px;
+      --radius-sm:       6px;
+      --radius-md:       8px;
+      --radius-lg:       12px;
+      --radius-xl:       16px;
+      --radius-full:     9999px;
+
+      --font-ui:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-prose:      'Charter', 'Georgia', 'Iowan Old Style', serif;
+      --font-mono:       'JetBrains Mono', 'Fira Code', monospace;
+
+      --header-height:   52px;
+      --sidebar-width:   280px;
+      --sidepanel-width: 360px;
+    }
+
+    [data-theme="dark"] {
+      --bg-canvas:       #09090b;
+      --bg-surface:      #111113;
+      --bg-subtle:       #18181b;
+      --bg-muted:        #27272a;
+      
+      --border:          #27272a;
+      --border-strong:   #3f3f46;
+      --border-hover:    #52525b;
+
+      --text-main:       #f4f4f5;
+      --text-secondary:  #a1a1aa;
+      --text-tertiary:   #71717a;
+
+      --accent:          #3b82f6;
+      --accent-hover:    #60a5fa;
+      --accent-subtle:   rgba(59, 130, 246, 0.12);
+      --accent-border:   rgba(59, 130, 246, 0.25);
+
+      --success:         #10b981;
+      --success-subtle:  rgba(16, 185, 129, 0.12);
+      --warning:         #f59e0b;
+      --warning-subtle:  rgba(245, 158, 11, 0.12);
+      --danger:          #ef4444;
+      --danger-subtle:   rgba(239, 68, 68, 0.12);
+
+      --shadow-xs:       0 1px 2px rgba(0, 0, 0, 0.24);
+      --shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.32);
+      --shadow-md:       0 6px 16px rgba(0, 0, 0, 0.45);
+      --shadow-lg:       0 20px 48px rgba(0, 0, 0, 0.65);
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       BASE & RESET
        ══════════════════════════════════════════════════════════════ */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -23,22 +105,15 @@
       padding: 0;
     }
 
-    html {
-      font-size: 16px;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    body {
-      font-family: var(--font-ui, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif);
-      font-size: var(--text-body, 0.9375rem);
-      font-weight: 400;
-      color: var(--text-primary, #1C1917);
-      background: var(--bg-primary, #FAFAF9);
-      line-height: 1.6;
-      height: 100dvh;
+    html, body {
+      height: 100%;
       overflow: hidden;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--text-main);
+      background: var(--bg-canvas);
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     button {
@@ -46,15 +121,12 @@
       font-family: inherit;
       border: none;
       background: transparent;
+      color: inherit;
     }
 
     input, textarea, select {
       font-family: inherit;
-    }
-
-    a {
       color: inherit;
-      text-decoration: none;
     }
 
     svg {
@@ -63,670 +135,463 @@
     }
 
     /* ══════════════════════════════════════════════════════════════
-       APP SHELL (3-PANEL GRID)
+       3-PANEL APPLICATION LAYOUT
        ══════════════════════════════════════════════════════════════ */
-    .app {
+    .app-root {
       display: grid;
-      grid-template-rows: var(--header-height, 56px) 1fr;
-      grid-template-columns: var(--sidebar-width, 280px) 1fr var(--sidepanel-width, 360px);
-      height: 100dvh;
+      grid-template-rows: var(--header-height) 1fr;
+      grid-template-columns: var(--sidebar-width) 1fr var(--sidepanel-width);
+      height: 100vh;
       width: 100vw;
-      transition: grid-template-columns var(--transition-slow, 200ms ease-out);
-      background: var(--bg-primary, #FAFAF9);
+      transition: grid-template-columns 180ms ease;
     }
 
-    .app.sidebar-collapsed {
-      grid-template-columns: 0px 1fr var(--sidepanel-width, 360px);
+    .app-root.sidebar-collapsed {
+      grid-template-columns: 0px 1fr var(--sidepanel-width);
     }
 
-    .app.sidepanel-collapsed {
-      grid-template-columns: var(--sidebar-width, 280px) 1fr 0px;
-    }
-
-    .app.both-collapsed {
-      grid-template-columns: 0px 1fr 0px;
+    .app-root.sidepanel-collapsed {
+      grid-template-columns: var(--sidebar-width) 1fr 0px;
     }
 
     /* ══════════════════════════════════════════════════════════════
-       TOP HEADER BAR
+       HEADER
        ══════════════════════════════════════════════════════════════ */
     .header {
       grid-column: 1 / -1;
+      height: var(--header-height);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+      user-select: none;
+    }
+
+    .header-left {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 0 16px;
-      height: var(--header-height, 56px);
-      background: var(--bg-primary, #FAFAF9);
-      border-bottom: 1px solid var(--border, #E7E5E4);
-      z-index: 50;
+      min-width: 260px;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-sm);
+      background: var(--text-main);
+      color: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      padding: 1px 6px;
+      border-radius: var(--radius-xs);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+
+    .header-center {
+      flex: 1;
+      max-width: 440px;
+      margin: 0 16px;
+    }
+
+    .spotlight-search {
+      width: 100%;
+      height: 32px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 8px;
+      color: var(--text-tertiary);
+      transition: all 120ms ease;
+    }
+
+    .spotlight-search:focus-within {
+      background: var(--bg-surface);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-subtle);
+      color: var(--text-main);
+    }
+
+    .spotlight-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .spotlight-kbd {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--text-tertiary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-btn {
+      height: 32px;
+      padding: 0 10px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      transition: all 120ms ease;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+
+    .header-btn-icon-only {
+      width: 32px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .live-voice-chip {
+      background: var(--accent-subtle);
+      color: var(--accent);
+      border-color: var(--accent-border);
+      font-weight: 600;
+    }
+
+    .live-voice-chip:hover {
+      background: var(--accent-subtle);
+      color: var(--accent-hover);
+      border-color: var(--accent);
+    }
+
+    .dot-live-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+    }
+
+    /* Auth button in header */
+    .btn-auth-signin {
+      background: var(--text-main);
+      color: var(--bg-surface);
+      font-weight: 500;
+      font-size: 12.5px;
+      height: 30px;
+      padding: 0 12px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 120ms ease;
+    }
+
+    .btn-auth-signin:hover {
+      opacity: 0.9;
+    }
+
+    .user-profile-menu-wrap {
       position: relative;
     }
 
-    .header-logo-group {
+    .user-profile-avatar-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1.5px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-subtle);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: border-color 120ms ease;
+    }
+
+    .user-profile-avatar-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .user-profile-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Popover Menu (Linear Style) */
+    .user-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 280px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 100;
+      animation: popoverFade 120ms ease;
+    }
+
+    @keyframes popoverFade {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-popover.active {
+      display: flex;
+    }
+
+    .user-popover-info {
+      padding: 6px 8px;
       display: flex;
       align-items: center;
       gap: 10px;
-      user-select: none;
-      min-width: 220px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
     }
 
-    .logo-badge {
-      width: 30px;
-      height: 30px;
-      background: var(--accent, #2563EB);
-      border-radius: var(--radius-sm, 6px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      box-shadow: var(--shadow-xs);
+    .user-popover-text {
+      min-width: 0;
     }
 
-    .logo-titles {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo-main {
-      font-size: 0.95rem;
+    .user-popover-name {
+      font-size: 13.5px;
       font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--text-primary, #1C1917);
-      line-height: 1.2;
-    }
-
-    .logo-sub {
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--text-tertiary, #A8A29E);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* Search Bar */
-    .header-search {
-      flex: 1;
-      max-width: 440px;
-      margin: 0 auto;
-      position: relative;
-    }
-
-    .search-input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 100%;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 11px;
-      color: var(--text-tertiary, #A8A29E);
-      pointer-events: none;
-    }
-
-    .search-input {
-      width: 100%;
-      height: 36px;
-      background: var(--bg-secondary, #F5F5F4);
-      border: 1.5px solid var(--border, #E7E5E4);
-      border-radius: var(--radius-full, 9999px);
-      padding: 0 46px 0 34px;
-      font-size: var(--text-small, 0.8125rem);
-      color: var(--text-primary, #1C1917);
-      outline: none;
-      transition: all var(--transition-normal, 150ms ease-out);
-    }
-
-    .search-input:focus {
-      border-color: var(--accent, #2563EB);
-      background: var(--bg-primary, #FAFAF9);
-      box-shadow: 0 0 0 3px var(--accent-subtle, rgba(37,99,235,0.08));
-    }
-
-    .search-kbd {
-      position: absolute;
-      right: 12px;
-      font-size: 11px;
-      font-family: var(--font-mono, monospace);
-      color: var(--text-tertiary, #A8A29E);
-      background: var(--bg-tertiary, #E7E5E4);
-      border-radius: 4px;
-      padding: 1px 6px;
-      pointer-events: none;
-    }
-
-    /* Header Actions */
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-    }
-
-    .btn-header-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      height: 34px;
-      padding: 0 12px;
-      border-radius: var(--radius-sm, 6px);
-      font-size: var(--text-small, 0.8125rem);
-      font-weight: 500;
-      color: var(--text-secondary, #57534E);
-      transition: all var(--transition-fast, 100ms ease-out);
-    }
-
-    .btn-header-action:hover {
-      background: var(--bg-secondary, #F5F5F4);
-      color: var(--text-primary, #1C1917);
-    }
-
-    .btn-live-voice {
-      background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(139,92,246,0.15));
-      color: var(--accent, #2563EB);
-      border: 1px solid rgba(37,99,235,0.25);
-    }
-
-    .btn-live-voice:hover {
-      background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(139,92,246,0.25));
-      color: var(--accent-hover, #1D4ED8);
-    }
-
-    .live-pulse-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #EF4444;
-      animation: pulseLive 1.5s infinite;
-    }
-
-    @keyframes pulseLive {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.3); }
-    }
-
-    .btn-icon {
-      width: 34px;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-secondary, #57534E);
-      border-radius: var(--radius-sm, 6px);
-      transition: all var(--transition-fast, 100ms ease-out);
-    }
-
-    .btn-icon:hover {
-      background: var(--bg-secondary, #F5F5F4);
-      color: var(--text-primary, #1C1917);
-    }
-
-    /* Google Sign-In Header Button (Signed Out) */
-    .btn-google-header {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      height: 36px;
-      padding: 0 14px;
-      background: #ffffff;
-      color: #3c4043;
-      border: 1px solid #dadce0;
-      border-radius: var(--radius-full, 9999px);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 1px 2px rgba(60,64,67,0.12);
-      transition: all var(--transition-fast, 100ms ease-out);
-      user-select: none;
-    }
-
-    [data-theme="dark"] .btn-google-header {
-      background: #202124;
-      color: #e8eaed;
-      border-color: #5f6368;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-
-    .btn-google-header:hover {
-      background: #f8fafd;
-      border-color: #4285F4;
-      box-shadow: 0 1px 3px rgba(66,133,244,0.3);
-      transform: translateY(-0.5px);
-    }
-
-    [data-theme="dark"] .btn-google-header:hover {
-      background: #282a2d;
-      border-color: #8ab4f8;
-    }
-
-    /* Google Profile Avatar (Signed In) */
-    .user-profile-header-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .avatar-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-full, 9999px);
-      padding: 2px;
-      border: 2px solid transparent;
-      transition: border-color var(--transition-fast);
-    }
-
-    .avatar-btn:hover {
-      border-color: #4285F4;
-    }
-
-    .user-avatar-circle {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
+      color: var(--text-main);
       overflow: hidden;
-      background: #4285F4;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: var(--shadow-xs);
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .user-avatar-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       AUTHENTIC GOOGLE ACCOUNT FLYOUT (accounts.google.com Look)
-       ══════════════════════════════════════════════════════════════ */
-    .google-account-flyout {
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
-      width: 340px;
-      background: var(--bg-primary, #FAFAF9);
-      border: 1px solid var(--border, #E7E5E4);
-      border-radius: 24px;
-      box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.12)), 0 16px 40px rgba(0,0,0,0.16);
-      z-index: 150;
-      overflow: hidden;
-      display: none;
-      animation: flyoutFadeIn 160ms cubic-bezier(0, 0, 0.2, 1);
-    }
-
-    @keyframes flyoutFadeIn {
-      from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .google-account-flyout.active {
-      display: block;
-    }
-
-    .gaf-top {
-      padding: 24px 20px 18px;
-      background: var(--bg-secondary, #F5F5F4);
-      border-bottom: 1px solid var(--border, #E7E5E4);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .gaf-avatar-large-wrap {
-      position: relative;
-      width: 68px;
-      height: 68px;
-      margin-bottom: 12px;
-    }
-
-    .gaf-avatar-large {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--border, #E7E5E4);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      background: #4285F4;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      font-weight: 600;
-    }
-
-    .gaf-avatar-large img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .gaf-user-name {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary, #1C1917);
-      line-height: 1.3;
-    }
-
-    .gaf-user-email {
-      font-size: 13px;
-      color: var(--text-secondary, #57534E);
-      margin-top: 2px;
-      word-break: break-all;
-    }
-
-    .gaf-manage-btn {
-      margin-top: 14px;
-      padding: 7px 18px;
-      background: var(--bg-primary, #FAFAF9);
-      border: 1px solid var(--border-strong, #D6D3D1);
-      border-radius: var(--radius-full, 9999px);
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--text-primary, #1C1917);
-      transition: all var(--transition-fast);
-    }
-
-    .gaf-manage-btn:hover {
-      background: var(--bg-tertiary, #E7E5E4);
-      border-color: #4285F4;
-    }
-
-    .gaf-storage-section {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border, #E7E5E4);
-    }
-
-    .gaf-storage-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .user-popover-email {
       font-size: 12px;
-      color: var(--text-secondary, #57534E);
-      margin-bottom: 8px;
-    }
-
-    .gaf-storage-val {
-      font-weight: 600;
-      font-family: var(--font-mono, monospace);
-      color: var(--text-primary, #1C1917);
-    }
-
-    .gaf-storage-track {
-      width: 100%;
-      height: 6px;
-      background: var(--bg-tertiary, #E7E5E4);
-      border-radius: 9999px;
+      color: var(--text-tertiary);
       overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .gaf-storage-fill {
-      height: 100%;
-      background: #4285F4;
-      border-radius: 9999px;
-      width: 0.4%;
-      transition: width 300ms ease;
-    }
-
-    .gaf-actions-list {
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .gaf-action-item {
+    .user-popover-item {
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: var(--radius-sm, 6px);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-primary, #1C1917);
+      gap: 8px;
       text-align: left;
-      transition: background var(--transition-fast);
+      transition: all 120ms ease;
     }
 
-    .gaf-action-item:hover {
-      background: var(--bg-secondary, #F5F5F4);
-    }
-
-    .gaf-footer-links {
-      padding: 12px 20px;
-      background: var(--bg-secondary, #F5F5F4);
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      font-size: 11px;
-      color: var(--text-tertiary, #A8A29E);
-    }
-
-    .gaf-footer-links a:hover {
-      color: var(--text-primary, #1C1917);
-      text-decoration: underline;
+    .user-popover-item:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
     }
 
     /* ══════════════════════════════════════════════════════════════
-       LEFT SIDEBAR: RESEARCH SOURCES & NEWS STREAM
+       LEFT SIDEBAR: SOURCES & FEEDS
        ══════════════════════════════════════════════════════════════ */
     .sidebar {
-      background: var(--bg-secondary, #F5F5F4);
-      border-right: 1px solid var(--border, #E7E5E4);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
     }
 
-    .sidebar-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border, #E7E5E4);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .sidebar-title-row {
+    .sidebar-top {
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid var(--border);
     }
 
-    .sidebar-heading {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-primary, #1C1917);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge-count {
+    .section-title-label {
       font-size: 11px;
       font-weight: 600;
-      padding: 1px 7px;
-      border-radius: var(--radius-full, 9999px);
-      background: var(--bg-tertiary, #E7E5E4);
-      color: var(--text-secondary, #57534E);
-      font-family: var(--font-mono, monospace);
-    }
-
-    .sidebar-actions-row {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-add-source {
-      flex: 1;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 6px;
-      height: 32px;
-      background: var(--accent, #2563EB);
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: var(--radius-sm, 6px);
-      transition: background var(--transition-fast);
     }
 
-    .btn-add-source:hover {
-      background: var(--accent-hover, #1D4ED8);
-    }
-
-    .btn-refresh-news {
+    .sidebar-actions-btn-group {
       display: flex;
       align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--border-strong, #D6D3D1);
-      border-radius: var(--radius-sm, 6px);
-      color: var(--text-secondary, #57534E);
-      transition: all var(--transition-fast);
+      gap: 4px;
     }
 
-    .btn-refresh-news:hover {
-      background: var(--bg-tertiary, #E7E5E4);
-      color: var(--text-primary, #1C1917);
-    }
-
-    .spin {
-      animation: spinAnim 800ms linear infinite;
-    }
-
-    @keyframes spinAnim {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Category Filter Pills */
-    .category-pills-bar {
-      display: flex;
-      gap: 6px;
-      padding: 10px 16px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-bottom: 1px solid var(--border, #E7E5E4);
-      background: var(--bg-primary, #FAFAF9);
-    }
-
-    .category-pills-bar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .cat-pill {
+    .btn-tiny-action {
+      height: 24px;
+      padding: 0 7px;
+      border-radius: var(--radius-xs);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 9px;
-      border-radius: var(--radius-full, 9999px);
-      font-size: 11px;
+      transition: all 120ms ease;
+    }
+
+    .btn-tiny-action:hover {
+      background: var(--bg-muted);
+      color: var(--text-main);
+    }
+
+    /* Category Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-canvas);
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab {
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11.5px;
       font-weight: 500;
-      color: var(--text-secondary, #57534E);
-      background: var(--bg-secondary, #F5F5F4);
-      border: 1px solid var(--border, #E7E5E4);
+      color: var(--text-secondary);
       white-space: nowrap;
-      transition: all var(--transition-fast);
-      user-select: none;
+      transition: all 120ms ease;
     }
 
-    .cat-pill:hover {
-      background: var(--bg-tertiary, #E7E5E4);
-      color: var(--text-primary, #1C1917);
+    .filter-tab:hover {
+      color: var(--text-main);
+      background: var(--bg-subtle);
     }
 
-    .cat-pill.active {
-      background: var(--text-primary, #1C1917);
-      color: var(--bg-primary, #FAFAF9);
-      border-color: var(--text-primary, #1C1917);
+    .filter-tab.active {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-xs);
+      font-weight: 600;
+      border: 1px solid var(--border);
     }
 
-    /* Sources List */
-    .sources-list {
+    /* Sources Cards */
+    .sources-scroll-area {
       flex: 1;
       overflow-y: auto;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .source-card {
-      background: var(--bg-primary, #FAFAF9);
-      border: 1px solid var(--border, #E7E5E4);
-      border-radius: var(--radius-md, 8px);
-      padding: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+    }
+
+    .source-item-card {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
       cursor: pointer;
-      position: relative;
-      transition: all var(--transition-normal, 150ms ease-out);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 120ms ease;
     }
 
-    .source-card:hover {
-      border-color: var(--border-strong, #D6D3D1);
-      box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.06));
-      transform: translateY(-1px);
+    .source-item-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-xs);
     }
 
-    .source-card.active-reading {
-      border-color: var(--accent, #2563EB);
-      background: var(--accent-light, #EFF6FF);
-      box-shadow: 0 0 0 1px var(--accent, #2563EB);
+    .source-item-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
     }
 
-    [data-theme="dark"] .source-card.active-reading {
-      background: rgba(37,99,235,0.12);
-    }
-
-    .source-card-top {
+    .source-item-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
     }
 
-    .source-badge-tag {
+    .source-pill-badge {
       font-size: 10.5px;
       font-weight: 600;
-      padding: 2px 6px;
+      padding: 1px 6px;
       border-radius: 4px;
-      background: var(--bg-secondary, #F5F5F4);
-      color: var(--text-secondary, #57534E);
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
     }
 
-    .source-checkbox-wrap {
+    .source-check-wrap {
       display: flex;
       align-items: center;
     }
 
-    .source-checkbox {
-      width: 15px;
-      height: 15px;
-      accent-color: var(--accent, #2563EB);
+    .source-check {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
       cursor: pointer;
     }
 
-    .source-card-title {
+    .source-item-title {
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-primary, #1C1917);
+      color: var(--text-main);
       line-height: 1.35;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -734,9 +599,9 @@
       overflow: hidden;
     }
 
-    .source-card-excerpt {
+    .source-item-snippet {
       font-size: 12px;
-      color: var(--text-secondary, #57534E);
+      color: var(--text-secondary);
       line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -744,303 +609,219 @@
       overflow: hidden;
     }
 
-    .source-card-meta {
+    .source-item-meta {
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 11px;
-      color: var(--text-tertiary, #A8A29E);
-      margin-top: 4px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
     }
 
-    .source-author-domain {
-      max-width: 140px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* Sidebar Footer / Drive Storage */
-    .sidebar-footer {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border, #E7E5E4);
-      background: var(--bg-primary, #FAFAF9);
-    }
-
-    .drive-quota-card {
+    .sidebar-footer-storage {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-canvas);
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      cursor: pointer;
+      gap: 5px;
     }
 
-    .drive-quota-row {
+    .storage-text-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       font-size: 11px;
-      color: var(--text-secondary, #57534E);
+      color: var(--text-tertiary);
     }
 
-    .drive-quota-bar {
+    .storage-bar-track {
+      width: 100%;
       height: 4px;
-      background: var(--bg-tertiary, #E7E5E4);
-      border-radius: 9999px;
+      background: var(--bg-muted);
+      border-radius: var(--radius-full);
       overflow: hidden;
     }
 
-    .drive-quota-fill {
+    .storage-bar-fill {
       height: 100%;
-      background: var(--accent, #2563EB);
-      width: 0.1%;
-      border-radius: 9999px;
+      background: var(--accent);
+      border-radius: var(--radius-full);
+      width: 0.2%;
       transition: width 300ms ease;
     }
 
     /* ══════════════════════════════════════════════════════════════
-       CENTER PANEL: DISTRACTION-FREE DOCUMENT & CITATION READER
+       CENTER PANEL: DISTRACTION-FREE READER
        ══════════════════════════════════════════════════════════════ */
-    .main-reader {
-      background: var(--bg-primary, #FAFAF9);
+    .center-reader {
+      background: var(--bg-canvas);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
     }
 
-    .reader-toolbar {
-      padding: 0 24px;
-      height: 48px;
-      border-bottom: 1px solid var(--border, #E7E5E4);
+    .reader-top-bar {
+      height: 42px;
+      padding: 0 20px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      background: var(--bg-primary, #FAFAF9);
     }
 
-    .reader-toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .reader-grounded-pill {
+    .grounded-state-badge {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       font-size: 11.5px;
       font-weight: 500;
-      padding: 3px 8px;
-      border-radius: var(--radius-full, 9999px);
-      background: var(--success-light, #ECFDF5);
-      color: var(--success, #059669);
-      border: 1px solid rgba(5,150,105,0.2);
-      white-space: nowrap;
+      color: var(--success);
+      background: var(--success-subtle);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
     }
 
-    .reader-toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .reader-content-scroll {
+    .reader-scrollable {
       flex: 1;
       overflow-y: auto;
-      padding: 36px 48px 60px;
-      max-width: 820px;
+      padding: 40px 60px 80px;
+      max-width: 800px;
       margin: 0 auto;
       width: 100%;
     }
 
-    .reader-header-area {
-      margin-bottom: 28px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border, #E7E5E4);
+    .reader-article-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .reader-category-pill {
-      font-size: 12px;
+    .reader-article-category {
+      font-size: 11.5px;
       font-weight: 600;
-      color: var(--accent, #2563EB);
+      color: var(--accent);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
-      display: inline-block;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
     }
 
-    .reader-title {
+    .reader-article-title {
       font-size: 1.85rem;
       font-weight: 700;
+      letter-spacing: -0.025em;
       line-height: 1.25;
-      letter-spacing: -0.02em;
-      color: var(--text-primary, #1C1917);
-      margin-bottom: 12px;
+      color: var(--text-main);
+      margin-bottom: 10px;
     }
 
-    .reader-meta-row {
+    .reader-article-meta {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      font-size: 13px;
-      color: var(--text-secondary, #57534E);
+      gap: 12px;
+      font-size: 12.5px;
+      color: var(--text-tertiary);
     }
 
-    .reader-meta-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .reader-body {
-      font-family: var(--font-prose, 'Charter', 'Georgia', serif);
+    .reader-prose-content {
+      font-family: var(--font-prose);
       font-size: 1.0625rem;
       line-height: 1.75;
-      color: var(--text-primary, #1C1917);
+      color: var(--text-main);
     }
 
-    .reader-body p {
-      margin-bottom: 1.4em;
+    .reader-prose-content p {
+      margin-bottom: 1.35em;
     }
 
-    .reader-body h2, .reader-body h3 {
-      font-family: var(--font-ui, sans-serif);
+    .reader-prose-content h2, .reader-prose-content h3 {
+      font-family: var(--font-ui);
       font-weight: 600;
-      margin: 1.8em 0 0.8em;
-      color: var(--text-primary, #1C1917);
+      margin: 1.6em 0 0.6em;
+      color: var(--text-main);
     }
 
-    .reader-body blockquote {
-      border-left: 3px solid var(--accent, #2563EB);
-      padding: 6px 18px;
-      margin: 1.5em 0;
-      color: var(--text-secondary, #57534E);
-      font-style: italic;
-      background: var(--bg-secondary, #F5F5F4);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    .reader-prose-content ul {
+      margin-bottom: 1.35em;
+      padding-left: 20px;
     }
 
-    .reader-body a {
-      color: var(--accent, #2563EB);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .reader-empty {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: var(--text-tertiary, #A8A29E);
-      padding: 40px;
-    }
-
-    .reader-empty-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: var(--radius-lg, 12px);
-      background: var(--bg-secondary, #F5F5F4);
-      border: 1px dashed var(--border-strong, #D6D3D1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
+    .reader-prose-content li {
+      margin-bottom: 0.4em;
     }
 
     /* ══════════════════════════════════════════════════════════════
        RIGHT SIDE PANEL: CHAT & NOTES TABS
        ══════════════════════════════════════════════════════════════ */
     .sidepanel {
-      background: var(--bg-secondary, #F5F5F4);
-      border-left: 1px solid var(--border, #E7E5E4);
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
     }
 
-    .panel-tabs-bar {
-      display: flex;
-      height: 48px;
-      border-bottom: 1px solid var(--border, #E7E5E4);
-      background: var(--bg-primary, #FAFAF9);
-    }
-
-    .panel-tab {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-secondary, #57534E);
-      border-bottom: 2px solid transparent;
-      transition: all var(--transition-fast);
-      user-select: none;
-    }
-
-    .panel-tab:hover {
-      color: var(--text-primary, #1C1917);
-    }
-
-    .panel-tab.active {
-      color: var(--accent, #2563EB);
-      font-weight: 600;
-      border-bottom-color: var(--accent, #2563EB);
-      background: var(--bg-primary, #FAFAF9);
-    }
-
-    .tab-content {
-      flex: 1;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .tab-content.active {
-      display: flex;
-    }
-
-    /* In-Chat Model Switcher Sub-Bar */
-    .chat-subbar {
-      padding: 8px 14px;
-      background: var(--bg-primary, #FAFAF9);
-      border-bottom: 1px solid var(--border, #E7E5E4);
+    /* Segmented Control Header */
+    .segmented-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
     }
 
-    .model-selector-select {
-      height: 28px;
-      padding: 0 8px;
-      font-size: 11.5px;
+    .segmented-control {
+      display: flex;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .segmented-btn {
+      padding: 4px 12px;
+      border-radius: var(--radius-xs);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 120ms ease;
+    }
+
+    .segmented-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-xs);
       font-weight: 600;
-      border-radius: var(--radius-sm, 6px);
-      border: 1px solid var(--border-strong, #D6D3D1);
-      background: var(--bg-secondary, #F5F5F4);
-      color: var(--text-primary, #1C1917);
+    }
+
+    .chat-subbar-row {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-canvas);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+    }
+
+    .model-select-pill {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      padding: 2px 6px;
       outline: none;
       cursor: pointer;
     }
 
-    .grounding-indicator {
-      font-size: 11px;
-      color: var(--text-secondary, #57534E);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
     /* Chat Messages Stream */
-    .chat-stream {
+    .chat-messages-container {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
@@ -1049,791 +830,631 @@
       gap: 14px;
     }
 
-    .chat-bubble {
+    .chat-msg {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      max-width: 90%;
-      word-break: break-word;
-    }
-
-    .chat-bubble.user {
-      align-self: flex-end;
-      align-items: flex-end;
-    }
-
-    .chat-bubble.ai {
-      align-self: flex-start;
-      align-items: flex-start;
-    }
-
-    .bubble-content {
-      padding: 10px 14px;
+      max-width: 88%;
       font-size: 13.5px;
       line-height: 1.5;
     }
 
-    .chat-bubble.user .bubble-content {
-      background: var(--accent, #2563EB);
-      color: #ffffff;
-      border-radius: 14px 14px 2px 14px;
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--text-main);
+      color: var(--bg-surface);
+      padding: 8px 12px;
+      border-radius: 12px 12px 2px 12px;
     }
 
-    .chat-bubble.ai .bubble-content {
-      background: var(--bg-primary, #FAFAF9);
-      border: 1px solid var(--border, #E7E5E4);
-      color: var(--text-primary, #1C1917);
-      border-radius: 14px 14px 14px 2px;
+    .chat-msg.ai {
+      align-self: flex-start;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 12px 12px 12px 2px;
       box-shadow: var(--shadow-xs);
     }
 
-    .citation-tag {
+    .citation-anchor {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
       font-weight: 600;
-      color: var(--accent, #2563EB);
-      background: var(--accent-subtle, rgba(37,99,235,0.08));
-      border: 1px solid rgba(37,99,235,0.25);
+      font-family: var(--font-mono);
+      color: var(--accent);
+      background: var(--accent-subtle);
+      border: 1px solid var(--accent-border);
       border-radius: 4px;
       padding: 0 4px;
       margin: 0 2px;
       cursor: pointer;
       vertical-align: baseline;
-      transition: all var(--transition-fast);
     }
 
-    .citation-tag:hover {
-      background: var(--accent, #2563EB);
-      color: #ffffff;
-    }
-
-    .chat-acceleration-notice {
-      font-size: 11.5px;
-      color: var(--warning, #D97706);
-      background: var(--warning-light, #FFFBEB);
-      border: 1px solid rgba(217,119,6,0.2);
-      border-radius: 6px;
-      padding: 6px 10px;
-      margin-top: 6px;
-      line-height: 1.4;
+    .citation-anchor:hover {
+      background: var(--accent);
+      color: #fff;
     }
 
     /* Chat Input Form */
-    .chat-footer {
+    .chat-bottom-input-wrap {
       padding: 12px;
-      background: var(--bg-primary, #FAFAF9);
-      border-top: 1px solid var(--border, #E7E5E4);
+      border-top: 1px solid var(--border);
+      background: var(--bg-surface);
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .chat-quick-actions {
+    .chat-quick-suggestions {
       display: flex;
-      align-items: center;
       gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
 
-    .btn-quick-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .chat-quick-suggestions::-webkit-scrollbar {
+      display: none;
+    }
+
+    .quick-chip-btn {
       font-size: 11px;
-      font-weight: 500;
-      padding: 4px 8px;
-      border-radius: var(--radius-full, 9999px);
-      background: var(--bg-secondary, #F5F5F4);
-      border: 1px solid var(--border, #E7E5E4);
-      color: var(--text-secondary, #57534E);
-      transition: all var(--transition-fast);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      transition: all 120ms ease;
     }
 
-    .btn-quick-chip:hover {
-      background: var(--bg-tertiary, #E7E5E4);
-      color: var(--text-primary, #1C1917);
+    .quick-chip-btn:hover {
+      background: var(--bg-muted);
+      color: var(--text-main);
     }
 
-    .chat-input-row {
+    .chat-box-field {
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      padding: 8px 10px;
       display: flex;
+      flex-direction: column;
       gap: 6px;
-      align-items: flex-end;
-      background: var(--bg-secondary, #F5F5F4);
-      border: 1.5px solid var(--border, #E7E5E4);
-      border-radius: var(--radius-md, 8px);
-      padding: 6px 10px;
-      transition: border-color var(--transition-normal);
+      transition: border-color 120ms ease, box-shadow 120ms ease;
     }
 
-    .chat-input-row:focus-within {
-      border-color: var(--accent, #2563EB);
-      background: var(--bg-primary, #FAFAF9);
-      box-shadow: 0 0 0 3px var(--accent-subtle, rgba(37,99,235,0.08));
+    .chat-box-field:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-subtle);
     }
 
-    .chat-textarea {
-      flex: 1;
+    .chat-textarea-input {
       border: none;
       background: transparent;
       outline: none;
-      font-size: 13.5px;
-      color: var(--text-primary, #1C1917);
       resize: none;
-      max-height: 120px;
-      min-height: 24px;
+      font-size: 13px;
       line-height: 1.4;
+      max-height: 100px;
+      min-height: 24px;
+      color: var(--text-main);
     }
 
-    .btn-send {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm, 6px);
-      background: var(--accent, #2563EB);
-      color: #ffffff;
+    .chat-box-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-key-hint {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .btn-send-message {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-xs);
+      background: var(--text-main);
+      color: var(--bg-surface);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background var(--transition-fast);
-      flex-shrink: 0;
+      transition: opacity 120ms ease;
     }
 
-    .btn-send:hover {
-      background: var(--accent-hover, #1D4ED8);
+    .btn-send-message:hover {
+      opacity: 0.85;
     }
 
-    .btn-send:disabled {
-      background: var(--bg-tertiary, #E7E5E4);
-      color: var(--text-tertiary, #A8A29E);
-      cursor: not-allowed;
-    }
-
-    /* Lab Notes Tab */
-    .notes-container {
+    /* Notes Area */
+    .notes-panel-content {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      gap: 12px;
+      padding: 12px;
+      gap: 8px;
     }
 
-    .notes-toolbar {
+    .notes-meta-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 11.5px;
-      color: var(--text-tertiary, #A8A29E);
+      color: var(--text-tertiary);
     }
 
-    .notes-textarea {
+    .notes-scratchpad {
       flex: 1;
-      width: 100%;
-      background: var(--bg-primary, #FAFAF9);
-      border: 1px solid var(--border, #E7E5E4);
-      border-radius: var(--radius-md, 8px);
-      padding: 14px;
-      font-family: var(--font-prose, serif);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-canvas);
+      padding: 12px;
+      font-family: var(--font-prose);
       font-size: 14px;
       line-height: 1.6;
-      color: var(--text-primary, #1C1917);
+      color: var(--text-main);
       outline: none;
       resize: none;
-      transition: border-color var(--transition-fast);
     }
 
-    .notes-textarea:focus {
-      border-color: var(--accent, #2563EB);
+    .notes-scratchpad:focus {
+      border-color: var(--border-hover);
     }
 
-    .notes-actions-row {
+    .notes-actions-group {
       display: flex;
-      gap: 8px;
-    }
-
-    .btn-note-action {
-      flex: 1;
-      height: 32px;
-      border: 1px solid var(--border-strong, #D6D3D1);
-      border-radius: var(--radius-sm, 6px);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary, #57534E);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       gap: 6px;
-      transition: all var(--transition-fast);
-    }
-
-    .btn-note-action:hover {
-      background: var(--bg-tertiary, #E7E5E4);
-      color: var(--text-primary, #1C1917);
     }
 
     /* ══════════════════════════════════════════════════════════════
-       THE NEW GOOGLE SIGN-IN SCREEN MODAL (AUTHENTIC GOOGLE LOOK)
+       THE HUMAN-CRAFTED AUTH MODAL (REAL SAAS DESIGN)
        ══════════════════════════════════════════════════════════════ */
-    .g-modal-overlay {
+    .auth-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 200;
-      padding: 16px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 200ms ease;
+      transition: opacity 160ms ease;
+      padding: 16px;
     }
 
-    .g-modal-overlay.active {
+    .auth-backdrop.active {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .g-signin-card {
+    .auth-dialog {
       width: 100%;
-      max-width: 440px;
-      background: #ffffff;
-      border-radius: 28px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 2px 10px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      padding: 40px 36px 28px;
+      max-width: 400px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 32px 28px 24px;
       display: flex;
       flex-direction: column;
       position: relative;
-      transform: scale(0.96) translateY(8px);
-      transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
-      color: #1f1f1f;
+      transform: scale(0.97) translateY(6px);
+      transition: transform 160ms ease;
     }
 
-    [data-theme="dark"] .g-signin-card {
-      background: #202124;
-      border-color: #3c4043;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-      color: #e8eaed;
-    }
-
-    .g-modal-overlay.active .g-signin-card {
+    .auth-backdrop.active .auth-dialog {
       transform: scale(1) translateY(0);
     }
 
-    .g-close-btn {
+    .auth-close-x {
       position: absolute;
       top: 16px;
       right: 16px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      color: var(--text-tertiary);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #5f6368;
-      transition: background 150ms ease;
+      transition: all 120ms ease;
     }
 
-    [data-theme="dark"] .g-close-btn {
-      color: #9aa0a6;
+    .auth-close-x:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
     }
 
-    .g-close-btn:hover {
-      background: #f1f3f4;
-    }
-
-    [data-theme="dark"] .g-close-btn:hover {
-      background: #303134;
-    }
-
-    .g-logo-wrap {
+    .auth-brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: var(--text-main);
+      color: var(--bg-surface);
       display: flex;
+      align-items: center;
       justify-content: center;
       margin-bottom: 16px;
     }
 
-    .g-heading {
-      font-size: 24px;
-      font-weight: 500;
-      text-align: center;
+    .auth-title {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-main);
       line-height: 1.3;
-      margin-bottom: 6px;
-      color: inherit;
+      margin-bottom: 4px;
     }
 
-    .g-subheading {
-      font-size: 14px;
-      color: #5f6368;
+    .auth-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin-bottom: 22px;
+    }
+
+    /* Authentic Continue with Google Button */
+    .btn-google-continue {
+      width: 100%;
+      height: 42px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-main);
+      box-shadow: var(--shadow-xs);
+      transition: all 120ms ease;
+      cursor: pointer;
+    }
+
+    .btn-google-continue:hover {
+      background: var(--bg-subtle);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* GSI Hidden Anchor Mount */
+    .gsi-hidden-mount {
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .auth-separator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .auth-separator-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .auth-separator-text {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* Human Form Fields */
+    .field-group {
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .field-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      font-size: 13.5px;
+      outline: none;
+      transition: all 120ms ease;
+    }
+
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-subtle);
+    }
+
+    .btn-primary-auth-action {
+      width: 100%;
+      height: 38px;
+      background: var(--text-main);
+      color: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      font-weight: 500;
+      margin-top: 6px;
+      transition: opacity 120ms ease;
+    }
+
+    .btn-primary-auth-action:hover {
+      opacity: 0.9;
+    }
+
+    .auth-bottom-switch {
+      margin-top: 14px;
       text-align: center;
-      margin-bottom: 24px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+
+    .auth-bottom-switch button {
+      color: var(--accent);
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .auth-bottom-switch button:hover {
+      text-decoration: underline;
+    }
+
+    .auth-demo-shortcut {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .btn-demo-link {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .btn-demo-link:hover {
+      text-decoration: underline;
+    }
+
+    .auth-disclaimer {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-top: 16px;
       line-height: 1.4;
     }
 
-    [data-theme="dark"] .g-subheading {
-      color: #9aa0a6;
+    .auth-disclaimer a {
+      text-decoration: underline;
     }
 
-    /* Signed In Account Card (If already logged in) */
-    .g-active-session-card {
-      background: #f8fafd;
-      border: 1px solid #c2e7ff;
-      border-radius: 16px;
-      padding: 16px;
+    /* Signed in card inside modal */
+    .signed-in-profile-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      background: var(--bg-subtle);
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    [data-theme="dark"] .g-active-session-card {
-      background: #172b4d;
-      border-color: #004a77;
-    }
-
-    .g-active-session-avatar {
-      width: 48px;
-      height: 48px;
+    .signed-in-profile-avatar {
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      overflow: hidden;
-      background: #4285F4;
+      background: var(--accent);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
       font-weight: 600;
-      flex-shrink: 0;
+      font-size: 16px;
+      overflow: hidden;
     }
 
-    .g-active-session-avatar img {
+    .signed-in-profile-avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .g-active-session-details {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .g-active-session-name {
-      font-size: 14.5px;
-      font-weight: 600;
-      color: #1f1f1f;
-      line-height: 1.3;
-    }
-
-    [data-theme="dark"] .g-active-session-name {
-      color: #e8eaed;
-    }
-
-    .g-active-session-email {
-      font-size: 12.5px;
-      color: #5f6368;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    [data-theme="dark"] .g-active-session-email {
-      color: #9aa0a6;
-    }
-
-    .g-official-btn-container {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      min-height: 44px;
-      margin-bottom: 18px;
-    }
-
-    .g-divider-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 6px 0 16px;
-      width: 100%;
-    }
-
-    .g-divider-line {
-      flex: 1;
-      height: 1px;
-      background: #dadce0;
-    }
-
-    [data-theme="dark"] .g-divider-line {
-      background: #3c4043;
-    }
-
-    .g-divider-text {
-      font-size: 11px;
-      color: #70757a;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-
-    [data-theme="dark"] .g-divider-text {
-      color: #9aa0a6;
-    }
-
-    /* Google Material 3 Outlined Input Fields */
-    .g-textfield {
-      position: relative;
-      margin-bottom: 14px;
-      width: 100%;
-    }
-
-    .g-textfield-input {
-      width: 100%;
-      height: 52px;
-      padding: 16px 14px 4px;
-      border: 1px solid #747775;
-      border-radius: 8px;
-      background: transparent;
-      font-size: 14.5px;
-      color: inherit;
-      outline: none;
-      transition: all 150ms ease;
-    }
-
-    [data-theme="dark"] .g-textfield-input {
-      border-color: #8e918f;
-    }
-
-    .g-textfield-input:focus {
-      border-color: #0b57d0;
-      border-width: 2px;
-      padding-left: 13px;
-      padding-top: 15px;
-    }
-
-    [data-theme="dark"] .g-textfield-input:focus {
-      border-color: #a8c7fa;
-    }
-
-    .g-textfield-label {
-      position: absolute;
-      left: 14px;
-      top: 16px;
-      font-size: 14.5px;
-      color: #5f6368;
-      pointer-events: none;
-      transition: all 150ms ease;
-      background: transparent;
-    }
-
-    [data-theme="dark"] .g-textfield-label {
-      color: #9aa0a6;
-    }
-
-    .g-textfield-input:focus ~ .g-textfield-label,
-    .g-textfield-input:not(:placeholder-shown) ~ .g-textfield-label {
-      top: 6px;
-      font-size: 11px;
-      font-weight: 500;
-      color: #0b57d0;
-    }
-
-    [data-theme="dark"] .g-textfield-input:focus ~ .g-textfield-label,
-    [data-theme="dark"] .g-textfield-input:not(:placeholder-shown) ~ .g-textfield-label {
-      color: #a8c7fa;
-    }
-
-    /* Actions and Footer inside Google Sign-in Card */
-    .g-actions-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 12px;
-    }
-
-    .g-btn-text {
-      font-size: 14px;
-      font-weight: 500;
-      color: #0b57d0;
-      padding: 8px 12px;
-      border-radius: 4px;
-      transition: background 150ms;
-    }
-
-    [data-theme="dark"] .g-btn-text {
-      color: #a8c7fa;
-    }
-
-    .g-btn-text:hover {
-      background: rgba(11, 87, 208, 0.08);
-    }
-
-    [data-theme="dark"] .g-btn-text:hover {
-      background: rgba(168, 199, 250, 0.08);
-    }
-
-    .g-btn-primary {
-      height: 40px;
-      padding: 0 24px;
-      background: #0b57d0;
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: var(--radius-full, 9999px);
-      transition: all 150ms ease;
-    }
-
-    [data-theme="dark"] .g-btn-primary {
-      background: #a8c7fa;
-      color: #062e6f;
-    }
-
-    .g-btn-primary:hover {
-      background: #0842a0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    [data-theme="dark"] .g-btn-primary:hover {
-      background: #b6d3ff;
-    }
-
-    .g-demo-banner {
-      margin-top: 16px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: var(--bg-secondary, #F5F5F4);
-      border: 1px dashed var(--border-strong, #D6D3D1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-secondary, #57534E);
-    }
-
-    .g-demo-btn {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--accent, #2563EB);
-      text-decoration: underline;
-    }
-
-    .g-footer {
-      margin-top: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #5f6368;
-    }
-
-    [data-theme="dark"] .g-footer {
-      color: #9aa0a6;
-    }
-
-    .g-footer-links-group {
-      display: flex;
-      gap: 16px;
-    }
-
-    .g-footer-links-group a:hover {
-      text-decoration: underline;
-    }
-
     /* ══════════════════════════════════════════════════════════════
-       ADD SOURCE / UPLOAD MODAL
+       GENERIC MODAL & LIVE VOICE
        ══════════════════════════════════════════════════════════════ */
-    .generic-modal {
+    .generic-dialog {
       width: 100%;
-      max-width: 520px;
-      background: var(--bg-primary, #FAFAF9);
-      border: 1px solid var(--border, #E7E5E4);
-      border-radius: var(--radius-lg, 12px);
+      max-width: 480px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
       padding: 24px;
       box-shadow: var(--shadow-lg);
       position: relative;
     }
 
-    .generic-modal-header {
+    .generic-dialog-head {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       margin-bottom: 16px;
     }
 
-    .generic-modal-title {
-      font-size: 1.15rem;
+    .generic-dialog-title {
+      font-size: 16px;
       font-weight: 600;
-      color: var(--text-primary, #1C1917);
+      color: var(--text-main);
     }
 
-    .dropzone-area {
-      border: 2px dashed var(--border-strong, #D6D3D1);
-      border-radius: var(--radius-md, 8px);
-      padding: 28px 16px;
+    /* Live Voice Specifics */
+    .live-voice-dialog {
+      max-width: 520px;
+      background: #09090b;
+      color: #f4f4f5;
+      border-color: #27272a;
       text-align: center;
-      background: var(--bg-secondary, #F5F5F4);
-      cursor: pointer;
-      margin-bottom: 14px;
-      transition: all var(--transition-fast);
     }
 
-    .dropzone-area:hover, .dropzone-area.dragover {
-      border-color: var(--accent, #2563EB);
-      background: var(--accent-light, #EFF6FF);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       GEMINI 3.8 LIVE VOICE MODAL
-       ══════════════════════════════════════════════════════════════ */
-    .live-voice-card {
+    .live-voice-canvas {
       width: 100%;
-      max-width: 600px;
-      background: #111827;
-      color: #f9fafb;
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .live-visualizer-canvas {
-      width: 100%;
-      height: 120px;
+      height: 100px;
+      background: #111113;
+      border: 1px solid #27272a;
+      border-radius: var(--radius-md);
       margin: 16px 0;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 12px;
     }
 
-    .live-transcript-box {
+    .live-transcript-card {
       width: 100%;
-      height: 120px;
+      height: 100px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: #a1a1aa;
+      text-align: left;
       overflow-y: auto;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: #d1d5db;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
-    .live-mic-btn {
-      width: 64px;
-      height: 64px;
+    .btn-live-mic-pulse {
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: #2563eb;
-      color: #ffffff;
-      display: flex;
+      color: #fff;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(37,99,235,0.5);
-      transition: transform 150ms ease, background 150ms ease;
+      box-shadow: 0 0 16px rgba(37,99,235,0.4);
+      transition: all 120ms ease;
     }
 
-    .live-mic-btn.active {
-      background: #dc2626;
-      box-shadow: 0 0 25px rgba(220,38,38,0.7);
+    .btn-live-mic-pulse.active {
+      background: #ef4444;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
     }
 
-    .live-mic-btn:hover {
-      transform: scale(1.08);
-    }
-
-    /* ══════════════════════════════════════════════════════════════
-       TOAST NOTIFICATIONS
-       ══════════════════════════════════════════════════════════════ */
-    .toast-stack {
+    /* Toast */
+    .toast-tray {
       position: fixed;
       bottom: 20px;
       right: 20px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       z-index: 300;
       pointer-events: none;
     }
 
-    .toast-item {
-      background: var(--text-primary, #1C1917);
-      color: var(--bg-primary, #FAFAF9);
-      padding: 10px 16px;
-      border-radius: var(--radius-md, 8px);
-      font-size: 13px;
+    .toast-pill {
+      background: var(--text-main);
+      color: var(--bg-surface);
+      font-size: 12.5px;
       font-weight: 500;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
       box-shadow: var(--shadow-md);
       display: flex;
       align-items: center;
       gap: 8px;
-      animation: toastSlide 200ms cubic-bezier(0,0,0.2,1);
       pointer-events: auto;
+      animation: toastIn 140ms ease;
     }
 
-    @keyframes toastSlide {
-      from { opacity: 0; transform: translateY(12px); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-<div class="app" id="app">
+<div class="app-root" id="app-root">
 
   <!-- ══════════════════════════════════════════════════════════════
        HEADER
        ══════════════════════════════════════════════════════════════ -->
   <header class="header">
-    <div class="header-logo-group">
-      <button class="btn-icon" id="btn-toggle-sidebar" title="Toggle Sources (Left)" aria-label="Toggle Sidebar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+    <div class="header-left">
+      <button class="header-btn header-btn-icon-only" id="btn-toggle-left-sidebar" title="Toggle Sources (Left)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
           <line x1="9" y1="3" x2="9" y2="21"></line>
         </svg>
       </button>
-      <div class="logo-badge">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-      </div>
-      <div class="logo-titles">
-        <span class="logo-main">Research Lab</span>
-        <span class="logo-sub">NBLMimic &middot; Private Notebook</span>
-      </div>
+
+      <a href="#" class="brand-mark" onclick="location.reload()">
+        <div class="brand-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </div>
+        <span class="brand-name">Research Lab</span>
+        <span class="brand-tag">v2</span>
+      </a>
     </div>
 
-    <!-- Search Input -->
-    <div class="header-search">
-      <div class="search-input-wrap">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <!-- Spotlight Search -->
+    <div class="header-center">
+      <div class="spotlight-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" class="search-input" id="search-input" placeholder="Search sources, topics, or notes..." aria-label="Search">
-        <span class="search-kbd">&#8984;K</span>
+        <input type="text" class="spotlight-input" id="global-search" placeholder="Search research notes, papers, or news..." aria-label="Search">
+        <span class="spotlight-kbd">⌘K</span>
       </div>
     </div>
 
     <!-- Header Actions -->
-    <div class="header-actions">
-      <!-- Gemini 3.8 Live Voice Button -->
-      <button class="btn-header-action btn-live-voice" id="btn-open-live" title="Interactive Real-time Gemini 3.8 Voice">
-        <span class="live-pulse-dot"></span>
-        <span>Gemini 3.8 Live</span>
+    <div class="header-right">
+      <!-- Gemini 3.8 Live Voice Chip -->
+      <button class="header-btn live-voice-chip" id="btn-open-live-dialog">
+        <span class="dot-live-indicator"></span>
+        <span>Gemini Live</span>
       </button>
 
       <!-- Add Source Quick Button -->
-      <button class="btn-header-action" id="btn-header-add-source" title="Add research document or note">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <button class="header-btn" id="btn-quick-add-source">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
         <span>Add Source</span>
       </button>
 
-      <!-- Dark / Light Theme Toggle -->
-      <button class="btn-icon" id="btn-theme-toggle" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
-        <svg id="theme-sun-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+      <!-- Theme Switcher -->
+      <button class="header-btn header-btn-icon-only" id="btn-toggle-theme" title="Switch Theme">
+        <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -1844,99 +1465,66 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
-        <svg id="theme-moon-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
       </button>
 
       <!-- Settings Dialog Button -->
-      <button class="btn-icon" id="btn-settings-open" title="Settings" aria-label="Settings">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="header-btn header-btn-icon-only" id="btn-open-settings" title="Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </button>
 
       <!-- Toggle Right Panel -->
-      <button class="btn-icon" id="btn-toggle-sidepanel" title="Toggle Chat & Notes (Right)" aria-label="Toggle Sidepanel">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+      <button class="header-btn header-btn-icon-only" id="btn-toggle-right-panel" title="Toggle Chat & Notes (Right)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
           <line x1="15" y1="3" x2="15" y2="21"></line>
         </svg>
       </button>
 
-      <!-- Google Auth Header Area -->
-      <div id="auth-header-slot">
-        <!-- 1. Signed Out: Google Sign-In Pill Button -->
-        <button class="btn-google-header" id="btn-open-signin">
-          <svg width="18" height="18" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-          </svg>
-          <span>Sign in with Google</span>
+      <!-- Authentication Slot -->
+      <div id="auth-nav-slot">
+        <!-- Signed Out: Clean Sign-in Button -->
+        <button class="btn-auth-signin" id="btn-trigger-login-modal">
+          <span>Sign in</span>
         </button>
 
-        <!-- 2. Signed In: Profile Avatar and Dropdown -->
-        <div class="user-profile-header-wrap" id="user-header-wrap" style="display:none;">
-          <button class="avatar-btn" id="btn-toggle-account-flyout" title="Google Account" aria-label="Google Account">
-            <div class="user-avatar-circle" id="header-avatar-circle">
-              <span id="header-avatar-initials">U</span>
-              <img id="header-avatar-img" src="" alt="Google Profile" style="display:none;" />
-            </div>
+        <!-- Signed In: Profile Avatar and Popover Menu -->
+        <div class="user-profile-menu-wrap" id="user-signedin-menu-wrap" style="display:none;">
+          <button class="user-profile-avatar-btn" id="btn-profile-popover-trigger">
+            <span id="nav-user-initial">U</span>
+            <img id="nav-user-img" src="" alt="User" style="display:none;" />
           </button>
 
-          <!-- Authentic Google Account Flyout -->
-          <div class="google-account-flyout" id="google-account-flyout">
-            <div class="gaf-top">
-              <div class="gaf-avatar-large-wrap">
-                <div class="gaf-avatar-large" id="gaf-avatar-large">
-                  <span id="gaf-initials">U</span>
-                  <img id="gaf-img" src="" alt="Google Profile" style="display:none;" />
-                </div>
+          <div class="user-popover" id="user-popover-menu">
+            <div class="user-popover-info">
+              <div class="user-profile-avatar-btn" style="width:36px; height:36px; flex-shrink:0;">
+                <span id="popover-avatar-initial">U</span>
+                <img id="popover-avatar-img" src="" alt="User" style="display:none;" />
               </div>
-              <div class="gaf-user-name" id="gaf-name">Google User</div>
-              <div class="gaf-user-email" id="gaf-email">user@gmail.com</div>
-              <button class="gaf-manage-btn" onclick="openSignInModal()">Manage Google Account</button>
-            </div>
-
-            <!-- Drive Quota in Account Menu -->
-            <div class="gaf-storage-section">
-              <div class="gaf-storage-header">
-                <span>Google Drive Storage</span>
-                <span class="gaf-storage-val" id="gaf-storage-val">0.2 MB / 50.0 GB</span>
-              </div>
-              <div class="gaf-storage-track">
-                <div class="gaf-storage-fill" id="gaf-storage-fill"></div>
+              <div class="user-popover-text">
+                <div class="user-popover-name" id="popover-user-name">Google User</div>
+                <div class="user-popover-email" id="popover-user-email">user@gmail.com</div>
               </div>
             </div>
 
-            <div class="gaf-actions-list">
-              <button class="gaf-action-item" onclick="openSignInModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="20" y1="8" x2="20" y2="14"></line>
-                  <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-                <span>Add another account</span>
-              </button>
-              <button class="gaf-action-item" onclick="signOutGoogleUser()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                <span>Sign out</span>
-              </button>
+            <div style="font-size:11px; color:var(--text-tertiary); padding:4px 8px;">
+              <span>Drive Cloud Storage: </span>
+              <strong style="color:var(--text-main); font-family:var(--font-mono);">0.2 MB / 50 GB</strong>
             </div>
 
-            <div class="gaf-footer-links">
-              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
-              <span>&bull;</span>
-              <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a>
-            </div>
+            <button class="user-popover-item" onclick="openAuthModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
+              <span>Switch Account</span>
+            </button>
+            <button class="user-popover-item" onclick="signOutUser()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Sign out</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1944,105 +1532,79 @@
   </header>
 
   <!-- ══════════════════════════════════════════════════════════════
-       LEFT SIDEBAR: SOURCES & NEWS STREAM
+       LEFT SIDEBAR: SOURCES & FEEDS
        ══════════════════════════════════════════════════════════════ -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title-row">
-        <span class="sidebar-heading">
-          <span>Sources</span>
-          <span class="badge-count" id="sources-count-badge">0</span>
-        </span>
-        <span style="font-size:11px; color:var(--text-tertiary);" id="grounded-count-label">0 active for AI</span>
-      </div>
-      <div class="sidebar-actions-row">
-        <button class="btn-add-source" id="btn-sidebar-add">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          <span>Upload / Note</span>
+    <div class="sidebar-top">
+      <span class="section-title-label">
+        <span>Sources</span>
+        <span style="font-family:var(--font-mono); color:var(--text-main);" id="badge-total-sources">0</span>
+      </span>
+      <div class="sidebar-actions-btn-group">
+        <button class="btn-tiny-action" id="btn-sidebar-add-source">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>New</span>
         </button>
-        <button class="btn-refresh-news" id="btn-sync-news" title="Refresh Live News Feeds">
-          <svg id="sync-news-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-          </svg>
+        <button class="btn-tiny-action" id="btn-sync-live-news" title="Fetch latest research news">
+          <svg id="icon-sync-spin" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- Category Filter Pills -->
-    <div class="category-pills-bar" id="category-pills">
-      <button class="cat-pill active" data-category="all">All</button>
-      <button class="cat-pill" data-category="AI & ML">🤖 AI & ML</button>
-      <button class="cat-pill" data-category="Tech & Dev">💻 Tech & Dev</button>
-      <button class="cat-pill" data-category="Science">🔬 Science</button>
-      <button class="cat-pill" data-category="Business">💼 Business</button>
-      <button class="cat-pill" data-category="World & Policy">🌍 World</button>
-      <button class="cat-pill" data-category="Notes & Uploads">📝 Notes</button>
+    <!-- Category Filter Tabs -->
+    <div class="filter-tabs" id="filter-tabs-bar">
+      <button class="filter-tab active" data-cat="all">All</button>
+      <button class="filter-tab" data-cat="AI & ML">AI & ML</button>
+      <button class="filter-tab" data-cat="Tech & Dev">Tech</button>
+      <button class="filter-tab" data-cat="Science">Science</button>
+      <button class="filter-tab" data-cat="Business">Business</button>
+      <button class="filter-tab" data-cat="Notes & Uploads">Notes</button>
     </div>
 
     <!-- Sources Cards List -->
-    <div class="sources-list" id="sources-container">
-      <!-- Populated dynamically -->
+    <div class="sources-scroll-area" id="sources-card-list">
+      <!-- Injected dynamically -->
     </div>
 
-    <!-- Sidebar Footer (Storage indicator) -->
-    <div class="sidebar-footer">
-      <div class="drive-quota-card" onclick="openSignInModal()" title="Google Drive allocated cloud storage">
-        <div class="drive-quota-row">
-          <span>Drive Sync (50 GB)</span>
-          <span style="font-weight:600; font-family:var(--font-mono);" id="sidebar-storage-text">0.2 MB</span>
-        </div>
-        <div class="drive-quota-bar">
-          <div class="drive-quota-fill" id="sidebar-storage-bar"></div>
-        </div>
+    <!-- Sidebar Footer / Drive Storage -->
+    <div class="sidebar-footer-storage" onclick="openAuthModal()" title="Google Drive allocated cloud storage">
+      <div class="storage-text-row">
+        <span>Storage Vault</span>
+        <span style="font-weight:600; color:var(--text-main);" id="storage-status-text">0.2 MB / 50 GB</span>
+      </div>
+      <div class="storage-bar-track">
+        <div class="storage-bar-fill" id="storage-bar-fill"></div>
       </div>
     </div>
   </aside>
 
   <!-- ══════════════════════════════════════════════════════════════
-       CENTER PANEL: DOCUMENT & CITATION READER
+       CENTER PANEL: DISTRACTION-FREE READER
        ══════════════════════════════════════════════════════════════ -->
-  <main class="main-reader">
-    <div class="reader-toolbar">
-      <div class="reader-toolbar-left">
-        <span class="reader-grounded-pill" id="reader-grounded-status">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <span>Grounded in Research Chat</span>
+  <main class="center-reader">
+    <div class="reader-top-bar">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="grounded-state-badge" id="reader-grounded-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Included in Notebook Context</span>
         </span>
       </div>
-      <div class="reader-toolbar-right">
-        <button class="btn-icon" id="btn-copy-doc" title="Copy document content">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="header-btn header-btn-icon-only" id="btn-copy-reader-text" title="Copy document text">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
-        <button class="btn-icon" id="btn-open-external-source" title="Open original external URL" style="display:none;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <line x1="10" y1="14" x2="21" y2="3"></line>
-          </svg>
+        <button class="header-btn header-btn-icon-only" id="btn-open-original-link" title="Open source URL" style="display:none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         </button>
       </div>
     </div>
 
-    <div class="reader-content-scroll" id="reader-scroll-area">
-      <div id="reader-view">
+    <div class="reader-scrollable" id="reader-scroll-container">
+      <div id="reader-main-content">
         <!-- Rendered dynamically -->
-        <div class="reader-empty">
-          <div class="reader-empty-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-          </div>
-          <h3 style="font-size:1.1rem; color:var(--text-primary); margin-bottom:6px;">Select a Source to Read</h3>
-          <p style="font-size:0.875rem; max-width:320px;">Choose any research article, note, or upload from the left panel to inspect full contents and citations.</p>
+        <div style="padding:60px 0; text-align:center; color:var(--text-tertiary);">
+          <div style="font-size:16px; font-weight:600; color:var(--text-main); margin-bottom:6px;">Select a Source</div>
+          <p style="font-size:13px; max-width:320px; margin:0 auto;">Click any document, note, or news story on the left to read and analyze it here.</p>
         </div>
       </div>
     </div>
@@ -2052,105 +1614,70 @@
        RIGHT SIDE PANEL: CHAT & NOTES TABS
        ══════════════════════════════════════════════════════════════ -->
   <aside class="sidepanel">
-    <!-- Panel Tabs Header -->
-    <div class="panel-tabs-bar">
-      <button class="panel-tab active" id="tab-btn-chat" onclick="switchPanelTab('chat')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span>Research Chat</span>
-      </button>
-      <button class="panel-tab" id="tab-btn-notes" onclick="switchPanelTab('notes')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 20h9"></path>
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-        </svg>
-        <span>Lab Notes</span>
-      </button>
+    <!-- Segmented Tab Header -->
+    <div class="segmented-header">
+      <div class="segmented-control">
+        <button class="segmented-btn active" id="tab-btn-chat" onclick="setPanelTab('chat')">Research Chat</button>
+        <button class="segmented-btn" id="tab-btn-notes" onclick="setPanelTab('notes')">Lab Notes</button>
+      </div>
     </div>
 
-    <!-- 1. RESEARCH CHAT TAB -->
-    <div class="tab-content active" id="tab-content-chat">
-      <!-- Quick Model Switcher Sub-Bar -->
-      <div class="chat-subbar">
+    <!-- 1. CHAT TAB -->
+    <div id="tab-view-chat" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+      <div class="chat-subbar-row">
         <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:11px; font-weight:600; color:var(--text-tertiary);">MODEL:</span>
-          <select class="model-selector-select" id="chat-model-select">
-            <option value="gemini-3.5-flash-lite">🚀 3.5 Lite (&lt;1s Fast)</option>
-            <option value="gemini-3.5-flash">⚡ 3.5 Flash (1M Window)</option>
-            <option value="gemini-3.8-flash">✨ 3.8 Flash (Reasoning)</option>
+          <span>Model:</span>
+          <select class="model-select-pill" id="select-active-model">
+            <option value="gemini-3.5-flash-lite">3.5 Lite (Fastest)</option>
+            <option value="gemini-3.5-flash">3.5 Flash (1M)</option>
+            <option value="gemini-3.8-flash">3.8 Flash (Reasoning)</option>
           </select>
         </div>
-        <div class="grounding-indicator" id="chat-grounding-indicator">
-          <span style="width:6px; height:6px; border-radius:50%; background:var(--success);"></span>
-          <span id="chat-grounding-text">0 sources</span>
+        <span id="sources-grounding-count">0 sources in context</span>
+      </div>
+
+      <div class="chat-messages-container" id="chat-messages-stream">
+        <div class="chat-msg ai">
+          👋 <strong>Welcome to Research Lab.</strong><br>
+          I am grounded in your active sources. Ask questions, compare findings, or synthesize ideas.
         </div>
       </div>
 
-      <!-- Messages Stream -->
-      <div class="chat-stream" id="chat-stream">
-        <div class="chat-bubble ai">
-          <div class="bubble-content">
-            👋 <strong>Welcome to your Research Lab notebook!</strong><br>
-            Ask questions, synthesize findings, or generate overviews based strictly on your active research sources.
+      <div class="chat-bottom-input-wrap">
+        <div class="chat-quick-suggestions">
+          <button class="quick-chip-btn" id="btn-trigger-podcast">🎙️ Audio Overview</button>
+          <button class="quick-chip-btn" onclick="sendQuickPrompt('Summarize key takeaways across all active sources')">Summarize All</button>
+          <button class="quick-chip-btn" onclick="clearChat()">Clear</button>
+        </div>
+
+        <form class="chat-box-field" id="chat-submit-form">
+          <textarea class="chat-textarea-input" id="chat-textarea" placeholder="Ask anything about your sources..." rows="1"></textarea>
+          <div class="chat-box-toolbar">
+            <span class="chat-key-hint">Enter to send &middot; Shift+Enter for newline</span>
+            <button type="submit" class="btn-send-message" id="btn-send-chat" aria-label="Send">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
           </div>
-        </div>
-      </div>
-
-      <!-- Chat Footer / Input -->
-      <div class="chat-footer">
-        <div class="chat-quick-actions">
-          <button class="btn-quick-chip" id="btn-podcast-overview">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-            </svg>
-            <span>Audio Overview</span>
-          </button>
-          <button class="btn-quick-chip" onclick="clearChatHistory()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-            <span>Clear</span>
-          </button>
-        </div>
-
-        <form class="chat-input-row" id="chat-form">
-          <textarea class="chat-textarea" id="chat-input" placeholder="Ask about your research sources... (Enter to send)" rows="1"></textarea>
-          <button type="submit" class="btn-send" id="btn-chat-send" aria-label="Send message">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
         </form>
       </div>
     </div>
 
     <!-- 2. LAB NOTES TAB -->
-    <div class="tab-content" id="tab-content-notes">
-      <div class="notes-container">
-        <div class="notes-toolbar">
-          <span id="notes-stat-words">0 words</span>
-          <span id="notes-save-status">Saved locally</span>
+    <div id="tab-view-notes" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+      <div class="notes-panel-content">
+        <div class="notes-meta-bar">
+          <span id="notes-word-counter">0 words</span>
+          <span id="notes-status-label">Auto-saved to local vault</span>
         </div>
-        <textarea class="notes-textarea" id="notes-editor" placeholder="Jot down research findings, synthesis hypotheses, or literature review notes here... Automatically syncs with Google Drive."></textarea>
-        <div class="notes-actions-row">
-          <button class="btn-note-action" onclick="copyLabNotes()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
+        <textarea class="notes-scratchpad" id="notes-pad" placeholder="Record your research insights, experimental notes, or synthesis here..."></textarea>
+        <div class="notes-actions-group">
+          <button class="btn-tiny-action" style="flex:1; height:30px; justify-content:center;" onclick="copyNotes()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             <span>Copy</span>
           </button>
-          <button class="btn-note-action" onclick="downloadLabNotes()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span>Save .md</span>
+          <button class="btn-tiny-action" style="flex:1; height:30px; justify-content:center;" onclick="downloadNotes()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Export .md</span>
           </button>
         </div>
       </div>
@@ -2160,133 +1687,128 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     THE NEW AUTHENTIC GOOGLE SIGN-IN SCREEN (accounts.google.com)
+     THE HUMAN-CRAFTED AUTH MODAL (REAL SAAS DESIGN)
      ══════════════════════════════════════════════════════════════ -->
-<div class="g-modal-overlay" id="google-signin-modal" role="dialog" aria-modal="true" aria-labelledby="g-signin-title">
-  <div class="g-signin-card">
-    <!-- Close X Button -->
-    <button class="g-close-btn" onclick="closeSignInModal()" aria-label="Close dialog">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
+<div class="auth-backdrop" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+  <div class="auth-dialog">
+    <button class="auth-close-x" onclick="closeAuthModal()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
 
-    <!-- Google 4-Color Logo -->
-    <div class="g-logo-wrap">
-      <svg width="44" height="44" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+    <div class="auth-brand-badge">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
       </svg>
     </div>
 
-    <!-- Heading -->
-    <h2 class="g-heading" id="g-signin-title">Sign in</h2>
-    <p class="g-subheading">to continue to <strong>Research Lab</strong></p>
+    <h2 class="auth-title" id="auth-modal-title">Sign in to Research Lab</h2>
+    <p class="auth-sub" id="auth-modal-sub">Continue with your Google account or email to sync your private notebook.</p>
 
-    <!-- State A: Active User Already Signed In -->
-    <div id="g-active-user-view" style="display:none;">
-      <div class="g-active-session-card">
-        <div class="g-active-session-avatar" id="g-card-avatar">
-          <span id="g-card-initials">U</span>
-          <img id="g-card-img" src="" alt="Google Profile" style="display:none;" />
+    <!-- State A: Already Signed In -->
+    <div id="auth-signedin-section" style="display:none;">
+      <div class="signed-in-profile-box">
+        <div class="signed-in-profile-avatar" id="modal-signed-avatar">
+          <span id="modal-signed-initial">U</span>
+          <img id="modal-signed-img" src="" alt="Avatar" style="display:none;" />
         </div>
-        <div class="g-active-session-details">
-          <div class="g-active-session-name" id="g-card-name">Google User</div>
-          <div class="g-active-session-email" id="g-card-email">user@gmail.com</div>
+        <div style="min-width:0;">
+          <div style="font-weight:600; font-size:14px; color:var(--text-main);" id="modal-signed-name">Google User</div>
+          <div style="font-size:12px; color:var(--text-tertiary);" id="modal-signed-email">user@gmail.com</div>
         </div>
       </div>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="g-btn-primary" style="width:100%;" onclick="closeSignInModal()">Continue to Workspace</button>
-        <button class="g-btn-text" style="width:100%; text-align:center;" onclick="signOutGoogleUser()">Sign out / Switch account</button>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn-primary-auth-action" onclick="closeAuthModal()">Return to Notebook</button>
+        <button class="btn-tiny-action" style="height:36px; justify-content:center;" onclick="signOutUser()">Sign out / Switch account</button>
       </div>
     </div>
 
-    <!-- State B: Authentication Form (When signed out) -->
-    <div id="g-unauth-view">
-      <!-- 1. Real Google GSI Button Container -->
-      <div class="g-official-btn-container" id="gsi-button-mount"></div>
+    <!-- State B: Signed Out Form -->
+    <div id="auth-signedout-section">
+      <!-- Continue with Google Button -->
+      <button class="btn-google-continue" id="btn-google-signin-action" onclick="triggerGoogleOAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
 
-      <!-- Divider -->
-      <div class="g-divider-row">
-        <div class="g-divider-line"></div>
-        <span class="g-divider-text">or with username</span>
-        <div class="g-divider-line"></div>
+      <!-- Google GSI Standard Hidden / Fallback Button -->
+      <div class="gsi-hidden-mount" id="gsi-official-mount" style="display:none;"></div>
+
+      <div class="auth-separator">
+        <div class="auth-separator-line"></div>
+        <span class="auth-separator-text">or with email</span>
+        <div class="auth-separator-line"></div>
       </div>
 
-      <!-- Clean Google Material Outlined Text Fields -->
-      <form id="g-direct-form" onsubmit="handleDirectAuthSubmit(event)">
-        <div class="g-textfield">
-          <input type="text" class="g-textfield-input" id="g-input-email" placeholder=" " required />
-          <label class="g-textfield-label" for="g-input-email">Email or Username</label>
+      <form onsubmit="handleDirectAuthSubmit(event)">
+        <div class="field-group">
+          <label class="field-label" for="auth-input-email">Email or username</label>
+          <input type="text" class="field-input" id="auth-input-email" placeholder="name@domain.com" required>
         </div>
 
-        <div class="g-textfield">
-          <input type="password" class="g-textfield-input" id="g-input-password" placeholder=" " required />
-          <label class="g-textfield-label" for="g-input-password">Password</label>
+        <div class="field-group">
+          <div class="field-label">
+            <span>Password</span>
+            <a href="#" style="font-size:11.5px; color:var(--text-tertiary);" onclick="showToast('Password reset link simulated')">Forgot?</a>
+          </div>
+          <input type="password" class="field-input" id="auth-input-password" placeholder="••••••••" required>
         </div>
 
-        <div class="g-actions-row">
-          <button type="button" class="g-btn-text" onclick="toggleRegisterMode()" id="btn-toggle-create-account">Create account</button>
-          <button type="submit" class="g-btn-primary" id="btn-g-submit">Next</button>
-        </div>
+        <button type="submit" class="btn-primary-auth-action" id="btn-submit-auth">Sign in with Email</button>
       </form>
 
-      <!-- Demo Account 1-Click Login Option for Rapid Local Exploration -->
-      <div class="g-demo-banner">
-        <span>Exploring offline?</span>
-        <button class="g-demo-btn" onclick="loginDemoAccount()">Use Demo Researcher</button>
+      <div class="auth-bottom-switch">
+        <span id="auth-switch-label">Don't have an account?</span>
+        <button type="button" onclick="toggleAuthMode()" id="btn-auth-mode-toggle">Sign up</button>
       </div>
-    </div>
 
-    <!-- Footer Links -->
-    <div class="g-footer">
-      <span>English (United States)</span>
-      <div class="g-footer-links-group">
-        <a href="https://support.google.com/accounts" target="_blank" rel="noopener">Help</a>
-        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a>
-        <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>
+      <div class="auth-demo-shortcut">
+        <span>Offline or exploring?</span>
+        <button class="btn-demo-link" onclick="loginDemoAccount()">Use demo session</button>
+      </div>
+
+      <div class="auth-disclaimer">
+        By continuing, you agree to our <a href="https://policies.google.com/terms" target="_blank">Terms</a> and <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a>.
       </div>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     ADD SOURCE / UPLOAD MODAL
+     ADD SOURCE MODAL
      ══════════════════════════════════════════════════════════════ -->
-<div class="g-modal-overlay" id="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">
-  <div class="generic-modal">
-    <div class="generic-modal-header">
-      <h3 class="generic-modal-title" id="upload-modal-title">Add Research Source</h3>
-      <button class="btn-icon" onclick="closeUploadModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+<div class="auth-backdrop" id="add-source-modal" role="dialog" aria-modal="true" aria-labelledby="add-source-title">
+  <div class="generic-dialog">
+    <div class="generic-dialog-head">
+      <h3 class="generic-dialog-title" id="add-source-title">Add Research Document</h3>
+      <button class="auth-close-x" onclick="closeAddSourceModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
-    <div class="dropzone-area" id="file-dropzone" onclick="document.getElementById('file-input').click()">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin:0 auto 10px; color:var(--text-tertiary);">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="17 8 12 3 7 8"></polyline>
-        <line x1="12" y1="3" x2="12" y2="15"></line>
-      </svg>
-      <div style="font-size:13.5px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Drag & drop research documents</div>
-      <div style="font-size:12px; color:var(--text-tertiary);">Supports .txt, .md, .json, .pdf, or click to browse</div>
-      <input type="file" id="file-input" style="display:none;" accept=".txt,.md,.json,.csv,.pdf">
+    <div style="border:2px dashed var(--border-strong); border-radius:var(--radius-md); padding:24px 16px; text-align:center; background:var(--bg-subtle); cursor:pointer; margin-bottom:14px;" onclick="document.getElementById('input-file-select').click()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin:0 auto 8px; color:var(--text-tertiary);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      <div style="font-weight:600; font-size:13px; margin-bottom:2px;">Upload document or paper</div>
+      <div style="font-size:11.5px; color:var(--text-tertiary);">Select .txt, .md, .pdf, or .json</div>
+      <input type="file" id="input-file-select" style="display:none;" accept=".txt,.md,.json,.pdf">
     </div>
 
-    <div style="margin-top:16px;">
-      <div style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Or Paste Text / Note Directly:</div>
-      <input type="text" id="manual-source-title" placeholder="Document Title" style="width:100%; height:36px; padding:0 10px; margin-bottom:8px; border:1px solid var(--border-strong); border-radius:6px; background:var(--bg-secondary); outline:none; font-size:13px; color:var(--text-primary);">
-      <textarea id="manual-source-content" rows="4" placeholder="Paste source text, article excerpt, or paper abstract..." style="width:100%; padding:10px; border:1px solid var(--border-strong); border-radius:6px; background:var(--bg-secondary); outline:none; font-size:13px; color:var(--text-primary); resize:none;"></textarea>
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-        <button class="btn-header-action" onclick="closeUploadModal()">Cancel</button>
-        <button class="btn-add-source" style="flex:none; padding:0 16px;" onclick="addManualSource()">Add to Sources</button>
-      </div>
+    <div class="field-group">
+      <label class="field-label" for="manual-doc-title">Document Title</label>
+      <input type="text" class="field-input" id="manual-doc-title" placeholder="e.g. Constitutional AI Notes">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="manual-doc-content">Content / Abstract</label>
+      <textarea class="field-input" id="manual-doc-content" rows="4" style="height:auto; padding:8px 12px; resize:none;" placeholder="Paste paper excerpt, experimental data, or thoughts..."></textarea>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+      <button class="btn-tiny-action" style="height:32px; padding:0 12px;" onclick="closeAddSourceModal()">Cancel</button>
+      <button class="btn-primary-auth-action" style="width:auto; height:32px; padding:0 16px; margin:0;" onclick="submitManualSource()">Add to Notebook</button>
     </div>
   </div>
 </div>
@@ -2294,39 +1816,27 @@
 <!-- ══════════════════════════════════════════════════════════════
      GEMINI 3.8 LIVE VOICE MODAL
      ══════════════════════════════════════════════════════════════ -->
-<div class="g-modal-overlay" id="live-voice-modal" role="dialog" aria-modal="true" aria-labelledby="live-voice-title">
-  <div class="live-voice-card">
-    <button class="g-close-btn" style="color:#9ca3af;" onclick="closeLiveModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
+<div class="auth-backdrop" id="live-voice-modal" role="dialog" aria-modal="true" aria-labelledby="live-voice-title">
+  <div class="generic-dialog live-voice-dialog">
+    <button class="auth-close-x" style="color:#71717a;" onclick="closeLiveDialog()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
 
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-      <span class="live-pulse-dot"></span>
-      <h3 style="font-size:1.2rem; font-weight:600;" id="live-voice-title">Gemini 3.8 Live Voice</h3>
+    <div style="display:inline-flex; align-items:center; gap:6px; margin-bottom:4px;">
+      <span class="dot-live-indicator"></span>
+      <h3 style="font-size:15px; font-weight:600;" id="live-voice-title">Gemini 3.8 Live Voice</h3>
     </div>
-    <p style="font-size:12.5px; color:#9ca3af; text-align:center;">Real-time bidirectional spoken reasoning over your research documents</p>
+    <p style="font-size:12px; color:#71717a;">Bidirectional low-latency spoken research assistant</p>
 
-    <!-- Canvas Waveform Visualizer -->
-    <canvas class="live-visualizer-canvas" id="live-canvas" width="540" height="120"></canvas>
+    <canvas class="live-voice-canvas" id="voice-canvas" width="460" height="100"></canvas>
 
-    <!-- Live Transcript -->
-    <div class="live-transcript-box" id="live-transcript">
-      <em>Ready. Press the microphone to begin talking with your research notebook...</em>
+    <div class="live-transcript-card" id="voice-transcript">
+      <em>Ready. Click the microphone to start spoken reasoning session...</em>
     </div>
 
-    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-      <button class="live-mic-btn" id="btn-live-mic-toggle" onclick="toggleLiveAudioSession()">
-        <svg id="live-mic-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-          <line x1="12" y1="19" x2="12" y2="23"></line>
-          <line x1="8" y1="23" x2="16" y2="23"></line>
-        </svg>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+      <button class="btn-live-mic-pulse" id="btn-toggle-voice-stream" onclick="toggleVoiceSession()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
       </button>
-      <span style="font-size:12px; color:#9ca3af;" id="live-status-text">Click microphone to speak</span>
+      <span style="font-size:11.5px; color:#71717a;" id="voice-status-label">Tap to speak</span>
     </div>
   </div>
 </div>
@@ -2334,95 +1844,85 @@
 <!-- ══════════════════════════════════════════════════════════════
      SETTINGS MODAL
      ══════════════════════════════════════════════════════════════ -->
-<div class="g-modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
-  <div class="generic-modal">
-    <div class="generic-modal-header">
-      <h3 class="generic-modal-title" id="settings-modal-title">Settings & Configuration</h3>
-      <button class="btn-icon" onclick="closeSettingsModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+<div class="auth-backdrop" id="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title">
+  <div class="generic-dialog">
+    <div class="generic-dialog-head">
+      <h3 class="generic-dialog-title" id="settings-dialog-title">Settings</h3>
+      <button class="auth-close-x" onclick="closeSettings()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:14px;">
+    <div class="field-group">
+      <label class="field-label" for="setting-gemini-key">Gemini API Key</label>
+      <input type="password" class="field-input" id="setting-gemini-key" placeholder="AIzaSy...">
+      <span style="font-size:11px; color:var(--text-tertiary);" id="setting-key-status">Auto-loaded from .env</span>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="setting-default-model">Default Research Model</label>
+      <select class="field-input" id="setting-default-model">
+        <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Fastest &lt;1s response)</option>
+        <option value="gemini-3.5-flash">gemini-3.5-flash (Standard 1M context)</option>
+        <option value="gemini-3.8-flash">gemini-3.8-flash (Preview Multimodal Reasoning)</option>
+      </select>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-subtle); border:1px solid var(--border); border-radius:var(--radius-sm); margin:12px 0;">
       <div>
-        <label style="font-size:12px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Gemini API Key (.env or browser)</label>
-        <input type="password" id="settings-api-key" placeholder="AIzaSy..." style="width:100%; height:36px; padding:0 10px; border:1px solid var(--border-strong); border-radius:6px; background:var(--bg-secondary); outline:none; font-size:13px; color:var(--text-primary);">
-        <span style="font-size:11px; color:var(--text-tertiary); display:block; margin-top:4px;" id="settings-key-sync-label">Checking server .env sync...</span>
+        <div style="font-size:12.5px; font-weight:600;">Reset Local Storage</div>
+        <div style="font-size:11px; color:var(--text-tertiary);">Clear cached articles and reload</div>
       </div>
+      <button class="btn-tiny-action" onclick="resetLocalCache()">Reset</button>
+    </div>
 
-      <div>
-        <label style="font-size:12px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Default Gemini Model</label>
-        <select id="settings-model-default" style="width:100%; height:36px; padding:0 10px; border:1px solid var(--border-strong); border-radius:6px; background:var(--bg-secondary); outline:none; font-size:13px; color:var(--text-primary);">
-          <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Recommended: &lt;1s response & free tier)</option>
-          <option value="gemini-3.5-flash">gemini-3.5-flash (Standard 1M context)</option>
-          <option value="gemini-3.8-flash">gemini-3.8-flash (Preview Multimodal Reasoning)</option>
-        </select>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-secondary);">
-        <div>
-          <div style="font-size:13px; font-weight:600; color:var(--text-primary);">Clear Local Cache</div>
-          <div style="font-size:11.5px; color:var(--text-tertiary);">Reset notes and reload fresh news feeds</div>
-        </div>
-        <button class="btn-note-action" style="flex:none; padding:0 12px;" onclick="resetLocalStorage()">Reset Data</button>
-      </div>
-
-      <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-        <button class="btn-add-source" style="flex:none; padding:0 20px;" onclick="saveSettings()">Save Changes</button>
-      </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn-primary-auth-action" style="width:auto; padding:0 18px;" onclick="saveSettings()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- Toast Container -->
-<div class="toast-stack" id="toast-container"></div>
+<!-- Toast Tray -->
+<div class="toast-tray" id="toast-tray"></div>
 
 <!-- ══════════════════════════════════════════════════════════════
      VANILLA JAVASCRIPT APPLICATION CORE
      ══════════════════════════════════════════════════════════════ -->
 <script>
 /**
- * NBLMimic — Research Lab Core Application
- * Zero-dependency, lightweight, privacy-first research notebook.
+ * Research Lab (NBLMimic) — Human-crafted application engine.
+ * Self-contained, zero-dependency, ultra-fast.
  */
 
-// 1. Application State
 const state = {
-  user: null,               // Google profile: { name, email, picture, sub }
-  sources: [],              // Loaded sources & live news
-  activeSourceIds: new Set(), // IDs of sources grounded in AI chat
-  selectedDocId: null,      // Document currently open in reader
-  filterCategory: 'all',    // Current category pill
-  searchQuery: '',          // Current search filter
-  currentTab: 'chat',       // 'chat' or 'notes'
+  user: null,
+  sources: [],
+  activeSourceIds: new Set(),
+  selectedDocId: null,
+  filterCategory: 'all',
+  searchQuery: '',
+  currentTab: 'chat',
   activeModel: 'gemini-3.5-flash-lite',
-  chatMessages: [],         // Chat history
-  notesContent: '',         // Scratchpad notes
-  googleClientId: '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
-  isRegisterMode: false
+  notesContent: '',
+  isSignUpMode: false,
+  googleClientId: '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com'
 };
 
-// 2. Sample Baseline Sources (used if offline / before news sync)
-const SAMPLE_SOURCES = [
+const SAMPLE_FALLBACKS = [
   {
     id: 1,
-    title: 'Gemini 3.8 Multimodal Reasoning & Live Bidirectional Audio',
+    title: 'Gemini 3.8 Live Multimodal Audio & Reasoning',
     category: 'AI & ML',
     source: 'Google DeepMind',
-    excerpt: 'An architectural breakdown of low-latency bidirectional WebSockets and grounded citation graphs.',
+    excerpt: 'Deep dive into low-latency bidirectional WebSockets and grounded citation graphs.',
     content: 'Gemini 3.8 introduces sub-second multimodal reasoning and real-time audio interaction over WebSockets.\n\nKey Innovations:\n- Asynchronous function calling without interrupting conversation flow.\n- Grounded citation graphs linking every generative claim directly to user uploaded documents.\n- Low-overhead token efficiency optimized for research synthesis.',
     date: 'Today',
     timestamp: Date.now()
   },
   {
     id: 2,
-    title: 'Private Knowledge Bases and Local-First Architecture',
+    title: 'Local-First Knowledge Management Architecture',
     category: 'Tech & Dev',
     source: 'Research Lab',
-    excerpt: 'Why research notebooks must prioritize local-first storage and transparent zero-dependency servers.',
+    excerpt: 'Preserving intellectual privacy through zero-dependency local-first proxies.',
     content: 'Storing knowledge graphs and confidential research papers locally guarantees zero data leakage.\n\nBy leveraging standard Web APIs and client-side encryption, researchers maintain full control over intellectual property without trusting multi-tenant cloud databases.',
     date: 'Yesterday',
     timestamp: Date.now() - 86400000
@@ -2433,20 +1933,20 @@ const SAMPLE_SOURCES = [
 // INITIALIZATION
 // ══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  loadSavedTheme();
-  loadSavedUser();
-  loadSavedNotes();
-  setupUIEventListeners();
-  fetchServerAuthConfig();
-  fetchLiveNewsStream();
-  checkServerHealth();
+  initTheme();
+  initUserSession();
+  initNotes();
+  bindUIEvents();
+  fetchServerAuth();
+  fetchNewsFeed();
+  checkHealth();
 });
 
 // ══════════════════════════════════════════════════════════════
-// GOOGLE IDENTITY SERVICES (GSI) AUTHENTICATION
+// AUTHENTICATION & GOOGLE OAUTH
 // ══════════════════════════════════════════════════════════════
 
-async function fetchServerAuthConfig() {
+async function fetchServerAuth() {
   try {
     const res = await fetch('/api/auth/config');
     if (res.ok) {
@@ -2456,51 +1956,54 @@ async function fetchServerAuthConfig() {
         initGoogleGSI();
       }
     }
-  } catch (e) {
-    console.log('[Auth] Using default Google client ID');
-  }
+  } catch (e) {}
 }
 
 function initGoogleGSI() {
-  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-    return;
-  }
-
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) return;
   try {
     google.accounts.id.initialize({
       client_id: state.googleClientId,
-      callback: handleGoogleCredentialResponse,
+      callback: onGoogleCredentialResponse,
       auto_select: false,
       cancel_on_tap_outside: true
     });
 
-    renderOfficialGoogleButton();
+    const mount = document.getElementById('gsi-official-mount');
+    if (mount) {
+      google.accounts.id.renderButton(mount, {
+        type: 'standard',
+        shape: 'rectangular',
+        theme: 'outline',
+        size: 'large',
+        width: 340
+      });
+    }
   } catch (err) {
-    console.warn('[GSI] Init error:', err);
+    console.warn('[GSI] Init issue:', err);
   }
 }
 
-function renderOfficialGoogleButton() {
-  const mountEl = document.getElementById('gsi-button-mount');
-  if (mountEl && typeof google !== 'undefined' && google.accounts?.id) {
-    mountEl.innerHTML = '';
-    google.accounts.id.renderButton(mountEl, {
-      type: 'standard',
-      shape: 'pill',
-      theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
-      size: 'large',
-      text: 'signin_with',
-      width: 320,
-      logo_alignment: 'left'
+function triggerGoogleOAuth() {
+  if (typeof google !== 'undefined' && google.accounts?.id) {
+    google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        const mount = document.getElementById('gsi-official-mount');
+        if (mount) {
+          mount.style.display = 'block';
+          const btn = mount.querySelector('div[role="button"]');
+          if (btn) btn.click();
+        }
+      }
     });
+  } else {
+    showToast('Google OAuth service loading...');
   }
 }
 
-function handleGoogleCredentialResponse(response) {
-  if (!response || !response.credential) return;
-
+function onGoogleCredentialResponse(response) {
+  if (!response?.credential) return;
   try {
-    // Safely decode JWT token payload without external libraries
     const base64Url = response.credential.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
@@ -2508,7 +2011,6 @@ function handleGoogleCredentialResponse(response) {
     }).join(''));
 
     const profile = JSON.parse(jsonPayload);
-
     state.user = {
       name: profile.name || 'Google User',
       email: profile.email || '',
@@ -2517,117 +2019,108 @@ function handleGoogleCredentialResponse(response) {
     };
 
     localStorage.setItem('nbl_user_session', JSON.stringify(state.user));
-    updateAuthUI();
-    closeSignInModal();
+    renderAuthUI();
+    closeAuthModal();
     showToast(`Signed in as ${state.user.name}`);
   } catch (err) {
-    console.error('[Auth] Failed to parse Google JWT:', err);
-    showToast('Failed to parse Google sign-in response');
+    showToast('Could not process Google sign-in token');
   }
 }
 
-function loadSavedUser() {
+function initUserSession() {
   try {
-    const raw = localStorage.getItem('nbl_user_session');
-    if (raw) {
-      state.user = JSON.parse(raw);
-    }
+    const saved = localStorage.getItem('nbl_user_session');
+    if (saved) state.user = JSON.parse(saved);
   } catch (e) {}
-  updateAuthUI();
+  renderAuthUI();
 }
 
-function updateAuthUI() {
-  const btnOpenSignin = document.getElementById('btn-open-signin');
-  const userHeaderWrap = document.getElementById('user-header-wrap');
-  const activeUserView = document.getElementById('g-active-user-view');
-  const unauthView = document.getElementById('g-unauth-view');
+function renderAuthUI() {
+  const btnTrigger = document.getElementById('btn-trigger-login-modal');
+  const userMenuWrap = document.getElementById('user-signedin-menu-wrap');
+  const signedInSection = document.getElementById('auth-signedin-section');
+  const signedOutSection = document.getElementById('auth-signedout-section');
 
   if (state.user) {
-    // User is logged in
-    btnOpenSignin.style.display = 'none';
-    userHeaderWrap.style.display = 'flex';
+    btnTrigger.style.display = 'none';
+    userMenuWrap.style.display = 'flex';
 
-    // Header avatar
     const initial = (state.user.name || state.user.email || 'U')[0].toUpperCase();
-    document.getElementById('header-avatar-initials').textContent = initial;
-    const headerImg = document.getElementById('header-avatar-img');
+    document.getElementById('nav-user-initial').textContent = initial;
+    document.getElementById('popover-avatar-initial').textContent = initial;
+    document.getElementById('modal-signed-initial').textContent = initial;
+
+    const navImg = document.getElementById('nav-user-img');
+    const popImg = document.getElementById('popover-avatar-img');
+    const modalImg = document.getElementById('modal-signed-img');
+
     if (state.user.picture) {
-      headerImg.src = state.user.picture;
-      headerImg.style.display = 'block';
-      document.getElementById('header-avatar-initials').style.display = 'none';
+      navImg.src = state.user.picture;
+      navImg.style.display = 'block';
+      document.getElementById('nav-user-initial').style.display = 'none';
+
+      popImg.src = state.user.picture;
+      popImg.style.display = 'block';
+      document.getElementById('popover-avatar-initial').style.display = 'none';
+
+      modalImg.src = state.user.picture;
+      modalImg.style.display = 'block';
+      document.getElementById('modal-signed-initial').style.display = 'none';
     } else {
-      headerImg.style.display = 'none';
-      document.getElementById('header-avatar-initials').style.display = 'block';
+      navImg.style.display = 'none';
+      document.getElementById('nav-user-initial').style.display = 'block';
+      popImg.style.display = 'none';
+      document.getElementById('popover-avatar-initial').style.display = 'block';
+      modalImg.style.display = 'none';
+      document.getElementById('modal-signed-initial').style.display = 'block';
     }
 
-    // Google Account Flyout details
-    document.getElementById('gaf-name').textContent = state.user.name;
-    document.getElementById('gaf-email').textContent = state.user.email;
-    document.getElementById('gaf-initials').textContent = initial;
-    const gafImg = document.getElementById('gaf-img');
-    if (state.user.picture) {
-      gafImg.src = state.user.picture;
-      gafImg.style.display = 'block';
-      document.getElementById('gaf-initials').style.display = 'none';
-    } else {
-      gafImg.style.display = 'none';
-      document.getElementById('gaf-initials').style.display = 'block';
-    }
+    document.getElementById('popover-user-name').textContent = state.user.name;
+    document.getElementById('popover-user-email').textContent = state.user.email;
+    document.getElementById('modal-signed-name').textContent = state.user.name;
+    document.getElementById('modal-signed-email').textContent = state.user.email;
 
-    // Sign-in modal card details
-    document.getElementById('g-card-name').textContent = state.user.name;
-    document.getElementById('g-card-email').textContent = state.user.email;
-    document.getElementById('g-card-initials').textContent = initial;
-    const cardImg = document.getElementById('g-card-img');
-    if (state.user.picture) {
-      cardImg.src = state.user.picture;
-      cardImg.style.display = 'block';
-      document.getElementById('g-card-initials').style.display = 'none';
-    } else {
-      cardImg.style.display = 'none';
-      document.getElementById('g-card-initials').style.display = 'block';
-    }
-
-    activeUserView.style.display = 'block';
-    unauthView.style.display = 'none';
-    document.getElementById('g-signin-title').textContent = 'Google Account';
+    signedInSection.style.display = 'block';
+    signedOutSection.style.display = 'none';
+    document.getElementById('auth-modal-title').textContent = 'Account Profile';
+    document.getElementById('auth-modal-sub').textContent = 'Connected with Google Account and local vault.';
   } else {
-    // User is signed out
-    btnOpenSignin.style.display = 'inline-flex';
-    userHeaderWrap.style.display = 'none';
-    document.getElementById('google-account-flyout').classList.remove('active');
+    btnTrigger.style.display = 'inline-flex';
+    userMenuWrap.style.display = 'none';
+    document.getElementById('user-popover-menu').classList.remove('active');
 
-    activeUserView.style.display = 'none';
-    unauthView.style.display = 'block';
-    document.getElementById('g-signin-title').textContent = state.isRegisterMode ? 'Create Account' : 'Sign in';
+    signedInSection.style.display = 'none';
+    signedOutSection.style.display = 'block';
+    document.getElementById('auth-modal-title').textContent = state.isSignUpMode ? 'Create an Account' : 'Sign in to Research Lab';
+    document.getElementById('auth-modal-sub').textContent = 'Continue with your Google account or email to sync your private notebook.';
   }
 }
 
-function signOutGoogleUser() {
+function signOutUser() {
   state.user = null;
   localStorage.removeItem('nbl_user_session');
-  updateAuthUI();
-  closeSignInModal();
-  showToast('Signed out of Google Account');
+  renderAuthUI();
+  closeAuthModal();
+  document.getElementById('user-popover-menu').classList.remove('active');
+  showToast('Signed out of session');
 }
 
 function handleDirectAuthSubmit(e) {
   e.preventDefault();
-  const emailInput = document.getElementById('g-input-email');
-  const val = emailInput.value.trim();
-  if (!val) return;
+  const email = document.getElementById('auth-input-email').value.trim();
+  if (!email) return;
 
-  const displayName = val.includes('@') ? val.split('@')[0] : val;
+  const displayName = email.includes('@') ? email.split('@')[0] : email;
   state.user = {
     name: displayName,
-    email: val.includes('@') ? val : `${val}@gmail.com`,
+    email: email.includes('@') ? email : `${email}@gmail.com`,
     picture: ''
   };
 
   localStorage.setItem('nbl_user_session', JSON.stringify(state.user));
-  updateAuthUI();
-  closeSignInModal();
-  showToast(`Welcome, ${displayName}!`);
+  renderAuthUI();
+  closeAuthModal();
+  showToast(`Welcome, ${displayName}`);
 }
 
 function loginDemoAccount() {
@@ -2637,107 +2130,101 @@ function loginDemoAccount() {
     picture: ''
   };
   localStorage.setItem('nbl_user_session', JSON.stringify(state.user));
-  updateAuthUI();
-  closeSignInModal();
-  showToast('Logged in as Demo Researcher');
+  renderAuthUI();
+  closeAuthModal();
+  showToast('Logged in with Demo Researcher session');
 }
 
-function toggleRegisterMode() {
-  state.isRegisterMode = !state.isRegisterMode;
-  const btnToggle = document.getElementById('btn-toggle-create-account');
-  const btnSubmit = document.getElementById('btn-g-submit');
-  const title = document.getElementById('g-signin-title');
+function toggleAuthMode() {
+  state.isSignUpMode = !state.isSignUpMode;
+  const btnMode = document.getElementById('btn-auth-mode-toggle');
+  const btnSubmit = document.getElementById('btn-submit-auth');
+  const label = document.getElementById('auth-switch-label');
 
-  if (state.isRegisterMode) {
-    title.textContent = 'Create Account';
-    btnToggle.textContent = 'Sign in instead';
-    btnSubmit.textContent = 'Create';
+  if (state.isSignUpMode) {
+    document.getElementById('auth-modal-title').textContent = 'Create an Account';
+    btnSubmit.textContent = 'Create Account';
+    label.textContent = 'Already have an account?';
+    btnMode.textContent = 'Sign in';
   } else {
-    title.textContent = 'Sign in';
-    btnToggle.textContent = 'Create account';
-    btnSubmit.textContent = 'Next';
+    document.getElementById('auth-modal-title').textContent = 'Sign in to Research Lab';
+    btnSubmit.textContent = 'Sign in with Email';
+    label.textContent = "Don't have an account?";
+    btnMode.textContent = 'Sign up';
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-// MODAL CONTROLS
+// MODALS MANAGEMENT
 // ══════════════════════════════════════════════════════════════
 
-function openSignInModal() {
-  document.getElementById('google-account-flyout').classList.remove('active');
-  const modal = document.getElementById('google-signin-modal');
-  modal.classList.add('active');
-  renderOfficialGoogleButton();
+function openAuthModal() {
+  document.getElementById('user-popover-menu').classList.remove('active');
+  document.getElementById('auth-modal').classList.add('active');
 }
 
-function closeSignInModal() {
-  document.getElementById('google-signin-modal').classList.remove('active');
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('active');
 }
 
-function toggleGoogleAccountFlyout() {
-  const flyout = document.getElementById('google-account-flyout');
-  flyout.classList.toggle('active');
+function openAddSourceModal() {
+  document.getElementById('add-source-modal').classList.add('active');
 }
 
-function openUploadModal() {
-  document.getElementById('upload-modal').classList.add('active');
+function closeAddSourceModal() {
+  document.getElementById('add-source-modal').classList.remove('active');
 }
 
-function closeUploadModal() {
-  document.getElementById('upload-modal').classList.remove('active');
-}
-
-function openLiveModal() {
+function openLiveDialog() {
   document.getElementById('live-voice-modal').classList.add('active');
-  startVisualizerAnimation();
+  startVoiceWave();
 }
 
-function closeLiveModal() {
+function closeLiveDialog() {
   document.getElementById('live-voice-modal').classList.remove('active');
-  stopVisualizerAnimation();
+  stopVoiceWave();
 }
 
-function openSettingsModal() {
-  document.getElementById('settings-modal').classList.add('active');
+function openSettings() {
+  document.getElementById('settings-dialog').classList.add('active');
 }
 
-function closeSettingsModal() {
-  document.getElementById('settings-modal').classList.remove('active');
+function closeSettings() {
+  document.getElementById('settings-dialog').classList.remove('active');
 }
 
-// Close modals on Esc or backdrop click
+// Keyboard Esc handler & Global clicks
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    closeSignInModal();
-    closeUploadModal();
-    closeLiveModal();
-    closeSettingsModal();
-    document.getElementById('google-account-flyout').classList.remove('active');
+    closeAuthModal();
+    closeAddSourceModal();
+    closeLiveDialog();
+    closeSettings();
+    document.getElementById('user-popover-menu').classList.remove('active');
   }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();
-    document.getElementById('search-input').focus();
+    document.getElementById('global-search').focus();
   }
 });
 
-// Click outside flyout to close
 document.addEventListener('click', (e) => {
-  const flyout = document.getElementById('google-account-flyout');
-  const avatarBtn = document.getElementById('btn-toggle-account-flyout');
-  if (flyout && flyout.classList.contains('active')) {
-    if (!flyout.contains(e.target) && !avatarBtn.contains(e.target)) {
-      flyout.classList.remove('active');
+  const popover = document.getElementById('user-popover-menu');
+  const trigger = document.getElementById('btn-profile-popover-trigger');
+  if (popover?.classList.contains('active')) {
+    if (!popover.contains(e.target) && !trigger?.contains(e.target)) {
+      popover.classList.remove('active');
     }
   }
 });
 
 // ══════════════════════════════════════════════════════════════
-// SOURCES & LIVE NEWS
+// SOURCES & LIVE NEWS STREAM
 // ══════════════════════════════════════════════════════════════
 
-async function fetchLiveNewsStream(force = false) {
-  const syncIcon = document.getElementById('sync-news-icon');
-  if (syncIcon) syncIcon.classList.add('spin');
+async function fetchNewsFeed(force = false) {
+  const icon = document.getElementById('icon-sync-spin');
+  if (icon) icon.style.animation = 'spin 700ms linear infinite';
 
   try {
     const res = await fetch(`/api/news${force ? '?refresh=1' : ''}`);
@@ -2745,41 +2232,39 @@ async function fetchLiveNewsStream(force = false) {
       const data = await res.json();
       if (Array.isArray(data.articles) && data.articles.length > 0) {
         state.sources = data.articles;
-        // Default first 3 sources as active for research grounding
         if (state.activeSourceIds.size === 0) {
           state.sources.slice(0, 3).forEach(s => state.activeSourceIds.add(s.id));
         }
         renderSources();
         if (!state.selectedDocId && state.sources.length > 0) {
-          selectDocument(state.sources[0].id);
+          viewDocument(state.sources[0].id);
         }
-        showToast(`Loaded ${data.articles.length} research stories`);
+        showToast(`Synced ${data.articles.length} research stories`);
       }
     } else {
-      fallbackSampleSources();
+      fallbackSources();
     }
   } catch (err) {
-    fallbackSampleSources();
+    fallbackSources();
   } finally {
-    if (syncIcon) syncIcon.classList.remove('spin');
+    if (icon) icon.style.animation = '';
   }
 }
 
-function fallbackSampleSources() {
+function fallbackSources() {
   if (state.sources.length === 0) {
-    state.sources = [...SAMPLE_SOURCES];
+    state.sources = [...SAMPLE_FALLBACKS];
     state.sources.forEach(s => state.activeSourceIds.add(s.id));
     renderSources();
-    selectDocument(state.sources[0].id);
+    viewDocument(state.sources[0].id);
   }
 }
 
 function renderSources() {
-  const container = document.getElementById('sources-container');
+  const container = document.getElementById('sources-card-list');
   container.innerHTML = '';
 
   const filtered = state.sources.filter(source => {
-    // Category filter
     if (state.filterCategory !== 'all') {
       if (state.filterCategory === 'Notes & Uploads') {
         if (source.type !== 'note' && source.type !== 'upload') return false;
@@ -2787,27 +2272,21 @@ function renderSources() {
         return false;
       }
     }
-    // Search query filter
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
-      const matchTitle = (source.title || '').toLowerCase().includes(q);
-      const matchContent = (source.content || '').toLowerCase().includes(q);
-      const matchExcerpt = (source.excerpt || '').toLowerCase().includes(q);
-      return matchTitle || matchContent || matchExcerpt;
+      const match = (source.title || '').toLowerCase().includes(q) ||
+                    (source.excerpt || '').toLowerCase().includes(q) ||
+                    (source.content || '').toLowerCase().includes(q);
+      if (!match) return false;
     }
     return true;
   });
 
-  document.getElementById('sources-count-badge').textContent = state.sources.length;
-  document.getElementById('grounded-count-label').textContent = `${state.activeSourceIds.size} active for AI`;
-  document.getElementById('chat-grounding-text').textContent = `${state.activeSourceIds.size} sources`;
+  document.getElementById('badge-total-sources').textContent = state.sources.length;
+  document.getElementById('sources-grounding-count').textContent = `${state.activeSourceIds.size} sources in context`;
 
   if (filtered.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding:32px 16px; color:var(--text-tertiary); font-size:12.5px;">
-        No sources matching filter.
-      </div>
-    `;
+    container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-tertiary); font-size:12px;">No matching sources</div>`;
     return;
   }
 
@@ -2816,25 +2295,25 @@ function renderSources() {
     const isSelected = state.selectedDocId === source.id;
 
     const card = document.createElement('div');
-    card.className = `source-card ${isSelected ? 'active-reading' : ''}`;
+    card.className = `source-item-card ${isSelected ? 'selected' : ''}`;
     card.onclick = (e) => {
       if (e.target.type !== 'checkbox') {
-        selectDocument(source.id);
+        viewDocument(source.id);
       }
     };
 
     card.innerHTML = `
-      <div class="source-card-top">
-        <span class="source-badge-tag">${source.icon || '📄'} ${source.category || 'Research'}</span>
-        <label class="source-checkbox-wrap" title="Include in Grounded AI Context">
-          <input type="checkbox" class="source-checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSourceGrounding(${source.id}, this.checked)">
+      <div class="source-item-header">
+        <span class="source-pill-badge">${escapeHtml(source.category || 'General')}</span>
+        <label class="source-check-wrap" title="Include in Grounded Context">
+          <input type="checkbox" class="source-check" ${isChecked ? 'checked' : ''} onchange="toggleGrounding(${source.id}, this.checked)">
         </label>
       </div>
-      <div class="source-card-title">${escapeHTML(source.title)}</div>
-      <div class="source-card-excerpt">${escapeHTML(source.excerpt || '')}</div>
-      <div class="source-card-meta">
-        <span class="source-author-domain">${escapeHTML(source.source || 'Local')}</span>
-        <span>${escapeHTML(source.date || 'Today')}</span>
+      <div class="source-item-title">${escapeHtml(source.title)}</div>
+      <div class="source-item-snippet">${escapeHtml(source.excerpt || '')}</div>
+      <div class="source-item-meta">
+        <span>${escapeHtml(source.source || 'Local')}</span>
+        <span>${escapeHtml(source.date || 'Today')}</span>
       </div>
     `;
 
@@ -2842,32 +2321,27 @@ function renderSources() {
   });
 }
 
-function toggleSourceGrounding(id, isChecked) {
-  if (isChecked) {
-    state.activeSourceIds.add(id);
-  } else {
-    state.activeSourceIds.delete(id);
-  }
-  document.getElementById('grounded-count-label').textContent = `${state.activeSourceIds.size} active for AI`;
-  document.getElementById('chat-grounding-text').textContent = `${state.activeSourceIds.size} sources`;
-  updateReaderToolbar();
+function toggleGrounding(id, checked) {
+  if (checked) state.activeSourceIds.add(id);
+  else state.activeSourceIds.delete(id);
+
+  document.getElementById('sources-grounding-count').textContent = `${state.activeSourceIds.size} sources in context`;
+  updateGroundedBadge();
 }
 
-function selectDocument(id) {
+function viewDocument(id) {
   state.selectedDocId = id;
   const doc = state.sources.find(s => s.id === id);
   if (!doc) return;
 
   renderSources();
-  renderReaderDocument(doc);
+  renderReader(doc);
 }
 
-function renderReaderDocument(doc) {
-  const container = document.getElementById('reader-view');
-  const isGrounded = state.activeSourceIds.has(doc.id);
+function renderReader(doc) {
+  const container = document.getElementById('reader-main-content');
+  const extBtn = document.getElementById('btn-open-original-link');
 
-  // Update external link button
-  const extBtn = document.getElementById('btn-open-external-source');
   if (doc.url) {
     extBtn.style.display = 'inline-flex';
     extBtn.onclick = () => window.open(doc.url, '_blank');
@@ -2875,532 +2349,369 @@ function renderReaderDocument(doc) {
     extBtn.style.display = 'none';
   }
 
-  // Word count & reading time calculation
   const words = (doc.content || '').split(/\s+/).filter(Boolean).length;
-  const readTimeMin = Math.ceil(words / 200) || 1;
+  const readMin = Math.ceil(words / 200) || 1;
 
   container.innerHTML = `
     <article>
-      <div class="reader-header-area">
-        <span class="reader-category-pill">${doc.icon || '📄'} ${escapeHTML(doc.category || 'General')}</span>
-        <h1 class="reader-title">${escapeHTML(doc.title)}</h1>
-        <div class="reader-meta-row">
-          <span class="reader-meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            ${readTimeMin} min read
-          </span>
+      <div class="reader-article-header">
+        <div class="reader-article-category">${escapeHtml(doc.category || 'Research')}</div>
+        <h1 class="reader-article-title">${escapeHtml(doc.title)}</h1>
+        <div class="reader-article-meta">
+          <span>${readMin} min read</span>
           <span>&bull;</span>
-          <span class="reader-meta-item">${words} words</span>
+          <span>${words} words</span>
           <span>&bull;</span>
-          <span class="reader-meta-item">Published by ${escapeHTML(doc.source || 'Notebook')}</span>
+          <span>Source: ${escapeHtml(doc.source || 'Notebook')}</span>
         </div>
       </div>
-      <div class="reader-body">
-        ${formatReaderProse(doc.content || '')}
+      <div class="reader-prose-content">
+        ${formatProse(doc.content || '')}
       </div>
     </article>
   `;
 
-  updateReaderToolbar();
+  updateGroundedBadge();
 }
 
-function updateReaderToolbar() {
-  const groundedBadge = document.getElementById('reader-grounded-status');
+function updateGroundedBadge() {
+  const badge = document.getElementById('reader-grounded-badge');
   if (!state.selectedDocId) {
-    groundedBadge.style.display = 'none';
+    badge.style.display = 'none';
     return;
   }
   const isGrounded = state.activeSourceIds.has(state.selectedDocId);
+  badge.style.display = 'inline-flex';
   if (isGrounded) {
-    groundedBadge.style.display = 'inline-flex';
-    groundedBadge.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      <span>Grounded in AI Chat</span>
-    `;
-    groundedBadge.style.color = 'var(--success)';
+    badge.style.color = 'var(--success)';
+    badge.style.background = 'var(--success-subtle)';
+    badge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Included in Notebook Context</span>`;
   } else {
-    groundedBadge.style.display = 'inline-flex';
-    groundedBadge.innerHTML = `<span>Not included in chat context</span>`;
-    groundedBadge.style.color = 'var(--text-tertiary)';
+    badge.style.color = 'var(--text-tertiary)';
+    badge.style.background = 'var(--bg-subtle)';
+    badge.innerHTML = `<span>Not in active context</span>`;
   }
 }
 
-function formatReaderProse(text) {
+function formatProse(text) {
   if (!text) return '';
-  return text.split(/\n\n+/).map(para => {
-    const trimmed = para.trim();
-    if (trimmed.startsWith('# ')) {
-      return `<h2>${escapeHTML(trimmed.slice(2))}</h2>`;
-    }
+  return text.split(/\n\n+/).map(block => {
+    const trimmed = block.trim();
+    if (trimmed.startsWith('# ')) return `<h2>${escapeHtml(trimmed.slice(2))}</h2>`;
     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      const items = trimmed.split('\n').map(li => `<li>${escapeHTML(li.replace(/^[-*]\s+/, ''))}</li>`).join('');
+      const items = trimmed.split('\n').map(li => `<li>${escapeHtml(li.replace(/^[-*]\s+/, ''))}</li>`).join('');
       return `<ul>${items}</ul>`;
     }
-    return `<p>${escapeHTML(trimmed)}</p>`;
+    return `<p>${escapeHtml(trimmed)}</p>`;
   }).join('');
 }
 
 // ══════════════════════════════════════════════════════════════
-// GROUNDED AI RESEARCH CHAT
+// GROUNDED AI CHAT
 // ══════════════════════════════════════════════════════════════
 
-document.getElementById('chat-form').addEventListener('submit', async (e) => {
+document.getElementById('chat-submit-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const input = document.getElementById('chat-input');
+  const input = document.getElementById('chat-textarea');
   const text = input.value.trim();
   if (!text) return;
 
-  // Add User Message
-  appendChatMessage('user', text);
+  addMessage('user', text);
   input.value = '';
   input.style.height = 'auto';
 
-  // Grounding context from active sources
+  // Grounding sources payload
   const activeSources = state.sources.filter(s => state.activeSourceIds.has(s.id));
-  let contextBlock = '';
+  let context = '';
   activeSources.forEach((src, idx) => {
-    contextBlock += `[Source ${idx + 1}: "${src.title}"]\n${src.content}\n\n`;
+    context += `[Source ${idx + 1}: "${src.title}"]\n${src.content}\n\n`;
   });
 
-  const systemInstruction = `You are a high-level research assistant inside Research Lab (NBLMimic).
-Answer the user's research queries grounded strictly in the provided research sources.
-Whenever citing information from a source, append a strict citation bracket like [1], [2], corresponding to the source number.
-If information is not contained in the sources, clearly state so.
-Keep answers concise, insightful, and formatted with markdown.`;
+  const systemInstruction = `You are a research partner inside Research Lab (NBLMimic).
+Answer questions accurately grounded in the active sources.
+Cite your claims with strict brackets like [1], [2], corresponding to the source number.
+If information is not contained in the sources, say so honestly.`;
 
-  // Append Thinking Indicator
-  const thinkingId = appendChatThinking();
+  const thinkingId = addThinking();
 
   try {
-    const model = document.getElementById('chat-model-select').value;
+    const model = document.getElementById('select-active-model').value;
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: model,
+        model,
         system_instruction: { parts: [{ text: systemInstruction }] },
         contents: [
-          {
-            role: 'user',
-            parts: [{ text: `SOURCES:\n${contextBlock}\n\nUSER QUESTION:\n${text}` }]
-          }
+          { role: 'user', parts: [{ text: `SOURCES:\n${context}\n\nQUESTION:\n${text}` }] }
         ]
       })
     });
 
-    removeChatThinking(thinkingId);
+    removeThinking(thinkingId);
 
     if (res.ok) {
       const data = await res.json();
       const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
-      appendChatMessage('ai', reply);
+      addMessage('ai', reply);
     } else {
       const err = await res.json().catch(() => ({}));
-      appendChatMessage('ai', `⚠️ Error: ${err.error?.message || 'Server request failed'}`);
+      addMessage('ai', `Error: ${err.error?.message || 'Server error occurred'}`);
     }
   } catch (err) {
-    removeChatThinking(thinkingId);
-    appendChatMessage('ai', `⚠️ Network error: ${err.message}. Check that the local server is running.`);
+    removeThinking(thinkingId);
+    addMessage('ai', `Connection error: ${err.message}. Is the server running?`);
   }
 });
 
-function appendChatMessage(role, text) {
-  const stream = document.getElementById('chat-stream');
-  const bubble = document.createElement('div');
-  bubble.className = `chat-bubble ${role}`;
-
-  const content = document.createElement('div');
-  content.className = 'bubble-content';
+function addMessage(role, text) {
+  const container = document.getElementById('chat-messages-stream');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
 
   if (role === 'ai') {
-    // Parse citation tags [1], [2] to interactive clickable pills
-    let html = escapeHTML(text);
-    html = html.replace(/\[(\d+)\]/g, (match, p1) => {
-      return `<button class="citation-tag" onclick="jumpToCitationSource(${p1})">[${p1}]</button>`;
+    let html = escapeHtml(text);
+    html = html.replace(/\[(\d+)\]/g, (m, p1) => {
+      return `<button class="citation-anchor" onclick="navigateToCitation(${p1})">[${p1}]</button>`;
     });
-    // Parse markdown headers and bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
     html = html.replace(/\n/g, '<br>');
-    content.innerHTML = html;
+    div.innerHTML = html;
   } else {
-    content.textContent = text;
+    div.textContent = text;
   }
 
-  bubble.appendChild(content);
-  stream.appendChild(bubble);
-  stream.scrollTop = stream.scrollHeight;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
 }
 
-function appendChatThinking() {
-  const stream = document.getElementById('chat-stream');
-  const id = 'thinking-' + Date.now();
-  const bubble = document.createElement('div');
-  bubble.className = 'chat-bubble ai';
-  bubble.id = id;
-  bubble.innerHTML = `
-    <div class="bubble-content" style="color:var(--text-tertiary); font-style:italic;">
-      Synthesizing across active sources...
-    </div>
-  `;
-  stream.appendChild(bubble);
-  stream.scrollTop = stream.scrollHeight;
+function addThinking() {
+  const container = document.getElementById('chat-messages-stream');
+  const id = 'think-' + Date.now();
+  const div = document.createElement('div');
+  div.className = 'chat-msg ai';
+  div.id = id;
+  div.style.color = 'var(--text-tertiary)';
+  div.style.fontStyle = 'italic';
+  div.textContent = 'Synthesizing sources...';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
   return id;
 }
 
-function removeChatThinking(id) {
+function removeThinking(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
 
-function jumpToCitationSource(index) {
+function navigateToCitation(index) {
   const activeSources = state.sources.filter(s => state.activeSourceIds.has(s.id));
-  const target = activeSources[index - 1];
-  if (target) {
-    selectDocument(target.id);
-    showToast(`Navigated to Citation [${index}]: ${target.title}`);
+  const doc = activeSources[index - 1];
+  if (doc) {
+    viewDocument(doc.id);
+    showToast(`Jumped to citation [${index}]: ${doc.title}`);
   }
 }
 
-function clearChatHistory() {
-  const stream = document.getElementById('chat-stream');
-  stream.innerHTML = `
-    <div class="chat-bubble ai">
-      <div class="bubble-content">
-        Chat cleared. Ready for your next research question!
-      </div>
+function sendQuickPrompt(prompt) {
+  document.getElementById('chat-textarea').value = prompt;
+  document.getElementById('chat-submit-form').dispatchEvent(new Event('submit'));
+}
+
+function clearChat() {
+  document.getElementById('chat-messages-stream').innerHTML = `
+    <div class="chat-msg ai">
+      Chat cleared. How can I assist with your research?
     </div>
   `;
 }
 
 // ══════════════════════════════════════════════════════════════
-// LAB NOTES SYNTHESIS
+// LAB NOTES & SCRATCHPAD
 // ══════════════════════════════════════════════════════════════
 
-const notesEditor = document.getElementById('notes-editor');
+const notesPad = document.getElementById('notes-pad');
 
-notesEditor.addEventListener('input', () => {
-  state.notesContent = notesEditor.value;
+notesPad.addEventListener('input', () => {
+  state.notesContent = notesPad.value;
   localStorage.setItem('nbl_lab_notes', state.notesContent);
-  updateNotesStats();
+  updateNotesWordCount();
 });
 
-function loadSavedNotes() {
+function initNotes() {
   const saved = localStorage.getItem('nbl_lab_notes');
   if (saved) {
     state.notesContent = saved;
-    notesEditor.value = saved;
-    updateNotesStats();
+    notesPad.value = saved;
+    updateNotesWordCount();
   }
 }
 
-function updateNotesStats() {
-  const words = state.notesContent.trim().split(/\s+/).filter(Boolean).length;
-  document.getElementById('notes-stat-words').textContent = `${words} words`;
-  document.getElementById('notes-save-status').textContent = 'Saved to Drive (Local)';
+function updateNotesWordCount() {
+  const count = state.notesContent.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('notes-word-counter').textContent = `${count} words`;
 }
 
-function copyLabNotes() {
-  navigator.clipboard.writeText(notesEditor.value);
-  showToast('Lab notes copied to clipboard');
+function copyNotes() {
+  navigator.clipboard.writeText(notesPad.value);
+  showToast('Notes copied to clipboard');
 }
 
-function downloadLabNotes() {
-  const blob = new Blob([notesEditor.value], { type: 'text/markdown;charset=utf-8' });
+function downloadNotes() {
+  const blob = new Blob([notesPad.value], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Research_Notes_${new Date().toISOString().slice(0, 10)}.md`;
+  a.download = `Lab_Notes_${new Date().toISOString().slice(0, 10)}.md`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Saved notes to .md file');
+  showToast('Exported notes as Markdown file');
 }
 
-function switchPanelTab(tab) {
+function setPanelTab(tab) {
   state.currentTab = tab;
   document.getElementById('tab-btn-chat').classList.toggle('active', tab === 'chat');
   document.getElementById('tab-btn-notes').classList.toggle('active', tab === 'notes');
-  document.getElementById('tab-content-chat').classList.toggle('active', tab === 'chat');
-  document.getElementById('tab-content-notes').classList.toggle('active', tab === 'notes');
+  document.getElementById('tab-view-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+  document.getElementById('tab-view-notes').style.display = tab === 'notes' ? 'flex' : 'none';
 }
 
 // ══════════════════════════════════════════════════════════════
-// MANUAL SOURCE / FILE UPLOAD
+// MANUAL UPLOADS & SOURCES
 // ══════════════════════════════════════════════════════════════
 
-function addManualSource() {
-  const title = document.getElementById('manual-source-title').value.trim();
-  const content = document.getElementById('manual-source-content').value.trim();
+function submitManualSource() {
+  const title = document.getElementById('manual-doc-title').value.trim();
+  const content = document.getElementById('manual-doc-content').value.trim();
   if (!title || !content) {
-    showToast('Please provide both title and content');
+    showToast('Please enter title and content');
     return;
   }
 
-  const newSource = {
+  const newDoc = {
     id: Date.now(),
     type: 'note',
-    icon: '📝',
-    title: title,
-    source: 'My Research Note',
+    title,
+    source: 'My Notebook',
     category: 'Notes & Uploads',
-    excerpt: content.slice(0, 160) + (content.length > 160 ? '…' : ''),
-    content: content,
+    excerpt: content.slice(0, 140) + '…',
+    content,
     date: 'Just now',
     timestamp: Date.now()
   };
 
-  state.sources.unshift(newSource);
-  state.activeSourceIds.add(newSource.id);
+  state.sources.unshift(newDoc);
+  state.activeSourceIds.add(newDoc.id);
   renderSources();
-  selectDocument(newSource.id);
-  closeUploadModal();
-  document.getElementById('manual-source-title').value = '';
-  document.getElementById('manual-source-content').value = '';
-  showToast('Source added to research notebook');
+  viewDocument(newDoc.id);
+  closeAddSourceModal();
+  document.getElementById('manual-doc-title').value = '';
+  document.getElementById('manual-doc-content').value = '';
+  showToast('Document added to notebook');
 }
 
-// Drag & drop file uploads
-const dropzone = document.getElementById('file-dropzone');
-dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
-dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-dropzone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropzone.classList.remove('dragover');
-  if (e.dataTransfer.files?.length) {
-    handleFileUpload(e.dataTransfer.files[0]);
-  }
-});
-
-document.getElementById('file-input').addEventListener('change', (e) => {
+document.getElementById('input-file-select').addEventListener('change', (e) => {
   if (e.target.files?.length) {
-    handleFileUpload(e.target.files[0]);
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target.result;
+      const newDoc = {
+        id: Date.now(),
+        type: 'upload',
+        title: file.name,
+        source: 'Upload',
+        category: 'Notes & Uploads',
+        excerpt: text.slice(0, 140) + '…',
+        content: text,
+        date: 'Just now',
+        timestamp: Date.now()
+      };
+      state.sources.unshift(newDoc);
+      state.activeSourceIds.add(newDoc.id);
+      renderSources();
+      viewDocument(newDoc.id);
+      closeAddSourceModal();
+      showToast(`Uploaded ${file.name}`);
+    };
+    reader.readAsText(file);
   }
 });
-
-function handleFileUpload(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const text = e.target.result;
-    const newSource = {
-      id: Date.now(),
-      type: 'upload',
-      icon: '📄',
-      title: file.name,
-      source: 'Uploaded File',
-      category: 'Notes & Uploads',
-      excerpt: text.slice(0, 160) + (text.length > 160 ? '…' : ''),
-      content: text,
-      date: 'Just now',
-      timestamp: Date.now()
-    };
-    state.sources.unshift(newSource);
-    state.activeSourceIds.add(newSource.id);
-    renderSources();
-    selectDocument(newSource.id);
-    closeUploadModal();
-    showToast(`Uploaded ${file.name}`);
-  };
-  reader.readAsText(file);
-}
 
 // ══════════════════════════════════════════════════════════════
 // GEMINI 3.8 LIVE AUDIO VISUALIZER
 // ══════════════════════════════════════════════════════════════
 
-let visualizerAnimationId = null;
-let isLiveMicActive = false;
+let voiceAnimId = null;
+let isVoiceLive = false;
 
-function startVisualizerAnimation() {
-  const canvas = document.getElementById('live-canvas');
+function startVoiceWave() {
+  const canvas = document.getElementById('voice-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let phase = 0;
 
-  function renderWave() {
+  function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const midY = canvas.height / 2;
+    const mid = canvas.height / 2;
 
-    for (let wave = 0; wave < 3; wave++) {
+    for (let w = 0; w < 3; w++) {
       ctx.beginPath();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = wave === 0 ? '#38bdf8' : (wave === 1 ? '#818cf8' : '#c084fc');
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = w === 0 ? '#38bdf8' : (w === 1 ? '#818cf8' : '#c084fc');
 
       for (let x = 0; x < canvas.width; x++) {
-        const freq = 0.02 + wave * 0.01;
-        const amp = isLiveMicActive ? 24 : 8;
-        const y = midY + Math.sin(x * freq + phase + wave) * amp * Math.sin(x / canvas.width * Math.PI);
+        const amp = isVoiceLive ? 22 : 6;
+        const y = mid + Math.sin(x * 0.025 + phase + w) * amp * Math.sin(x / canvas.width * Math.PI);
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
-
-    phase += isLiveMicActive ? 0.08 : 0.03;
-    visualizerAnimationId = requestAnimationFrame(renderWave);
+    phase += isVoiceLive ? 0.09 : 0.03;
+    voiceAnimId = requestAnimationFrame(loop);
   }
-
-  renderWave();
+  loop();
 }
 
-function stopVisualizerAnimation() {
-  if (visualizerAnimationId) {
-    cancelAnimationFrame(visualizerAnimationId);
-    visualizerAnimationId = null;
-  }
+function stopVoiceWave() {
+  if (voiceAnimId) cancelAnimationFrame(voiceAnimId);
+  voiceAnimId = null;
 }
 
-function toggleLiveAudioSession() {
-  isLiveMicActive = !isLiveMicActive;
-  const btn = document.getElementById('btn-live-mic-toggle');
-  const status = document.getElementById('live-status-text');
-  const transcript = document.getElementById('live-transcript');
+function toggleVoiceSession() {
+  isVoiceLive = !isVoiceLive;
+  const btn = document.getElementById('btn-toggle-voice-stream');
+  const label = document.getElementById('voice-status-label');
+  const transcript = document.getElementById('voice-transcript');
 
-  btn.classList.toggle('active', isLiveMicActive);
-  if (isLiveMicActive) {
-    status.textContent = 'Listening and streaming bidirectional audio...';
-    transcript.innerHTML = `<strong>Live Session Active:</strong> Gemini 3.8 Live listening to conversation...`;
-    showToast('Gemini 3.8 Live audio active');
+  btn.classList.toggle('active', isVoiceLive);
+  if (isVoiceLive) {
+    label.textContent = 'Streaming spoken reasoning...';
+    transcript.innerHTML = `<strong>Live Session Active:</strong> Listening for your research inquiries...`;
+    showToast('Gemini 3.8 Live session connected');
   } else {
-    status.textContent = 'Session paused. Click microphone to speak.';
+    label.textContent = 'Session paused. Tap to resume';
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-// THEME & SETTINGS
+// AUDIO OVERVIEW PODCAST GENERATION
 // ══════════════════════════════════════════════════════════════
 
-function loadSavedTheme() {
-  const saved = localStorage.getItem('nbl_theme') || 'light';
-  applyTheme(saved);
-}
-
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  const sunIcon = document.getElementById('theme-sun-icon');
-  const moonIcon = document.getElementById('theme-moon-icon');
-  if (theme === 'dark') {
-    sunIcon.style.display = 'block';
-    moonIcon.style.display = 'none';
-  } else {
-    sunIcon.style.display = 'none';
-    moonIcon.style.display = 'block';
-  }
-  renderOfficialGoogleButton();
-}
-
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  localStorage.setItem('nbl_theme', next);
-}
-
-async function checkServerHealth() {
-  try {
-    const res = await fetch('/api/health');
-    if (res.ok) {
-      const data = await res.json();
-      const label = document.getElementById('settings-key-sync-label');
-      if (data.hasServerKey) {
-        label.textContent = '✓ Securely loaded from .env (Active)';
-        label.style.color = 'var(--success)';
-      } else {
-        label.textContent = 'No key in .env. Enter your key above.';
-      }
-    }
-  } catch (e) {}
-}
-
-function saveSettings() {
-  const defaultModel = document.getElementById('settings-model-default').value;
-  document.getElementById('chat-model-select').value = defaultModel;
-  closeSettingsModal();
-  showToast('Settings saved successfully');
-}
-
-function resetLocalStorage() {
-  if (confirm('Clear local cache and reload fresh stories?')) {
-    localStorage.removeItem('nbl_lab_notes');
-    state.sources = [];
-    state.activeSourceIds.clear();
-    fetchLiveNewsStream(true);
-    showToast('Local database reset');
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// UI EVENT LISTENERS
-// ══════════════════════════════════════════════════════════════
-
-function setupUIEventListeners() {
-  // Collapsible panels
-  const app = document.getElementById('app');
-  document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
-    app.classList.toggle('sidebar-collapsed');
-  });
-  document.getElementById('btn-toggle-sidepanel').addEventListener('click', () => {
-    app.classList.toggle('sidepanel-collapsed');
-  });
-
-  // Theme toggle
-  document.getElementById('btn-theme-toggle').addEventListener('click', toggleTheme);
-
-  // Modals
-  document.getElementById('btn-open-signin').addEventListener('click', openSignInModal);
-  document.getElementById('btn-toggle-account-flyout').addEventListener('click', toggleGoogleAccountFlyout);
-  document.getElementById('btn-open-live').addEventListener('click', openLiveModal);
-  document.getElementById('btn-header-add-source').addEventListener('click', openUploadModal);
-  document.getElementById('btn-sidebar-add').addEventListener('click', openUploadModal);
-  document.getElementById('btn-settings-open').addEventListener('click', openSettingsModal);
-  document.getElementById('btn-sync-news').addEventListener('click', () => fetchLiveNewsStream(true));
-
-  // Category filter pills
-  document.querySelectorAll('.cat-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      state.filterCategory = pill.getAttribute('data-category');
-      renderSources();
-    });
-  });
-
-  // Search input
-  const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('input', (e) => {
-    state.searchQuery = e.target.value.trim();
-    renderSources();
-  });
-
-  // Copy document text
-  document.getElementById('btn-copy-doc').addEventListener('click', () => {
-    const doc = state.sources.find(s => s.id === state.selectedDocId);
-    if (doc?.content) {
-      navigator.clipboard.writeText(doc.content);
-      showToast('Document text copied to clipboard');
-    }
-  });
-
-  // Audio overview podcast synthesis
-  document.getElementById('btn-podcast-overview').addEventListener('click', generateAudioOverview);
-}
-
-// ══════════════════════════════════════════════════════════════
-// AUDIO OVERVIEW (PODCAST SYNTHESIZER)
-// ══════════════════════════════════════════════════════════════
-
-function generateAudioOverview() {
+document.getElementById('btn-trigger-podcast').addEventListener('click', () => {
   const activeSources = state.sources.filter(s => state.activeSourceIds.has(s.id));
   if (activeSources.length === 0) {
-    showToast('Select at least 1 active source for Audio Overview');
+    showToast('Select at least 1 source for Audio Overview');
     return;
   }
 
-  showToast('Generating Audio Overview Podcast...');
-  const prompt = `Synthesize an engaging spoken deep dive (podcast host style) summarizing key takeaways across the active sources: ${activeSources.map(s => s.title).join('; ')}.`;
-  
-  appendChatMessage('user', `Generate an Audio Overview summarizing the ${activeSources.length} active research sources.`);
-  
-  const thinkingId = appendChatThinking();
+  showToast('Synthesizing Audio Overview...');
+  addMessage('user', `Generate an Audio Overview summarizing the ${activeSources.length} active research sources.`);
+
+  const prompt = `Synthesize an engaging spoken deep-dive podcast script reviewing the key takeaways across: ${activeSources.map(s => s.title).join('; ')}.`;
+  const thinkingId = addThinking();
 
   fetch('/api/chat', {
     method: 'POST',
@@ -3410,28 +2721,135 @@ function generateAudioOverview() {
       contents: [{ role: 'user', parts: [{ text: prompt }] }]
     })
   }).then(r => r.json()).then(data => {
-    removeChatThinking(thinkingId);
-    const script = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Audio Overview complete.';
-    appendChatMessage('ai', `🎙️ **Audio Overview Synthesis:**\n\n${script}`);
+    removeThinking(thinkingId);
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Overview generated.';
+    addMessage('ai', `🎙️ **Audio Overview Synthesis:**\n\n${reply}`);
 
-    // If Web Speech API is supported, speak the overview
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(script.slice(0, 300));
-      utterance.rate = 1.05;
-      window.speechSynthesis.speak(utterance);
-      showToast('Playing spoken audio overview');
+      const u = new SpeechSynthesisUtterance(reply.slice(0, 280));
+      u.rate = 1.05;
+      window.speechSynthesis.speak(u);
+      showToast('Playing spoken overview');
     }
-  }).catch(err => {
-    removeChatThinking(thinkingId);
-    appendChatMessage('ai', `Could not generate audio overview: ${err.message}`);
+  }).catch(e => {
+    removeThinking(thinkingId);
+    addMessage('ai', `Could not synthesize audio overview: ${e.message}`);
   });
+});
+
+// ══════════════════════════════════════════════════════════════
+// THEME & SETTINGS
+// ══════════════════════════════════════════════════════════════
+
+function initTheme() {
+  const theme = localStorage.getItem('nbl_theme') || 'light';
+  setTheme(theme);
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('icon-sun').style.display = theme === 'dark' ? 'block' : 'none';
+  document.getElementById('icon-moon').style.display = theme === 'dark' ? 'none' : 'block';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  setTheme(next);
+  localStorage.setItem('nbl_theme', next);
+}
+
+async function checkHealth() {
+  try {
+    const res = await fetch('/api/health');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.hasServerKey) {
+        document.getElementById('setting-key-status').textContent = '✓ Securely loaded from .env';
+        document.getElementById('setting-key-status').style.color = 'var(--success)';
+      }
+    }
+  } catch (e) {}
+}
+
+function saveSettings() {
+  const model = document.getElementById('setting-default-model').value;
+  document.getElementById('select-active-model').value = model;
+  closeSettings();
+  showToast('Settings saved');
+}
+
+function resetLocalCache() {
+  if (confirm('Reset local cache and reload stories?')) {
+    localStorage.removeItem('nbl_lab_notes');
+    state.sources = [];
+    state.activeSourceIds.clear();
+    fetchNewsFeed(true);
+    closeSettings();
+    showToast('Local database reloaded');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
-// HELPERS
+// EVENT BINDINGS
 // ══════════════════════════════════════════════════════════════
 
-function escapeHTML(str) {
+function bindUIEvents() {
+  const app = document.getElementById('app-root');
+  document.getElementById('btn-toggle-left-sidebar').addEventListener('click', () => {
+    app.classList.toggle('sidebar-collapsed');
+  });
+  document.getElementById('btn-toggle-right-panel').addEventListener('click', () => {
+    app.classList.toggle('sidepanel-collapsed');
+  });
+
+  document.getElementById('btn-toggle-theme').addEventListener('click', toggleTheme);
+  document.getElementById('btn-trigger-login-modal').addEventListener('click', openAuthModal);
+  document.getElementById('btn-profile-popover-trigger').addEventListener('click', () => {
+    document.getElementById('user-popover-menu').classList.toggle('active');
+  });
+
+  document.getElementById('btn-open-live-dialog').addEventListener('click', openLiveDialog);
+  document.getElementById('btn-quick-add-source').addEventListener('click', openAddSourceModal);
+  document.getElementById('btn-sidebar-add-source').addEventListener('click', openAddSourceModal);
+  document.getElementById('btn-sync-live-news').addEventListener('click', () => fetchNewsFeed(true));
+  document.getElementById('btn-open-settings').addEventListener('click', openSettings);
+
+  // Category filter tabs
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.filterCategory = tab.getAttribute('data-cat');
+      renderSources();
+    });
+  });
+
+  // Search input
+  document.getElementById('global-search').addEventListener('input', (e) => {
+    state.searchQuery = e.target.value.trim();
+    renderSources();
+  });
+
+  // Copy document
+  document.getElementById('btn-copy-reader-text').addEventListener('click', () => {
+    const doc = state.sources.find(s => s.id === state.selectedDocId);
+    if (doc?.content) {
+      navigator.clipboard.writeText(doc.content);
+      showToast('Document text copied');
+    }
+  });
+
+  // Enter to send textarea
+  document.getElementById('chat-textarea').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('chat-submit-form').dispatchEvent(new Event('submit'));
+    }
+  });
+}
+
+function escapeHtml(str) {
   if (!str) return '';
   return String(str)
     .replace(/&/g, '&amp;')
@@ -3442,17 +2860,17 @@ function escapeHTML(str) {
 }
 
 function showToast(msg) {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = 'toast-item';
-  toast.textContent = msg;
-  container.appendChild(toast);
+  const tray = document.getElementById('toast-tray');
+  const pill = document.createElement('div');
+  pill.className = 'toast-pill';
+  pill.textContent = msg;
+  tray.appendChild(pill);
   setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
-    toast.style.transition = 'all 200ms ease';
-    setTimeout(() => toast.remove(), 200);
-  }, 3200);
+    pill.style.opacity = '0';
+    pill.style.transform = 'translateY(6px)';
+    pill.style.transition = 'all 140ms ease';
+    setTimeout(() => pill.remove(), 160);
+  }, 2800);
 }
 </script>
 

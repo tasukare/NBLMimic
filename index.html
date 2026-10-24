@@ -6,7 +6,6 @@
 <title>Research Lab</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="alternate icon" href="favicon.ico">
-<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleGSI()"></script>
 <style>
 /* ════════════════════════════════════════════════
    DESIGN TOKENS
@@ -951,95 +950,59 @@ svg { display: block; flex-shrink: 0; }
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 32px 4px;
+  padding: 16px 32px 0;
   flex-shrink: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.filter-bar::-webkit-scrollbar {
-  display: none;
 }
 .filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 12px;
+  display: flex; align-items: center; gap: 5px;
+  height: 28px;
+  padding: 0 10px;
   font-size: var(--text-tiny);
   font-weight: 500;
   color: var(--text-secondary);
-  background: var(--bg-surface, var(--bg-primary));
+  background: transparent;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
   white-space: nowrap;
   cursor: pointer;
-  user-select: none;
 }
-.filter-btn:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-  transform: translateY(-1px);
-}
+.filter-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
 .filter-btn.active {
   background: var(--accent-light);
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
-}
-.filter-icon {
-  font-size: 13px;
-  line-height: 1;
-}
-.filter-label {
-  font-size: 11.5px;
 }
 .filter-count {
   font-size: 10px;
   font-weight: 700;
-  padding: 1.5px 6px;
+  padding: 1px 5px;
   border-radius: var(--radius-full);
-  background: rgba(0, 0, 0, 0.06);
-  color: inherit;
+  background: rgba(0, 0, 0, 0.05);
   margin-left: 2px;
 }
 .filter-btn.active .filter-count {
-  background: rgba(37, 99, 235, 0.2);
-  color: var(--accent);
+  background: rgba(37, 99, 235, 0.15);
 }
-.filter-sep {
-  width: 1px;
-  height: 20px;
-  background: var(--border);
-  margin: 0 4px;
-  flex-shrink: 0;
-}
-.sort-wrap {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
+.filter-sep { width: 1px; height: 16px; background: var(--border); margin: 0 2px; }
 .sort-select {
-  height: 30px;
-  padding: 0 10px;
+  margin-left: auto;
+  height: 28px;
+  padding: 0 8px;
   font-size: var(--text-tiny);
   font-weight: 600;
   color: var(--text-primary);
-  background: var(--bg-surface, var(--bg-primary));
+  background: var(--bg-surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
   transition: all var(--transition-fast);
-  outline: none;
 }
 .sort-select:hover, .sort-select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-subtle);
+  outline: none;
 }
 
 /* Real-time Live News Banner */
@@ -1084,29 +1047,24 @@ svg { display: block; flex-shrink: 0; }
   flex: 1;
 }
 
-/* Category Badges & Distinct Color System */
+/* Category Badges */
 .category-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2.5px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
   font-size: 10.5px;
   font-weight: 600;
   border: 1px solid transparent;
   line-height: 1.3;
-  letter-spacing: 0.01em;
 }
 .cat-ai       { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; border-color: rgba(139, 92, 246, 0.25); }
 .cat-science  { background: rgba(5, 150, 105, 0.12);  color: #059669; border-color: rgba(5, 150, 105, 0.25); }
 .cat-tech     { background: rgba(37, 99, 235, 0.12);  color: #2563EB; border-color: rgba(37, 99, 235, 0.25); }
 .cat-business { background: rgba(217, 119, 6, 0.12);  color: #D97706; border-color: rgba(217, 119, 6, 0.25); }
 .cat-world    { background: rgba(2, 132, 199, 0.12);  color: #0284C7; border-color: rgba(2, 132, 199, 0.25); }
-.cat-docs     { background: rgba(220, 38, 38, 0.12);  color: #DC2626; border-color: rgba(220, 38, 38, 0.25); }
-.cat-data     { background: rgba(14, 165, 233, 0.12); color: #0284C7; border-color: rgba(14, 165, 233, 0.25); }
-.cat-code     { background: rgba(245, 158, 11, 0.12); color: #D97706; border-color: rgba(245, 158, 11, 0.25); }
 .cat-notes    { background: rgba(79, 70, 229, 0.12);  color: #4F46E5; border-color: rgba(79, 70, 229, 0.25); }
-.cat-media    { background: rgba(236, 72, 153, 0.12); color: #DB2777; border-color: rgba(236, 72, 153, 0.25); }
 .cat-general  { background: var(--bg-tertiary);        color: var(--text-secondary); border-color: var(--border); }
 
 .doc-icon.news { background: rgba(16, 185, 129, 0.12); color: #10B981; }
@@ -1122,8 +1080,8 @@ svg { display: block; flex-shrink: 0; }
   overflow-y: auto;
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
   align-content: start;
 }
 .doc-card {
@@ -1132,7 +1090,7 @@ svg { display: block; flex-shrink: 0; }
   border-radius: var(--radius-md);
   padding: 16px;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal), transform var(--transition-normal);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1144,28 +1102,8 @@ svg { display: block; flex-shrink: 0; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .doc-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
-.doc-card.active-context {
-  border-color: rgba(37, 99, 235, 0.45);
-  background: linear-gradient(to bottom, var(--bg-primary), rgba(37, 99, 235, 0.03));
-}
-.doc-card-reading-time {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-.badge-accent {
-  background: var(--accent-light);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
 }
 .doc-card:hover .doc-card-actions { opacity: 1; }
 .doc-card-header { display: flex; align-items: flex-start; gap: 10px; }
@@ -2811,24 +2749,13 @@ svg { display: block; flex-shrink: 0; }
       </button>
       <!-- Real Google Sign In / Account Container -->
       <div id="header-auth-container" class="header-auth-container">
-        <!-- 1. Google Sign-In Button (shown when signed out) -->
-        <!-- Notice badge for file:// protocol -->
-        <button id="file-protocol-badge" style="display:none; align-items:center; gap:6px; font-size:12px; height:32px; padding:0 10px; border-radius:var(--radius-full); background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-weight:600; cursor:pointer;" onclick="openFileProtocolModal()" title="Running via file://. Click for instructions to enable Google OAuth on localhost:3000">
-          <span>⚠️ file:// mode</span>
-        </button>
-
-        <!-- Official Google Identity Services button container -->
-        <div id="g-header-btn-container" class="g-header-btn-container" style="display:none;"></div>
-
-        <!-- Google Sign-In Button (shown when signed out or fallback) -->
-        <button class="btn-google-header-signin" id="btn-header-signin" onclick="triggerGoogleSignIn(event)" aria-label="Sign in with Google">
-          <svg class="google-icon" width="18" height="18" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        <!-- 1. Sign-In Button (shown when signed out) -->
+        <button class="btn-google-header-signin" id="btn-header-signin" onclick="openGoogleSignInScreen(event)" aria-label="Sign In">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
           </svg>
-          <span>Sign in</span>
+          <span>Sign In</span>
         </button>
 
         <!-- 2. Google Profile Avatar (shown when signed in) -->
@@ -2863,7 +2790,7 @@ svg { display: block; flex-shrink: 0; }
             </div>
 
             <div class="gam-body">
-              <button class="gam-item" onclick="triggerGoogleSignIn(event, 'switch')">
+              <button class="gam-item" onclick="openGoogleSignInScreen(event, 'switch')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                   <circle cx="8.5" cy="7" r="4"/>
@@ -2916,7 +2843,7 @@ svg { display: block; flex-shrink: 0; }
             <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.3"/>
           </svg>
           All Documents
-          <span class="nav-item-count" id="sidebar-all-count">0</span>
+          <span class="nav-item-count">24</span>
         </button>
         <button class="nav-item" data-view="chat" onclick="switchView('chat', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -2941,10 +2868,33 @@ svg { display: block; flex-shrink: 0; }
       <div class="sidebar-divider"></div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-label">Categories</div>
+        <div class="sidebar-section-label">Tags</div>
       </div>
-      <nav class="sidebar-nav" id="sidebar-categories-nav">
-        <!-- Rendered dynamically by renderSidebarCategories() -->
+      <nav class="sidebar-nav">
+        <button class="nav-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="3" fill="currentColor" opacity=".3"/>
+            <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          research
+          <span class="nav-item-count">12</span>
+        </button>
+        <button class="nav-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="3" fill="#059669" opacity=".25"/>
+            <circle cx="7" cy="7" r="3" stroke="#059669" stroke-width="1.2"/>
+          </svg>
+          reading-list
+          <span class="nav-item-count">7</span>
+        </button>
+        <button class="nav-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="3" fill="#D97706" opacity=".25"/>
+            <circle cx="7" cy="7" r="3" stroke="#D97706" stroke-width="1.2"/>
+          </svg>
+          citations
+          <span class="nav-item-count">5</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -2979,25 +2929,10 @@ svg { display: block; flex-shrink: 0; }
 
       <div class="library-header">
         <div>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <h1 class="library-title" id="library-title">Research Library & Sources</h1>
-            <span class="badge-accent" id="library-badge-count">0 items</span>
-          </div>
-          <p class="library-subtitle" id="library-subtitle">Live news stream, uploaded documents & notes · Synced with Google Drive (50 GB)</p>
+          <h1 class="library-title" id="library-title">Research Library & Sources</h1>
+          <p class="library-subtitle" id="library-subtitle">Personal research documents & notes · Synced with Google Drive (50 GB)</p>
         </div>
         <div class="library-actions">
-          <button class="btn btn-secondary btn-sm" id="btn-refresh-news" onclick="fetchLiveNews(true)" title="Fetch and auto-categorize latest research stories">
-            <svg id="refresh-news-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-            <span id="refresh-news-label">Refresh News</span>
-          </button>
-          <button class="btn btn-secondary btn-sm" id="btn-toggle-all-context" onclick="toggleSelectAllSources()" title="Toggle including all visible sources in research context">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span id="btn-toggle-all-label">Toggle Context</span>
-          </button>
           <button class="btn btn-secondary btn-sm" id="btn-sync-drive" onclick="syncWithGoogleDrive(true)" title="Sync your workspace with Google Drive">
             <svg id="sync-drive-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
@@ -3006,7 +2941,7 @@ svg { display: block; flex-shrink: 0; }
             </svg>
             <span id="sync-drive-label">Sync Drive</span>
           </button>
-          <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()" title="Upload PDF, notes, code, or import web URLs">
+          <button class="btn btn-primary btn-sm" id="btn-upload-2" onclick="openModal()" title="Upload PDF, notes, or import web URLs">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
@@ -3016,7 +2951,37 @@ svg { display: block; flex-shrink: 0; }
       </div>
 
       <div class="filter-bar" id="category-filter-bar">
-        <!-- Injected dynamically by renderCategoryFilterBar() -->
+        <button class="filter-btn active" data-category="all" onclick="setCategoryFilter('all', this)">
+          🌐 All <span class="filter-count" id="count-all">0</span>
+        </button>
+        <button class="filter-btn" data-category="AI & ML" onclick="setCategoryFilter('AI & ML', this)">
+          🤖 AI & ML <span class="filter-count" id="count-ai">0</span>
+        </button>
+        <button class="filter-btn" data-category="Tech & Dev" onclick="setCategoryFilter('Tech & Dev', this)">
+          💻 Tech & Dev <span class="filter-count" id="count-tech">0</span>
+        </button>
+        <button class="filter-btn" data-category="Science" onclick="setCategoryFilter('Science', this)">
+          🔬 Science <span class="filter-count" id="count-science">0</span>
+        </button>
+        <button class="filter-btn" data-category="Business" onclick="setCategoryFilter('Business', this)">
+          💼 Business <span class="filter-count" id="count-biz">0</span>
+        </button>
+        <button class="filter-btn" data-category="World & Policy" onclick="setCategoryFilter('World & Policy', this)">
+          🌍 World <span class="filter-count" id="count-world">0</span>
+        </button>
+        <button class="filter-btn" data-category="Notes & Uploads" onclick="setCategoryFilter('Notes & Uploads', this)">
+          📝 Notes & Uploads <span class="filter-count" id="count-notes">0</span>
+        </button>
+
+        <div class="filter-sep"></div>
+
+        <select class="sort-select" id="sort-select" aria-label="Sort documents" onchange="handleSortChange(this.value)">
+          <option value="latest" selected>⏱️ Auto-Sort: Newest First</option>
+          <option value="alpha">🔤 Alphabetical (A → Z)</option>
+          <option value="category">🏷️ By Category</option>
+          <option value="source">📰 By Publication</option>
+          <option value="active">⭐ Active in Context First</option>
+        </select>
       </div>
 
       <div class="library-grid" id="doc-grid">
@@ -3156,20 +3121,19 @@ svg { display: block; flex-shrink: 0; }
         <p class="settings-subtitle">Manage your Research Lab preferences</p>
 
         <div class="settings-section">
-          <div class="settings-section-title">Google Account</div>
+          <div class="settings-section-title">Drive Account</div>
           <div class="settings-account-card" id="settings-account-card">
-            <img class="settings-account-avatar" id="settings-account-avatar" src="" alt="Google Profile">
+            <img class="settings-account-avatar" id="settings-account-avatar" src="" alt="Profile">
             <div class="settings-account-info">
               <div class="settings-account-name" id="settings-account-name">Not Signed In</div>
-              <div class="settings-account-email" id="settings-account-email">Click to connect your Google Account</div>
+              <div class="settings-account-email" id="settings-account-email">Sign in with your username & Gmail to connect Drive</div>
               <div class="settings-account-badge">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="#4285F4"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                <span>Google Account</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#4285F4"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Google Drive 50 GB</span>
               </div>
             </div>
             <div class="settings-account-actions">
-              <button class="btn btn-primary btn-sm" id="btn-settings-signin" onclick="triggerGoogleSignIn(event)">Sign In with Google</button>
-              <button class="btn btn-ghost btn-sm" id="btn-settings-signout" onclick="handleGoogleSignOut(event)" style="display:none; color:var(--danger);">Sign Out</button>
+              <button class="btn btn-primary btn-sm" onclick="openGoogleSignInScreen(event)">Sign In</button>
             </div>
           </div>
         </div>
@@ -3635,37 +3599,29 @@ svg { display: block; flex-shrink: 0; }
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
 
-    <!-- Google 4-Color Logo -->
-    <div class="g-logo-wrap">
-      <svg width="44" height="44" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-      </svg>
+    <!-- Cloud Drive Icon -->
+    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 14px;">
+      <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(37,99,235,0.08); border: 1.5px solid rgba(37,99,235,0.22); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          <line x1="12" y1="11" x2="12" y2="17"></line>
+          <line x1="9" y1="14" x2="15" y2="14"></line>
+        </svg>
+      </div>
     </div>
 
     <!-- Title & Subtitle -->
-    <h1 class="g-heading" id="google-signin-heading">Research Lab Account</h1>
-    <p class="g-subheading">Sign in to your notebook & research workspace</p>
+    <h1 class="g-heading" id="google-signin-heading" style="text-align: center; margin-bottom: 4px;">Sign In</h1>
+    <p class="g-subheading" id="google-signin-subheading" style="text-align: center; margin-bottom: 18px;">
+      Sign in with your username & Gmail to sync with <strong>50 GB Google Drive</strong>
+    </p>
 
-    <!-- Official Google Identity Services Real Sign-In Button Container -->
-    <div class="g-official-auth-wrap" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 28px 0 20px; width: 100%;">
-      <div id="g-official-signin-button" style="display: flex; justify-content: center; width: 100%; min-height: 48px;"></div>
-    </div>
-
-    <!-- Direct Email Sign-In (Official Google Style fallback) -->
-    <div id="g-direct-signin-wrap" style="width: 100%; margin-top: 8px;">
-      <div style="display: flex; align-items: center; width: 100%; gap: 12px; margin: 12px 0 16px;">
-        <div style="flex: 1; height: 1px; background: var(--border);"></div>
-        <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;" id="g-signin-mode-label">or sign in with email</span>
-        <div style="flex: 1; height: 1px; background: var(--border);"></div>
-      </div>
-
+    <!-- Sign-In Form (Username, Gmail, Password) -->
+    <div id="g-direct-signin-wrap" style="width: 100%;">
       <!-- Mode indicator: Sign In / Register -->
       <div style="display:flex; gap:4px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:3px; margin-bottom:14px;">
-        <button type="button" id="g-mode-signin" onclick="switchSigninMode('signin')" style="flex:1; padding:6px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:var(--accent); color:#fff; transition:background 150ms;">Sign In</button>
-        <button type="button" id="g-mode-register" onclick="switchSigninMode('register')" style="flex:1; padding:6px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:transparent; color:var(--text-secondary); transition:background 150ms;">Register</button>
+        <button type="button" id="g-mode-signin" onclick="switchSigninMode('signin')" style="flex:1; padding:7px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:var(--accent); color:#fff; transition:background 150ms;">Sign In</button>
+        <button type="button" id="g-mode-register" onclick="switchSigninMode('register')" style="flex:1; padding:7px 10px; border:none; border-radius:calc(var(--radius-md) - 2px); font-size:12.5px; font-weight:600; cursor:pointer; background:transparent; color:var(--text-secondary); transition:background 150ms;">Register</button>
       </div>
 
       <!-- Error / info message -->
@@ -3678,7 +3634,7 @@ svg { display: block; flex-shrink: 0; }
         </div>
         <div class="g-textfield" style="margin: 0;">
           <input type="email" id="g-direct-email" class="g-textfield-input" placeholder=" " required />
-          <label for="g-direct-email" class="g-textfield-label">Email</label>
+          <label for="g-direct-email" class="g-textfield-label">Gmail Address</label>
         </div>
         <div class="g-textfield" id="g-name-field-wrap" style="margin: 0; display:none;">
           <input type="text" id="g-direct-name" class="g-textfield-input" placeholder=" " />
@@ -3713,7 +3669,7 @@ svg { display: block; flex-shrink: 0; }
 
     <!-- Terms note -->
     <div style="font-size:12px; color:var(--text-tertiary); line-height:1.4; margin-top:20px; text-align: center;">
-      To continue, Google will share your name, email address, language preference, and profile picture with Research Lab.
+      Signing in provisions your personalized workspace in Google Drive: <code style="font-family:var(--font-mono); color:var(--accent); font-size:11px;">NBLMimic_Database/user/&lt;username&gt;/</code> with 50 GB storage quota.
     </div>
 
     <!-- Footer Links -->
@@ -3725,40 +3681,6 @@ svg { display: block; flex-shrink: 0; }
         <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a>
         <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════ FILE PROTOCOL NOTICE MODAL ═══════════════════ -->
-<div class="modal-backdrop" id="file-protocol-modal" role="dialog" aria-modal="true" aria-labelledby="fpm-title">
-  <div class="modal" style="max-width: 520px;">
-    <div class="modal-header">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-size:22px;">⚠️</span>
-        <h3 class="modal-title" id="fpm-title">Google Sign-In Requires Local Server</h3>
-      </div>
-      <button class="btn-icon" onclick="closeFileProtocolModal()" aria-label="Close dialog">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-    </div>
-    <div class="modal-body" style="display:flex; flex-direction:column; gap:14px; font-size:14px; color:var(--text-secondary); line-height:1.6;">
-      <p>
-        You opened this app directly from disk via <code>file://</code> protocol. Google OAuth blocks <code>file://</code> URLs for security, which causes <strong>Error 400: invalid_request</strong>.
-      </p>
-      <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:14px;">
-        <strong style="color:var(--text-primary); display:block; margin-bottom:8px;">How to enable Google Sign-In:</strong>
-        <ol style="margin-left:20px; display:flex; flex-direction:column; gap:6px;">
-          <li>In this project folder, double-click <code style="color:var(--accent); font-weight:600;">start.bat</code> (or run <code>npm start</code> in a terminal).</li>
-          <li>Open <a href="http://localhost:3000" target="_blank" style="color:var(--accent); font-weight:600; text-decoration:underline;">http://localhost:3000</a> in your browser.</li>
-        </ol>
-      </div>
-      <p style="font-size:13px; color:var(--text-tertiary);">
-        On <code>http://localhost:3000</code>, your Google Client ID is authorized and real Google Sign-In works with 1-click!
-      </p>
-    </div>
-    <div class="modal-footer" style="justify-content:space-between;">
-      <button class="btn btn-ghost" onclick="closeFileProtocolModal()">Dismiss</button>
-      <a class="btn btn-primary" href="http://localhost:3000" target="_blank" style="text-decoration:none;">Open http://localhost:3000 ↗</a>
     </div>
   </div>
 </div>
@@ -3878,7 +3800,9 @@ let DOCS = (() => {
     const saved = localStorage.getItem('nblmimic_user_sources');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      // Clean up any old news scraping articles from previous versions
+      const cleaned = parsed.filter(d => d.source !== 'Hacker News' && d.source !== 'Ars Technica' && d.source !== 'ScienceDaily' && d.source !== 'Google AI Research' && d.source !== 'Reuters / Policy');
+      if (cleaned.length > 0) return cleaned;
     }
     return DEFAULT_DOCS;
   } catch (e) {
@@ -4645,66 +4569,37 @@ function clearChatHistory() {
 }
 
 /* ════ REAL-TIME LIVE NEWS, CATEGORY & AUTO-SORT ENGINE ════ */
-const CATEGORY_DEFINITIONS = [
-  { id: 'all', label: 'All Sources', icon: '🌐', colorClass: 'cat-general' },
-  { id: 'AI & ML', label: 'AI & ML', icon: '🧠', colorClass: 'cat-ai', keywords: /\b(ai|llm|gpt|gemini|claude|machine learning|neural|deep learning|transformer|diffusion|robot|robotics|vision|anthropic|openai|qwen|copilot|deepmind|agentic|agents|hugging face|mistral|rlhf|multimodal)\b/i },
-  { id: 'Tech & Dev', label: 'Tech & Dev', icon: '💻', colorClass: 'cat-tech', keywords: /\b(software|hardware|developer|programming|linux|apple|google|microsoft|meta|nvidia|chips|semiconductor|cloud|database|api|cybersecurity|crypto|app|framework|git|web)\b/i },
-  { id: 'Science', label: 'Science', icon: '🔬', colorClass: 'cat-science', keywords: /\b(space|nasa|asteroid|physics|biology|rna|dna|cell|genome|medical|health|disease|vaccine|climate|earth|quantum|science|planet|mars|crispr|astronomy|neuro|molecule|biotech|genetics|pharma)\b/i },
-  { id: 'Business', label: 'Business', icon: '📈', colorClass: 'cat-business', keywords: /\b(market|stock|invest|economy|startup|merger|tesla|spacex|revenue|funding|business|bank|trade|cost|price|inflation|etf|nasdaq|venture|valuation|acquisition|earnings|ipo)\b/i },
-  { id: 'World & Policy', label: 'World & Policy', icon: '🌍', colorClass: 'cat-world', keywords: /\b(war|court|judge|president|police|cops|treaty|government|policy|law|un|global|sanction|election|senate|congress|geopolitics|treaties|diplomacy|nato|defense|military)\b/i },
-  { id: 'Documents', label: 'Documents', icon: '📄', colorClass: 'cat-docs', types: ['pdf', 'docx', 'doc', 'pptx', 'ppt', 'epub', 'rtf'] },
-  { id: 'Data & Research', label: 'Data & Research', icon: '📊', colorClass: 'cat-data', types: ['json', 'csv', 'xlsx', 'xls', 'xml', 'yaml', 'yml', 'sql'] },
-  { id: 'Code & Scripts', label: 'Code & Scripts', icon: '⚡', colorClass: 'cat-code', types: ['code', 'py', 'js', 'ts', 'go', 'rs', 'java', 'c', 'cpp', 'sh'] },
-  { id: 'Notes & Uploads', label: 'Notes & Uploads', icon: '📝', colorClass: 'cat-notes', types: ['note', 'txt', 'md', 'html', 'htm'] },
-  { id: 'Images & Media', label: 'Images & Media', icon: '🖼️', colorClass: 'cat-media', types: ['image', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'] }
-];
-
-let CURRENT_CATEGORY_FILTER = (() => {
-  try { return localStorage.getItem('nblmimic_category_filter') || 'all'; } catch (e) { return 'all'; }
-})();
-let CURRENT_SORT_MODE = (() => {
-  try { return localStorage.getItem('nblmimic_sort_mode') || 'latest'; } catch (e) { return 'latest'; }
-})();
+let CURRENT_CATEGORY_FILTER = 'all';
+let CURRENT_SORT_MODE = 'latest';
 let isFetchingNews = false;
 
-function detectCategory(title = '', content = '', type = '') {
-  // 1. Match by explicit file/source type
-  if (type) {
-    const t = String(type).toLowerCase();
-    for (const def of CATEGORY_DEFINITIONS) {
-      if (def.types && def.types.includes(t)) {
-        return def.id;
-      }
-    }
+function detectCategory(title = '', content = '') {
+  const text = (title + ' ' + content).toLowerCase();
+  if (/\b(ai|llm|gpt|gemini|claude|machine learning|neural|deep learning|transformer|model|robot|vision|anthropic|openai|qwen|copilot)\b/.test(text)) {
+    return 'AI & ML';
   }
-
-  // 2. Match by content/title semantics
-  const text = (String(title) + ' ' + String(content)).toLowerCase();
-  for (const def of CATEGORY_DEFINITIONS) {
-    if (def.keywords && def.keywords.test(text)) {
-      return def.id;
-    }
+  if (/\b(space|nasa|asteroid|physics|biology|rna|dna|cell|genome|medical|health|disease|vaccine|climate|earth|quantum|science|planet)\b/.test(text)) {
+    return 'Science';
   }
-
-  // 3. Fallback
+  if (/\b(market|stock|invest|economy|startup|merger|tesla|spacex|revenue|funding|business|bank|trade|cost|price|inflation|crypto)\b/.test(text)) {
+    return 'Business';
+  }
+  if (/\b(war|court|judge|president|police|cops|treaty|government|policy|law|un|global|sanction|election|senate)\b/.test(text)) {
+    return 'World & Policy';
+  }
   return 'Tech & Dev';
 }
 
 function getCategoryColor(cat) {
-  const match = CATEGORY_DEFINITIONS.find(c => c.id.toLowerCase() === (cat || '').toLowerCase());
-  return match ? match.colorClass : 'cat-general';
-}
-
-function getCategoryIcon(cat) {
-  const match = CATEGORY_DEFINITIONS.find(c => c.id.toLowerCase() === (cat || '').toLowerCase());
-  return match ? match.icon : '📰';
-}
-
-function calcReadingTime(text = '') {
-  if (!text) return '< 1 min read';
-  const words = String(text).trim().split(/\s+/).length;
-  const mins = Math.max(1, Math.ceil(words / 180));
-  return `${mins} min read`;
+  switch (cat) {
+    case 'AI & ML': return 'cat-ai';
+    case 'Science': return 'cat-science';
+    case 'Tech & Dev': return 'cat-tech';
+    case 'Business': return 'cat-business';
+    case 'World & Policy': return 'cat-world';
+    case 'Notes & Uploads': return 'cat-notes';
+    default: return 'cat-general';
+  }
 }
 
 function sortDocsList(docs, sortMode = CURRENT_SORT_MODE) {
@@ -4712,32 +4607,18 @@ function sortDocsList(docs, sortMode = CURRENT_SORT_MODE) {
   switch (sortMode) {
     case 'latest':
       return list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-    case 'oldest':
-      return list.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
     case 'alpha':
       return list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-    case 'alpha-desc':
-      return list.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
     case 'category':
-      return list.sort((a, b) => {
-        const catA = a.category || detectCategory(a.title, a.content, a.type);
-        const catB = b.category || detectCategory(b.title, b.content, b.type);
-        return catA.localeCompare(catB) || ((b.timestamp || 0) - (a.timestamp || 0));
-      });
+      return list.sort((a, b) => (a.category || '').localeCompare(b.category || '') || ((b.timestamp || 0) - (a.timestamp || 0)));
     case 'source':
-      return list.sort((a, b) => (a.source || '').localeCompare(b.source || '') || ((b.timestamp || 0) - (a.timestamp || 0)));
+      return list.sort((a, b) => (a.source || '').localeCompare(b.source || ''));
     case 'active':
       return list.sort((a, b) => {
-        const aAct = Array.from(activeSourceIds).some(id => String(id) === String(a.id)) ? 1 : 0;
-        const bAct = Array.from(activeSourceIds).some(id => String(id) === String(b.id)) ? 1 : 0;
+        const aAct = activeSourceIds.has(a.id) ? 1 : 0;
+        const bAct = activeSourceIds.has(b.id) ? 1 : 0;
         if (aAct !== bAct) return bAct - aAct;
         return (b.timestamp || 0) - (a.timestamp || 0);
-      });
-    case 'size':
-      return list.sort((a, b) => {
-        const aLen = (a.content ? a.content.length : 0) || (a.sizeBytes || 0);
-        const bLen = (b.content ? b.content.length : 0) || (b.sizeBytes || 0);
-        return bLen - aLen;
       });
     default:
       return list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -4746,119 +4627,16 @@ function sortDocsList(docs, sortMode = CURRENT_SORT_MODE) {
 
 function handleSortChange(val) {
   CURRENT_SORT_MODE = val;
-  try { localStorage.setItem('nblmimic_sort_mode', val); } catch (e) {}
   renderLibrary();
   renderSidepanelSources();
-  const sortNames = {
-    'latest': 'Recency (Newest First)',
-    'oldest': 'Oldest First',
-    'alpha': 'Title (A → Z)',
-    'alpha-desc': 'Title (Z → A)',
-    'category': 'Grouped by Category',
-    'source': 'Grouped by Publication',
-    'active': 'Active in Context First',
-    'size': 'Content Length / File Size'
-  };
-  showToast(`Auto-sorted library by ${sortNames[val] || val}`, 'info');
+  showToast(`Auto-sorted library by ${val === 'latest' ? 'Recency (Latest)' : val === 'alpha' ? 'Alphabetical' : val === 'category' ? 'Category' : val === 'source' ? 'Publication' : 'Active Status'}`, 'info');
 }
 
-function setCategoryFilter(category) {
+function setCategoryFilter(category, btn) {
   CURRENT_CATEGORY_FILTER = category;
-  try { localStorage.setItem('nblmimic_category_filter', category); } catch (e) {}
+  document.querySelectorAll('#category-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   renderLibrary();
-  const filterLabel = category === 'all' ? 'All Sources' : category;
-  showToast(`Filter applied: ${filterLabel}`, 'info');
-}
-
-function filterByCategoryFromSidebar(catId) {
-  CURRENT_CATEGORY_FILTER = catId;
-  try { localStorage.setItem('nblmimic_category_filter', catId); } catch (e) {}
-  switchView('library');
-  renderLibrary();
-}
-
-function renderCategoryFilterBar(counts) {
-  const container = document.getElementById('category-filter-bar');
-  if (!container) return;
-
-  // Filter definitions to display: 'all' + categories that have items > 0 or are the currently selected filter
-  const visibleCategories = CATEGORY_DEFINITIONS.filter(def => {
-    if (def.id === 'all') return true;
-    if (def.id.toLowerCase() === CURRENT_CATEGORY_FILTER.toLowerCase()) return true;
-    return (counts[def.id] || 0) > 0;
-  });
-
-  const buttonsHtml = visibleCategories.map(def => {
-    const isActive = CURRENT_CATEGORY_FILTER.toLowerCase() === def.id.toLowerCase();
-    const count = def.id === 'all' ? (counts.all || 0) : (counts[def.id] || 0);
-    return `
-      <button class="filter-btn ${isActive ? 'active' : ''}" 
-              data-cat="${def.id}" 
-              onclick="setCategoryFilter('${def.id}')"
-              title="Filter by ${def.label} (${count})">
-        <span class="filter-icon">${def.icon}</span>
-        <span class="filter-label">${def.label}</span>
-        <span class="filter-count">${count}</span>
-      </button>
-    `;
-  }).join('');
-
-  const sortSelectHtml = `
-    <div class="sort-wrap">
-      <label for="sort-select" style="font-size:11px; font-weight:600; color:var(--text-tertiary); display:flex; align-items:center; gap:4px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="21" y1="10" x2="3" y2="10"></line>
-          <line x1="21" y1="6" x2="3" y2="6"></line>
-          <line x1="21" y1="14" x2="3" y2="14"></line>
-          <line x1="21" y1="18" x2="3" y2="18"></line>
-        </svg>
-        Sort:
-      </label>
-      <select id="sort-select" class="sort-select" onchange="handleSortChange(this.value)" title="Choose auto-sort mode">
-        <option value="latest" ${CURRENT_SORT_MODE === 'latest' ? 'selected' : ''}>⏱️ Newest First</option>
-        <option value="oldest" ${CURRENT_SORT_MODE === 'oldest' ? 'selected' : ''}>⌛ Oldest First</option>
-        <option value="alpha" ${CURRENT_SORT_MODE === 'alpha' ? 'selected' : ''}>🔤 Title (A → Z)</option>
-        <option value="alpha-desc" ${CURRENT_SORT_MODE === 'alpha-desc' ? 'selected' : ''}>🔠 Title (Z → A)</option>
-        <option value="category" ${CURRENT_SORT_MODE === 'category' ? 'selected' : ''}>📁 Category</option>
-        <option value="source" ${CURRENT_SORT_MODE === 'source' ? 'selected' : ''}>📰 Publication</option>
-        <option value="active" ${CURRENT_SORT_MODE === 'active' ? 'selected' : ''}>⚡ In Context First</option>
-        <option value="size" ${CURRENT_SORT_MODE === 'size' ? 'selected' : ''}>📄 Size / Length</option>
-      </select>
-    </div>
-  `;
-
-  container.innerHTML = buttonsHtml + '<div class="filter-sep"></div>' + sortSelectHtml;
-}
-
-function renderSidebarCategories(counts) {
-  const nav = document.getElementById('sidebar-categories-nav');
-  if (!nav) return;
-
-  const categoriesWithItems = CATEGORY_DEFINITIONS.filter(def => def.id !== 'all' && (counts[def.id] || 0) > 0);
-
-  if (categoriesWithItems.length === 0) {
-    nav.innerHTML = `
-      <div style="padding: 6px 14px; font-size: 11px; color: var(--text-tertiary);">
-        No categories yet
-      </div>
-    `;
-    return;
-  }
-
-  nav.innerHTML = categoriesWithItems.map(def => {
-    const isActive = (typeof CURRENT_VIEW === 'undefined' || CURRENT_VIEW === 'library') && 
-                     CURRENT_CATEGORY_FILTER.toLowerCase() === def.id.toLowerCase();
-    const count = counts[def.id] || 0;
-    return `
-      <button class="nav-item ${isActive ? 'active' : ''}" 
-              onclick="filterByCategoryFromSidebar('${def.id}')"
-              title="Show ${def.label} (${count} sources)">
-        <span style="font-size:13px; line-height:1;">${def.icon}</span>
-        <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;">${def.label}</span>
-        <span class="nav-item-count">${count}</span>
-      </button>
-    `;
-  }).join('');
 }
 
 function toggleSourceActive(docId, event) {
@@ -4907,11 +4685,11 @@ async function fetchLiveNews(force = false) {
     if (res.ok) {
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
-        // Retain user custom notes or uploaded files
-        const userCustomDocs = DOCS.filter(d => d.type === 'note' || d.type === 'pdf' || d.source === 'User Upload' || String(d.id).startsWith('drive-'));
+        // Retain user custom notes or uploaded PDFs
+        const userCustomDocs = DOCS.filter(d => d.type === 'note' || (d.type === 'pdf' && d.source === 'User Upload'));
         const incomingNews = data.articles;
         const merged = [...incomingNews, ...userCustomDocs];
-        merged.forEach((item, i) => { if (!item.id) item.id = i + 1; });
+        merged.forEach((item, i) => { item.id = i + 1; });
 
         DOCS = sortDocsList(merged, CURRENT_SORT_MODE);
         DOCS.forEach(d => activeSourceIds.add(d.id));
@@ -4942,116 +4720,88 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
   if (!grid) return;
   grid.innerHTML = '';
 
-  if (categoryFilter !== undefined && categoryFilter !== null) {
-    CURRENT_CATEGORY_FILTER = categoryFilter;
-  }
-
-  // If searchQuery wasn't explicitly passed, check header search input
-  if (searchQuery === '' && typeof document !== 'undefined') {
-    const sInput = document.querySelector('.search-input');
-    if (sInput && sInput.value.trim()) {
-      searchQuery = sInput.value.trim();
-    }
-  }
-
-  // 1. Calculate dynamic counts across all categories
-  const counts = { all: DOCS.length };
-  CATEGORY_DEFINITIONS.forEach(def => {
-    if (def.id !== 'all') counts[def.id] = 0;
-  });
+  // 1. Update Category Counts
+  const counts = {
+    all: DOCS.length,
+    'AI & ML': 0,
+    'Tech & Dev': 0,
+    'Science': 0,
+    'Business': 0,
+    'World & Policy': 0,
+    'Notes & Uploads': 0
+  };
 
   DOCS.forEach(d => {
-    const c = d.category || detectCategory(d.title, d.content, d.type);
-    if (counts[c] !== undefined) {
-      counts[c]++;
-    } else {
-      counts['Tech & Dev'] = (counts['Tech & Dev'] || 0) + 1;
-    }
+    const c = d.category || detectCategory(d.title, d.content);
+    if (counts[c] !== undefined) counts[c]++;
+    else counts['Tech & Dev']++;
   });
 
-  // 2. Render filter pills and sidebar categories
-  renderCategoryFilterBar(counts);
-  renderSidebarCategories(counts);
+  const countAll = document.getElementById('count-all');
+  const countAi = document.getElementById('count-ai');
+  const countTech = document.getElementById('count-tech');
+  const countScience = document.getElementById('count-science');
+  const countBiz = document.getElementById('count-biz');
+  const countWorld = document.getElementById('count-world');
+  const countNotes = document.getElementById('count-notes');
 
-  // Update sidebar all count and library badge count if present
-  const sidebarAllCount = document.getElementById('sidebar-all-count');
-  if (sidebarAllCount) sidebarAllCount.textContent = DOCS.length;
-  const badgeCount = document.getElementById('library-badge-count');
-  if (badgeCount) badgeCount.textContent = DOCS.length;
+  if (countAll) countAll.textContent = counts.all;
+  if (countAi) countAi.textContent = counts['AI & ML'];
+  if (countTech) countTech.textContent = counts['Tech & Dev'];
+  if (countScience) countScience.textContent = counts['Science'];
+  if (countBiz) countBiz.textContent = counts['Business'];
+  if (countWorld) countWorld.textContent = counts['World & Policy'];
+  if (countNotes) countNotes.textContent = counts['Notes & Uploads'];
 
-  // 3. Filter by Category
+  // 2. Filter by Category
   let filtered = DOCS;
-  if (CURRENT_CATEGORY_FILTER && CURRENT_CATEGORY_FILTER !== 'all') {
+  if (categoryFilter && categoryFilter !== 'all') {
     filtered = filtered.filter(d => {
-      const c = d.category || detectCategory(d.title, d.content, d.type);
-      return c.toLowerCase() === CURRENT_CATEGORY_FILTER.toLowerCase();
+      const c = d.category || detectCategory(d.title, d.content);
+      return c.toLowerCase() === categoryFilter.toLowerCase();
     });
   }
 
-  // 4. Filter by Search Query
+  // 3. Filter by Search Query
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(d => 
       (d.title || '').toLowerCase().includes(q) || 
       (d.source || '').toLowerCase().includes(q) || 
       (d.excerpt || '').toLowerCase().includes(q) ||
-      (d.content || '').toLowerCase().includes(q) ||
       (d.category || '').toLowerCase().includes(q) ||
       (d.tags && d.tags.some(t => t.toLowerCase().includes(q)))
     );
   }
 
-  // 5. Auto-Sort
+  // 4. Auto-Sort
   filtered = sortDocsList(filtered, CURRENT_SORT_MODE);
 
   // Update header subtitle
   const subtitle = document.getElementById('library-subtitle');
   const activeCount = DOCS.filter(d => Array.from(activeSourceIds).some(id => String(id) === String(d.id))).length;
   if (subtitle) {
-    const sortLabel = CURRENT_SORT_MODE === 'latest' ? 'Newest' :
-                      CURRENT_SORT_MODE === 'oldest' ? 'Oldest' :
-                      CURRENT_SORT_MODE === 'alpha' ? 'A → Z' :
-                      CURRENT_SORT_MODE === 'alpha-desc' ? 'Z → A' :
-                      CURRENT_SORT_MODE === 'category' ? 'Category' :
-                      CURRENT_SORT_MODE === 'source' ? 'Publication' :
-                      CURRENT_SORT_MODE === 'active' ? 'Active' : 'Size';
-    subtitle.textContent = `${DOCS.length} sources · ${activeCount} active in context · Sorted by ${sortLabel}`;
+    subtitle.textContent = `${DOCS.length} total sources · ${activeCount} active in research context · Auto-sorted by ${CURRENT_SORT_MODE}`;
   }
 
-  // 6. Handle Empty State
   if (filtered.length === 0) {
-    const isFiltered = CURRENT_CATEGORY_FILTER !== 'all' || searchQuery;
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align:center; padding: 48px 16px; color:var(--text-tertiary);">
-        <div style="font-size:36px; margin-bottom:12px;">🔍</div>
-        <div style="font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">No documents found</div>
-        <div style="font-size:12.5px; color:var(--text-secondary); max-width:420px; margin:0 auto 16px;">
-          ${searchQuery ? `No sources match "${searchQuery}" in ${CURRENT_CATEGORY_FILTER === 'all' ? 'any category' : CURRENT_CATEGORY_FILTER}.` : `No sources found in category "${CURRENT_CATEGORY_FILTER}".`}
-        </div>
-        ${isFiltered ? `
-          <button class="btn btn-secondary btn-sm" onclick="setCategoryFilter('all'); const si = document.querySelector('.search-input'); if(si){si.value='';}" style="margin:0 auto;">
-            Reset Filters
-          </button>
-        ` : `
-          <button class="btn btn-primary btn-sm" onclick="fetchLiveNews(true)" style="margin:0 auto;">
-            Refresh Live News
-          </button>
-        `}
+        <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+        <div style="font-size:14px; font-weight:600; color:var(--text-secondary);">No documents match this category</div>
+        <div style="font-size:12px; margin-top:4px;">Try selecting another category or click "Refresh News".</div>
       </div>
     `;
     return;
   }
 
-  // 7. Render Document Cards
   filtered.forEach((doc, i) => {
     const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
-    const cat = doc.category || detectCategory(doc.title, doc.content, doc.type);
+    const cat = doc.category || detectCategory(doc.title, doc.content);
     const catClass = getCategoryColor(cat);
-    const catIcon = getCategoryIcon(cat);
-    const readingTime = calcReadingTime(doc.content || doc.excerpt);
 
     const card = document.createElement('div');
-    card.className = `doc-card ${isChecked ? 'active-context' : ''}`;
+    card.className = 'doc-card';
     card.style.animationDelay = `${Math.min(i * 25, 250)}ms`;
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
@@ -5067,17 +4817,11 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
 
     card.innerHTML = `
       <div class="doc-card-header">
-        <div class="doc-icon ${doc.type || 'news'}">${doc.icon || catIcon}</div>
+        <div class="doc-icon ${doc.type || 'news'}">${doc.icon || '📰'}</div>
         <div class="doc-card-meta">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:3px;">
-            <span class="category-badge ${catClass}">
-              <span>${catIcon}</span>
-              <span>${cat}</span>
-            </span>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span class="doc-card-reading-time" title="Estimated reading time">⏱️ ${readingTime}</span>
-              <div class="source-check ${isChecked ? 'checked' : ''}" title="${isChecked ? 'Active in research context (click to toggle)' : 'Excluded from research context (click to include)'}" onclick="toggleSourceActive('${doc.id}', event)"></div>
-            </div>
+            <span class="category-badge ${catClass}">${cat}</span>
+            <div class="source-check ${isChecked ? 'checked' : ''}" title="${isChecked ? 'Active in research context (click to toggle)' : 'Excluded from research context (click to include)'}" onclick="toggleSourceActive('${doc.id}', event)"></div>
           </div>
           <div class="doc-card-title">${doc.title}</div>
           <div class="doc-card-source">${doc.source} · <span style="color:var(--text-tertiary);">${doc.date || 'Today'}</span></div>
@@ -5091,11 +4835,6 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
         </div>
         <div style="display:flex; align-items:center; gap:6px; margin-left:auto;">
           ${sourceLink}
-          <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${(doc.title || '').replace(/"/g, '&quot;')}&quot; from ${doc.source || 'this source'}.'); switchView('chat');">
-            <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
-              <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
-            </svg>
-          </button>
           <button class="btn-icon" title="Rename Document" aria-label="Rename document" style="width:24px; height:24px; padding:3px; color:var(--text-secondary);" onclick="event.stopPropagation(); renameDocument('${doc.id}')">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
               <path d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a2.5 2.5 0 01.445-.758l8.61-8.609zm1.414 1.06a.25.25 0 00-.354 0L10.8 3.76l1.44 1.44 1.273-1.273a.25.25 0 000-.354l-1.086-1.086zM9.739 4.82L2.946 11.614a1 1 0 00-.178.303l-.634 2.22 2.221-.635c.112-.032.216-.093.303-.178l6.793-6.793L9.74 4.82z"/>
@@ -5121,7 +4860,7 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
             <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clip-rule="evenodd"/>
           </svg>
         </button>
-        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${(doc.title || '').replace(/"/g, '&quot;')}&quot; from ${doc.source || 'this source'}.'); switchView('chat');">
+        <button class="btn-icon" title="Ask Agent about this document" aria-label="Ask Agent" onclick="event.stopPropagation(); askPreset('Analyze and summarize the key implications of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.'); switchView('chat');">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M11 6.5c0 2.5-2.2 4.5-4.9 4.5a5.4 5.4 0 01-2.4-.57L1 11.5l.95-2.28A4.3 4.3 0 011.1 6.5C1.1 4 3.3 2 6 2s5 2 5 4.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
@@ -5147,21 +4886,17 @@ function renderSidepanelSources() {
 
   sorted.forEach(doc => {
     const isChecked = Array.from(activeSourceIds).some(id => String(id) === String(doc.id));
-    const cat = doc.category || detectCategory(doc.title, doc.content, doc.type);
+    const cat = doc.category || detectCategory(doc.title, doc.content);
     const catClass = getCategoryColor(cat);
-    const catIcon = getCategoryIcon(cat);
 
     const item = document.createElement('div');
-    item.className = `source-item ${isChecked ? 'active' : ''}`;
+    item.className = 'source-item';
     item.innerHTML = `
-      <div class="source-check ${isChecked ? 'checked' : ''}" role="checkbox" aria-checked="${isChecked}" tabindex="0" title="${isChecked ? 'Click to exclude from agent context' : 'Click to include in agent context'}"></div>
-      <div class="source-item-icon doc-icon ${doc.type || 'news'}">${doc.icon || catIcon}</div>
+      <div class="source-check ${isChecked ? 'checked' : ''}" role="checkbox" aria-checked="${isChecked}" tabindex="0"></div>
+      <div class="source-item-icon doc-icon ${doc.type || 'news'}">${doc.icon || '📰'}</div>
       <div class="source-item-body">
         <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
-          <span class="category-badge ${catClass}" style="font-size:9.5px; padding:1px 6px;">
-            <span style="font-size:10px;">${catIcon}</span>
-            <span>${cat}</span>
-          </span>
+          <span class="category-badge ${catClass}" style="font-size:9.5px; padding:1px 5px;">${cat}</span>
         </div>
         <div class="source-item-title">${doc.title}</div>
         <div class="source-item-meta">${doc.source} · ${doc.date || 'Today'}</div>
@@ -5202,10 +4937,8 @@ function openSourcePanel(num) {
   const doc = DOCS.find(d => String(d.id) === String(num));
   const contextTab = document.getElementById('sp-context');
   if (doc && contextTab) {
-    const cat = doc.category || detectCategory(doc.title, doc.content, doc.type);
+    const cat = doc.category || detectCategory(doc.title, doc.content);
     const catClass = getCategoryColor(cat);
-    const catIcon = getCategoryIcon(cat);
-    const readingTime = calcReadingTime(doc.content || doc.excerpt);
     const sourceLink = doc.url ? `<div style="margin-top:8px;"><a href="${doc.url}" target="_blank" rel="noopener" style="font-size:12px; color:var(--accent); text-decoration:none;">🔗 Open Original Live Article (${doc.source})</a></div>` : '';
 
     contextTab.innerHTML = `
@@ -5223,14 +4956,8 @@ function openSourcePanel(num) {
         </div>
         <div class="insight-card">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-            <span class="category-badge ${catClass}">
-              <span>${catIcon}</span>
-              <span>${cat}</span>
-            </span>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span class="doc-card-reading-time">⏱️ ${readingTime}</span>
-              <span style="font-size:11px; color:var(--text-tertiary);">${doc.date || 'Today'}</span>
-            </div>
+            <span class="category-badge ${catClass}">${cat}</span>
+            <span style="font-size:11px; color:var(--text-tertiary);">${doc.date || 'Today'}</span>
           </div>
           <div class="insight-card-text" style="font-weight:600; margin-bottom:4px; font-size:13.5px; line-height:1.4;">${doc.title}</div>
           <div class="insight-card-meta" style="font-size:11px; color:var(--text-tertiary); margin-bottom:8px;">${doc.source}</div>
@@ -5240,7 +4967,7 @@ function openSourcePanel(num) {
           </div>
           ${sourceLink}
         </div>
-        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="askPreset('Provide a detailed breakdown and synthesis of &quot;${(doc.title || '').replace(/"/g, '&quot;')}&quot; from ${doc.source || 'this source'}.')">
+        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px;" onclick="askPreset('Provide a detailed breakdown and synthesis of &quot;${doc.title.replace(/"/g, '&quot;')}&quot; from ${doc.source}.')">
           Ask Agent about this source
         </button>
       </div>
@@ -5587,23 +5314,18 @@ function deleteNotebook(id) {
 }
 
 /* ════ VIEW SWITCHING ════ */
-let CURRENT_VIEW = 'library';
 function switchView(viewId, btn) {
-  CURRENT_VIEW = viewId;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById('view-' + viewId);
   if (target) target.classList.add('active');
 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (btn) {
-    btn.classList.add('active');
-  } else {
+  if (btn) btn.classList.add('active');
+  else {
     document.querySelectorAll(`.nav-item[data-view="${viewId}"]`).forEach(n => n.classList.add('active'));
   }
 
-  if (viewId === 'library') {
-    renderLibrary();
-  } else if (viewId === 'chat') {
+  if (viewId === 'chat') {
     renderChat();
     updateApiKeyBanner();
   }
@@ -6338,275 +6060,8 @@ Keep spoken responses conversational, concise, natural, and insightful.${sources
 }
 
 /* ════════════════════════════════════════════════
-   GOOGLE ACCOUNT & REAL PROFILE AVATAR MANAGEMENT
+   USER ACCOUNT & SESSION MANAGEMENT
 ════════════════════════════════════════════════ */
-let GOOGLE_CLIENT_ID = '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com';
-let googleGsiInitialized = false;
-
-// Decode Google Identity Services Credential JWT
-function parseJwt(token) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error('Failed to parse Google JWT credential:', e);
-    return null;
-  }
-}
-
-let googleTokenClient = null;
-
-// Initialize official Google Identity Services SDK & OAuth 2.0 Token Client
-function initGoogleGSI() {
-  if (typeof google === 'undefined' || !google.accounts) {
-    setTimeout(() => {
-      if (typeof google !== 'undefined' && google.accounts && !googleGsiInitialized) {
-        initGoogleGSI();
-      }
-    }, 400);
-    return;
-  }
-
-  try {
-    // 1. Google Identity Services ID token & One Tap
-    if (google.accounts.id) {
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true
-      });
-    }
-
-    // 2. Google OAuth 2.0 Token Client for direct authentic popup window
-    if (google.accounts.oauth2) {
-      window.googleTokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: 'email profile openid',
-        callback: handleGoogleTokenResponse
-      });
-    }
-
-    googleGsiInitialized = true;
-    console.log('✅ Google Identity Services initialized with client ID:', GOOGLE_CLIENT_ID);
-    renderOfficialGoogleButton();
-
-    if (window.location.protocol !== 'file:' && !CURRENT_USER.signedIn && google.accounts.id) {
-      google.accounts.id.prompt();
-    }
-  } catch (err) {
-    console.error('Error initializing Google Identity Services:', err);
-  }
-}
-
-// Handle Google OAuth 2.0 Token response
-async function handleGoogleTokenResponse(resp) {
-  if (resp && resp.access_token) {
-    try {
-      const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${resp.access_token}` }
-      });
-      const data = await res.json();
-      if (data && (data.email || data.name)) {
-        const cleanUsername = data.email ? data.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_') : 'user';
-        CURRENT_USER = {
-          signedIn: true,
-          username: cleanUsername,
-          name: data.name || cleanUsername,
-          email: data.email || '',
-          picture: data.picture || '',
-          role: 'Researcher',
-          provider: 'google',
-          googleId: data.sub || '',
-          storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
-          driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
-        };
-        localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
-        renderUserAvatar();
-        closeGoogleSignInScreen();
-        closeGoogleAccountMenu();
-        if (typeof uploadSignInToGoogleDrive === 'function') {
-          uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
-        }
-        showToast(`✨ Signed in to Google as ${CURRENT_USER.name}!`, 'success');
-      }
-    } catch (e) {
-      console.error('Error fetching Google user profile:', e);
-      showToast('Signed in, but could not load profile details.', 'warning');
-    }
-  } else if (resp && resp.error) {
-    console.error('Google OAuth error:', resp.error);
-    showToast(`Google Sign-In error: ${resp.error}`, 'error');
-  }
-}
-
-// Google Quick & Direct Sign-In Helper (ensures Google Sign In works in all environments)
-function handleGoogleQuickSignIn(emailParam, nameParam) {
-  let email = (emailParam || '').trim();
-  if (!email) {
-    const directEmail = document.getElementById('g-direct-email')?.value?.trim();
-    if (directEmail && directEmail.includes('@')) {
-      email = directEmail;
-    } else {
-      const prompted = prompt('Sign in with Google Account:\nPlease enter your Gmail address (e.g. yourname@gmail.com):', 'user@gmail.com');
-      if (!prompted || !prompted.includes('@')) {
-        showToast('Please enter a valid Google email address.', 'info');
-        return;
-      }
-      email = prompted.trim();
-    }
-  }
-
-  const cleanUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-  const directName = (nameParam || document.getElementById('g-direct-name')?.value || '').trim();
-  const name = directName || cleanUsername.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  const initial = (name[0] || email[0] || 'U').toUpperCase();
-  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
-
-  CURRENT_USER = {
-    signedIn: true,
-    username: cleanUsername,
-    name: name,
-    email: email,
-    picture: avatar,
-    role: 'Researcher',
-    provider: 'google',
-    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
-    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
-  };
-
-  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
-  renderUserAvatar();
-  closeGoogleSignInScreen();
-  closeGoogleAccountMenu();
-  uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
-  showToast(`✨ Signed in with Google as ${CURRENT_USER.name} (@${cleanUsername})! 50 GB allocated in Google Drive.`, 'success');
-}
-
-// Trigger Google Sign-In with official Google OAuth 2.0 or GSI One Tap
-function triggerGoogleSignIn(e, mode = '') {
-  if (e) e.stopPropagation();
-  closeGoogleAccountMenu();
-
-  // If running from file:// protocol, Google OAuth 2.0 strictly blocks the request with Error 400
-  if (window.location.protocol === 'file:') {
-    openFileProtocolModal();
-    return;
-  }
-
-  // 1. Try Token Client popup if initialized (real accounts.google.com popup)
-  if (window.googleTokenClient) {
-    try {
-      window.googleTokenClient.requestAccessToken({ prompt: mode === 'switch' ? 'select_account' : '' });
-      return;
-    } catch (err) {
-      console.warn('Token client request error:', err);
-    }
-  }
-
-  // 2. Try Google Identity Services One Tap / Prompt
-  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-    try {
-      google.accounts.id.prompt();
-      return;
-    } catch (err) {
-      console.warn('Google GSI prompt error:', err);
-    }
-  }
-
-  showToast('Google Sign-In is initializing. Please wait a moment...', 'info');
-}
-
-// Render official Google Sign-In button
-function renderOfficialGoogleButton() {
-  const container = document.getElementById('g-official-signin-button');
-  if (!container) return;
-
-  // Render an always-interactive official-styled Google Sign-In button
-  container.innerHTML = `
-    <button type="button" class="g-btn-pill" id="btn-google-auth-action" onclick="triggerGoogleSignIn(event)" style="width: 100%; max-width: 320px; justify-content: center; background: #fff; color: #3c4043; border: 1px solid #dadce0; box-shadow: 0 1px 2px rgba(60,64,67,0.15); font-weight: 500; font-size: 14px; cursor: pointer; transition: all 150ms ease; padding: 10px 16px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 10px; flex-shrink: 0;">
-        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
-        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"/>
-        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"/>
-        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-      </svg>
-      <span>Sign in with Google</span>
-    </button>
-  `;
-
-  // Overlay official Google GSI SDK iframe if available
-  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-    if (!googleGsiInitialized) {
-      initGoogleGSI();
-    }
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-theme');
-    try {
-      const gDiv = document.createElement('div');
-      gDiv.style.display = 'flex';
-      gDiv.style.justifyContent = 'center';
-      google.accounts.id.renderButton(gDiv, {
-        type: 'standard',
-        theme: isDark ? 'filled_black' : 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'pill',
-        logo_alignment: 'left',
-        width: 320
-      });
-      setTimeout(() => {
-        if (gDiv.childNodes && gDiv.childNodes.length > 0) {
-          container.innerHTML = '';
-          container.appendChild(gDiv);
-        }
-      }, 60);
-    } catch (e) {
-      console.warn('Could not render Google GSI button iframe:', e);
-    }
-  }
-}
-
-// Handle real Google Identity Services response callback
-function handleGoogleCredentialResponse(response) {
-  if (!response || !response.credential) {
-    console.error('No credential returned from Google Identity Services');
-    showToast('Sign-in cancelled or returned no credentials.', 'error');
-    return;
-  }
-
-  const payload = parseJwt(response.credential);
-  if (!payload) {
-    showToast('Failed to read Google profile data.', 'error');
-    return;
-  }
-
-  console.log('Google Auth success:', payload.name, payload.email);
-  const cleanUsername = (payload.email ? payload.email.split('@')[0] : 'user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-
-  CURRENT_USER = {
-    signedIn: true,
-    username: cleanUsername,
-    name: payload.name || cleanUsername,
-    email: payload.email,
-    picture: payload.picture || '',
-    role: 'Researcher',
-    provider: 'google',
-    googleId: payload.sub,
-    storageLimitBytes: USER_STORAGE_LIMIT_BYTES,
-    driveFolder: `NBLMimic_Database/user/${cleanUsername}/`
-  };
-
-  localStorage.setItem('nblmimic_user_session', JSON.stringify(CURRENT_USER));
-  renderUserAvatar();
-  closeGoogleSignInScreen();
-  closeGoogleAccountMenu();
-  uploadSignInToGoogleDrive(CURRENT_USER, '', 'signIn');
-  showToast(`✨ Welcome @${cleanUsername}! 50 GB workspace allocated in Google Drive.`, 'success');
-}
 
 let CURRENT_USER = {
   signedIn: false,
@@ -6677,14 +6132,8 @@ function renderUserAvatar() {
       photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=0b57d0&color=fff&size=128`;
     }
 
-    const gHeaderBtn = document.getElementById('g-header-btn-container');
-    if (gHeaderBtn) gHeaderBtn.style.display = 'none';
     if (btnHeaderSignin) btnHeaderSignin.style.display = 'none';
     if (userAccountWrapper) userAccountWrapper.style.display = 'flex';
-    const setSignin = document.getElementById('btn-settings-signin');
-    const setSignout = document.getElementById('btn-settings-signout');
-    if (setSignin) setSignin.style.display = 'none';
-    if (setSignout) setSignout.style.display = 'inline-flex';
 
     if (avatarImg) {
       avatarImg.src = photo;
@@ -6700,21 +6149,11 @@ function renderUserAvatar() {
     if (gaiEmail) gaiEmail.textContent = CURRENT_USER.email;
     const noteSyncStatus = document.getElementById('note-sync-status');
     if (noteSyncStatus) noteSyncStatus.textContent = `📁 Synced: user/${CURRENT_USER.username || 'user'}/`;
-    const setActionsBtn = document.querySelector('.settings-account-actions button');
-    if (setActionsBtn) {
-      setActionsBtn.textContent = 'Sign Out';
-      setActionsBtn.className = 'btn btn-secondary btn-sm';
-      setActionsBtn.onclick = handleGoogleSignOut;
-    }
     updateStorageMeter();
   } else {
     // Signed out
     if (btnHeaderSignin) btnHeaderSignin.style.display = 'inline-flex';
     if (userAccountWrapper) userAccountWrapper.style.display = 'none';
-    const setSignin = document.getElementById('btn-settings-signin');
-    const setSignout = document.getElementById('btn-settings-signout');
-    if (setSignin) setSignin.style.display = 'inline-flex';
-    if (setSignout) setSignout.style.display = 'none';
 
     if (avatarImg) avatarImg.src = '';
     if (gamAvatarImg) gamAvatarImg.src = '';
@@ -6724,12 +6163,6 @@ function renderUserAvatar() {
     if (setEmail) setEmail.textContent = 'Click to connect your Google Account';
     const noteSyncStatus = document.getElementById('note-sync-status');
     if (noteSyncStatus) noteSyncStatus.textContent = '📁 Synced to Drive (50 GB)';
-    const setActionsBtn = document.querySelector('.settings-account-actions button');
-    if (setActionsBtn) {
-      setActionsBtn.textContent = 'Sign In with Google';
-      setActionsBtn.className = 'btn btn-primary btn-sm';
-      setActionsBtn.onclick = openGoogleSignInScreen;
-    }
     updateStorageMeter(0);
   }
 }
@@ -6746,30 +6179,17 @@ function closeGoogleAccountMenu() {
   if (menu) menu.style.display = 'none';
 }
 
-
-function openFileProtocolModal() {
-  const m = document.getElementById('file-protocol-modal');
-  if (m) m.classList.add('open');
-}
-function closeFileProtocolModal() {
-  const m = document.getElementById('file-protocol-modal');
-  if (m) m.classList.remove('open');
-}
-function checkFileProtocol() {
-  if (window.location.protocol === 'file:') {
-    const badge = document.getElementById('file-protocol-badge');
-    if (badge) badge.style.display = 'inline-flex';
-  }
-}
-
 function openGoogleSignInScreen(e) {
   if (e) e.stopPropagation();
   closeGoogleAccountMenu();
   const screen = document.getElementById('google-signin-screen');
   if (!screen) return;
 
-  renderOfficialGoogleButton();
   screen.classList.add('open');
+  const usernameInput = document.getElementById('g-direct-username');
+  if (usernameInput) {
+    setTimeout(() => usernameInput.focus(), 100);
+  }
   screen.addEventListener('click', function bgClick(ev) {
     if (ev.target === screen) {
       closeGoogleSignInScreen();
@@ -6801,6 +6221,8 @@ function switchSigninMode(mode) {
 
   if (errorBox) { errorBox.style.display = 'none'; errorBox.textContent = ''; }
 
+  const subheading = document.getElementById('google-signin-subheading');
+
   if (mode === 'register') {
     if (signinBtn) { signinBtn.style.background = 'transparent'; signinBtn.style.color = 'var(--text-secondary)'; }
     if (registerBtn) { registerBtn.style.background = 'var(--accent)'; registerBtn.style.color = '#fff'; }
@@ -6808,7 +6230,7 @@ function switchSigninMode(mode) {
     if (nameWrap) nameWrap.style.display = '';
     if (confirmPwWrap) confirmPwWrap.style.display = '';
     if (heading) heading.textContent = 'Create Account';
-    if (modeLabel) modeLabel.textContent = 'or register with email';
+    if (subheading) subheading.innerHTML = 'Register your username & Gmail to allocate <strong>50 GB Google Drive</strong>';
     if (pwInput) pwInput.autocomplete = 'new-password';
     if (confirmPwInput) confirmPwInput.required = true;
   } else {
@@ -6817,8 +6239,8 @@ function switchSigninMode(mode) {
     if (submitLabel) submitLabel.textContent = 'Sign In';
     if (nameWrap) nameWrap.style.display = 'none';
     if (confirmPwWrap) confirmPwWrap.style.display = 'none';
-    if (heading) heading.textContent = 'Sign in with Google';
-    if (modeLabel) modeLabel.textContent = 'or sign in with email';
+    if (heading) heading.textContent = 'Sign In';
+    if (subheading) subheading.innerHTML = 'Sign in with your username & Gmail to sync with <strong>50 GB Google Drive</strong>';
     if (pwInput) pwInput.autocomplete = 'current-password';
     if (confirmPwInput) confirmPwInput.required = false;
   }
@@ -7378,25 +6800,7 @@ if (searchInput) {
   searchInput.addEventListener('input', (e) => {
     renderLibrary(CURRENT_CATEGORY_FILTER, e.target.value.trim());
   });
-  searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      searchInput.value = '';
-      searchInput.blur();
-      renderLibrary(CURRENT_CATEGORY_FILTER, '');
-    }
-  });
 }
-
-// Global keyboard shortcut: Ctrl+K / Cmd+K for fast searching
-window.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    if (searchInput) {
-      searchInput.focus();
-      searchInput.select();
-    }
-  }
-});
 
 // Notes auto-save
 const notesArea = document.querySelector('#sp-notes textarea');
@@ -7407,30 +6811,13 @@ if (notesArea) {
 }
 
 /* ════ INITIALIZATION ════ */
-checkFileProtocol();
 initGoogleUserSession();
-initGoogleGSI();
-// Sync client ID from backend configuration endpoint
-fetch('/api/auth/config')
-  .then(res => res.json())
-  .then(cfg => {
-    if (cfg && cfg.clientId && cfg.clientId !== GOOGLE_CLIENT_ID) {
-      GOOGLE_CLIENT_ID = cfg.clientId;
-      initGoogleGSI();
-    }
-  })
-  .catch(() => {});
 initSettingsUI();
 checkServerBackend();
 renderSidebarNotebooks();
 renderLibrary();
 renderSidepanelSources();
 renderChat();
-
-// Auto-fetch fresh live research articles on startup
-setTimeout(() => {
-  fetchLiveNews(false);
-}, 600);
 
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
   setTheme('dark');

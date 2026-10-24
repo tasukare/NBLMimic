@@ -1159,6 +1159,33 @@
       opacity: 0.85;
     }
 
+    .btn-chat-mic {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-xs);
+      background: transparent;
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 120ms ease;
+    }
+
+    .btn-chat-mic:hover {
+      color: var(--text-main);
+      background: var(--bg-hover);
+      border-color: var(--border-strong);
+    }
+
+    .btn-chat-mic.active {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      animation: pulse 1.2s infinite;
+    }
+
     /* Notes Area */
     .notes-panel-content {
       flex: 1;
@@ -1832,9 +1859,10 @@
         <div style="display:flex; align-items:center; gap:6px;">
           <span>Model:</span>
           <select class="model-select-pill" id="select-active-model">
-            <option value="gemini-3.5-flash-lite">3.5 Lite (Fastest)</option>
-            <option value="gemini-3.5-flash">3.5 Flash (1M)</option>
+            <option value="gemini-3.5-flash-lite" selected>3.5 Flash-Lite (Fastest &lt;1s)</option>
+            <option value="gemini-3.5-flash">3.5 Flash (1M Context)</option>
             <option value="gemini-3.8-flash">3.8 Flash (Reasoning)</option>
+            <option value="gemini-3.1-flash-lite">3.1 Flash-Lite (High-Throughput)</option>
           </select>
         </div>
         <span id="sources-grounding-count">0 sources in context</span>
@@ -1858,9 +1886,14 @@
           <textarea class="chat-textarea-input" id="chat-textarea" placeholder="Ask anything about your sources..." rows="1"></textarea>
           <div class="chat-box-toolbar">
             <span class="chat-key-hint">Enter to send &middot; Shift+Enter for newline</span>
-            <button type="submit" class="btn-send-message" id="btn-send-chat" aria-label="Send">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-            </button>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button type="button" class="btn-chat-mic" id="btn-chat-mic-dictate" title="Dictate prompt with microphone" onclick="toggleChatDictation()" aria-label="Voice input">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+              </button>
+              <button type="submit" class="btn-send-message" id="btn-send-chat" aria-label="Send">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -2031,26 +2064,45 @@
      ══════════════════════════════════════════════════════════════ -->
 <div class="auth-backdrop" id="live-voice-modal" role="dialog" aria-modal="true" aria-labelledby="live-voice-title">
   <div class="generic-dialog live-voice-dialog">
-    <button class="auth-close-x" style="color:#71717a;" onclick="closeLiveDialog()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    <button class="auth-close-x" style="color:#71717a;" onclick="closeLiveDialog()" aria-label="Close dialog"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
 
     <div style="display:inline-flex; align-items:center; gap:6px; margin-bottom:4px;">
-      <span class="dot-live-indicator"></span>
+      <span class="dot-live-indicator" id="live-connection-dot"></span>
       <h3 style="font-size:15px; font-weight:600;" id="live-voice-title">Gemini 3.8 Live Voice</h3>
     </div>
     <p style="font-size:12px; color:#71717a;">Bidirectional low-latency spoken research assistant</p>
 
+    <div id="live-source-context-badge" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:3px 10px; border-radius:20px; background:#18181b; color:#a1a1aa; margin:6px auto 2px;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+      <span id="live-source-context-label">0 sources grounded</span>
+    </div>
+
     <canvas class="live-voice-canvas" id="voice-canvas" width="460" height="100"></canvas>
 
     <div class="live-transcript-card" id="voice-transcript">
-      <em>Ready. Click the microphone to start spoken reasoning session...</em>
+      <div style="color:#71717a; font-style:italic;">Ready. Tap the microphone below to start real-time spoken reasoning...</div>
     </div>
 
-    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
-      <button class="btn-live-mic-pulse" id="btn-toggle-voice-stream" onclick="toggleVoiceSession()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-      </button>
-      <span style="font-size:11.5px; color:#71717a;" id="voice-status-label">Tap to speak</span>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <button class="btn-live-mic-pulse" id="btn-toggle-voice-stream" onclick="toggleLiveMic()" title="Toggle Microphone">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        </button>
+        <button class="btn-tiny-action" id="btn-interrupt-live" onclick="interruptLivePlayback()" title="Interrupt playback" style="height:36px; padding:0 12px; background:#1c1917; border-color:#292524; color:#f59e0b; display:none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"></rect></svg>
+          <span>Interrupt</span>
+        </button>
+      </div>
+      <span style="font-size:12px; color:#a1a1aa; font-weight:500;" id="voice-status-label">Tap microphone to speak</span>
     </div>
+
+    <!-- Quick text prompt input inside modal for hybrid interaction -->
+    <form class="live-text-bar" id="live-text-form" onsubmit="sendLiveTextMessage(event)" style="display:flex; gap:6px; margin-top:4px;">
+      <input type="text" id="live-text-input" placeholder="Or type a question to hear spoken response..." style="flex:1; height:32px; background:#141416; border:1px solid #27272a; border-radius:6px; color:#fff; font-size:12px; padding:0 10px; outline:none;">
+      <button type="submit" class="btn-tiny-action" style="height:32px; padding:0 12px; background:#2563eb; color:#fff; border:none; font-weight:500; cursor:pointer;">
+        <span>Send</span>
+      </button>
+    </form>
   </div>
 </div>
 
@@ -2075,7 +2127,8 @@
       <select class="field-input" id="setting-default-model">
         <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Fastest &lt;1s response)</option>
         <option value="gemini-3.5-flash">gemini-3.5-flash (Standard 1M context)</option>
-        <option value="gemini-3.8-flash">gemini-3.8-flash (Preview Multimodal Reasoning)</option>
+        <option value="gemini-3.8-flash">gemini-3.8-flash (Reasoning &amp; Multimodal)</option>
+        <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (High-Throughput)</option>
       </select>
     </div>
 
@@ -2517,16 +2570,6 @@ function closeAddSourceModal() {
   document.getElementById('add-source-modal').classList.remove('active');
 }
 
-function openLiveDialog() {
-  document.getElementById('live-voice-modal').classList.add('active');
-  startVoiceWave();
-}
-
-function closeLiveDialog() {
-  document.getElementById('live-voice-modal').classList.remove('active');
-  stopVoiceWave();
-}
-
 function openSettings() {
   document.getElementById('settings-dialog').classList.add('active');
 }
@@ -2903,7 +2946,7 @@ function formatProse(text) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// GROUNDED AI CHAT
+// GROUNDED AI CHAT & GEMINI DEV (gemini-api-dev)
 // ══════════════════════════════════════════════════════════════
 
 document.getElementById('chat-submit-form').addEventListener('submit', async (e) => {
@@ -2927,44 +2970,90 @@ document.getElementById('chat-submit-form').addEventListener('submit', async (e)
   }
 
   let context = '';
-  activeSources.forEach((src, idx) => {
-    context += `[Source ${idx + 1}: "${src.title}"]\n${src.content || src.excerpt || ''}\n\n`;
-  });
+  if (activeSources.length > 0) {
+    activeSources.forEach((src, idx) => {
+      const body = src.content || src.excerpt || '';
+      context += `[Source ${idx + 1}: "${src.title}"]\n${body.slice(0, 15000)}\n\n`;
+    });
+  }
 
-  const systemInstruction = `You are a research partner inside Research Lab (NBLMimic).
-Answer questions accurately grounded in the active sources.
-Cite your claims with strict brackets like [1], [2], corresponding to the source number.
-If information is not contained in the sources, say so honestly.`;
+  const systemInstruction = activeSources.length > 0
+    ? `You are an elite research partner inside Research Lab (NBLMimic).
+Synthesize and answer questions accurately grounded in the active sources provided below.
+Cite your specific claims with strict numbered bracket notation like [1], [2], corresponding to the source number.
+If information is not contained in the sources, mention that clearly, and then optionally provide helpful context based on general scientific knowledge.`
+    : `You are an elite research partner inside Research Lab (NBLMimic).
+Help the researcher brainstorm, explore concepts, summarize information, and plan experiments with rigorous depth.`;
 
   const thinkingId = addThinking();
+  const model = document.getElementById('select-active-model').value || 'gemini-3.5-flash-lite';
 
   try {
-    const model = document.getElementById('select-active-model').value;
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model,
-        system_instruction: { parts: [{ text: systemInstruction }] },
-        contents: [
-          { role: 'user', parts: [{ text: `SOURCES:\n${context}\n\nQUESTION:\n${text}` }] }
-        ]
-      })
-    });
+    let reply = '';
+    let proxyFailed = false;
+
+    // 1. Primary: Call local proxy server /api/chat
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          apiKey: state.geminiApiKey,
+          system_instruction: { parts: [{ text: systemInstruction }] },
+          contents: [
+            { role: 'user', parts: [{ text: activeSources.length > 0 ? `SOURCES:\n${context}\n\nQUESTION:\n${text}` : text }] }
+          ]
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+      } else {
+        const err = await res.json().catch(() => ({}));
+        reply = `Error: ${err.error?.message || 'Server error occurred'}`;
+      }
+    } catch (fetchErr) {
+      proxyFailed = true;
+    }
+
+    // 2. Secondary fallback: If proxy unreachable (e.g. running from file://), call Google directly
+    if (proxyFailed) {
+      const key = state.geminiApiKey || localStorage.getItem('gemini_api_key');
+      if (!key) {
+        removeThinking(thinkingId);
+        addMessage('ai', `Connection error: Server is not running, and no Gemini API Key is stored. Please run \`node server.js\` or enter your key in Settings.`);
+        return;
+      }
+
+      const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+      const directRes = await fetch(directUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemInstruction }] },
+          contents: [
+            { role: 'user', parts: [{ text: activeSources.length > 0 ? `SOURCES:\n${context}\n\nQUESTION:\n${text}` : text }] }
+          ]
+        })
+      });
+
+      if (directRes.ok) {
+        const data = await directRes.json();
+        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+      } else {
+        const err = await directRes.json().catch(() => ({}));
+        reply = `Google API Error (${directRes.status}): ${err.error?.message || 'Direct call failed'}`;
+      }
+    }
 
     removeThinking(thinkingId);
+    addMessage('ai', reply);
 
-    if (res.ok) {
-      const data = await res.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
-      addMessage('ai', reply);
-    } else {
-      const err = await res.json().catch(() => ({}));
-      addMessage('ai', `Error: ${err.error?.message || 'Server error occurred'}`);
-    }
   } catch (err) {
     removeThinking(thinkingId);
-    addMessage('ai', `Connection error: ${err.message}. Is the server running?`);
+    addMessage('ai', `Connection error: ${err.message}.`);
   }
 });
 
@@ -2975,11 +3064,17 @@ function addMessage(role, text) {
 
   if (role === 'ai') {
     let html = escapeHtml(text);
+    // Citations
     html = html.replace(/\[(\d+)\]/g, (m, p1) => {
       return `<button class="citation-anchor" onclick="navigateToCitation(${p1})">[${p1}]</button>`;
     });
+    // Bold & Italics
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // Code blocks & inline code
+    html = html.replace(/```([\s\S]*?)```/g, '<pre style="background:var(--bg-subtle); padding:8px 12px; border-radius:6px; font-family:var(--font-mono); font-size:11.5px; margin:6px 0; overflow-x:auto;"><code>$1</code></pre>');
+    html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg-subtle); padding:1px 4px; border-radius:3px; font-family:var(--font-mono); font-size:11.5px;">$1</code>');
+    // Line breaks
     html = html.replace(/\n/g, '<br>');
     div.innerHTML = html;
   } else {
@@ -3029,6 +3124,73 @@ function clearChat() {
       Chat cleared. How can I assist with your research?
     </div>
   `;
+}
+
+// Quick speech dictation inside chat box
+let chatSpeechRec = null;
+let isChatDictating = false;
+
+function toggleChatDictation() {
+  const micBtn = document.getElementById('btn-chat-mic-dictate');
+  const textarea = document.getElementById('chat-textarea');
+
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    openLiveDialog();
+    showToast('Opened Gemini 3.8 Live Spoken Assistant');
+    return;
+  }
+
+  if (isChatDictating) {
+    if (chatSpeechRec) chatSpeechRec.stop();
+    isChatDictating = false;
+    if (micBtn) micBtn.classList.remove('active');
+    showToast('Dictation stopped');
+    return;
+  }
+
+  try {
+    chatSpeechRec = new SpeechRec();
+    chatSpeechRec.continuous = true;
+    chatSpeechRec.interimResults = true;
+    chatSpeechRec.lang = 'en-US';
+
+    chatSpeechRec.onstart = () => {
+      isChatDictating = true;
+      if (micBtn) micBtn.classList.add('active');
+      showToast('Listening... Speak your prompt');
+    };
+
+    chatSpeechRec.onresult = (evt) => {
+      let finalTranscript = '';
+      for (let i = evt.resultIndex; i < evt.results.length; ++i) {
+        if (evt.results[i].isFinal) {
+          finalTranscript += evt.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+        textarea.value = (textarea.value ? textarea.value + ' ' : '') + finalTranscript;
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+      }
+    };
+
+    chatSpeechRec.onerror = (err) => {
+      console.warn('Dictation error:', err);
+      isChatDictating = false;
+      if (micBtn) micBtn.classList.remove('active');
+    };
+
+    chatSpeechRec.onend = () => {
+      isChatDictating = false;
+      if (micBtn) micBtn.classList.remove('active');
+    };
+
+    chatSpeechRec.start();
+  } catch (err) {
+    console.error('Dictation start failed:', err);
+    openLiveDialog();
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -3154,59 +3316,472 @@ document.getElementById('input-file-select').addEventListener('change', (e) => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// GEMINI 3.8 LIVE AUDIO VISUALIZER
+// GEMINI 3.8 LIVE AUDIO & WEBSOCKET ENGINE (gemini-live-api-dev)
 // ══════════════════════════════════════════════════════════════
 
-let voiceAnimId = null;
-let isVoiceLive = false;
+let liveWs = null;
+let liveOutAudioCtx = null;
+let liveInAudioCtx = null;
+let liveOutAnalyser = null;
+let liveInAnalyser = null;
+let liveMicStream = null;
+let liveMicProcessor = null;
+let liveNextPlayTime = 0;
+let liveActiveAudioSources = [];
+let isLiveMicActive = false;
+let isLiveSessionOpen = false;
+let liveVisualizerAnimId = null;
 
-function startVoiceWave() {
+// Convert Float32 array from Web Audio API to 16-bit PCM little-endian
+function float32To16BitPCM(float32Array) {
+  const pcm16 = new Int16Array(float32Array.length);
+  for (let i = 0; i < float32Array.length; i++) {
+    const s = Math.max(-1, Math.min(1, float32Array[i]));
+    pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+  }
+  return pcm16;
+}
+
+// Convert ArrayBuffer to Base64 string
+function bufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
+
+// Convert base64 PCM 24kHz back to AudioBuffer
+function base64ToPCM24kAudioBuffer(ctx, base64Str) {
+  const binaryString = window.atob(base64Str);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  const int16 = new Int16Array(bytes.buffer);
+  const float32 = new Float32Array(int16.length);
+  for (let i = 0; i < int16.length; i++) {
+    float32[i] = int16[i] / 32768.0;
+  }
+  const audioBuffer = ctx.createBuffer(1, float32.length, 24000);
+  audioBuffer.getChannelData(0).set(float32);
+  return audioBuffer;
+}
+
+// Gapless queued playback
+function queueLiveAudioPlayback(base64Pcm) {
+  if (!liveOutAudioCtx) {
+    liveOutAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+    liveOutAnalyser = liveOutAudioCtx.createAnalyser();
+    liveOutAnalyser.fftSize = 64;
+    liveOutAnalyser.connect(liveOutAudioCtx.destination);
+  }
+  if (liveOutAudioCtx.state === 'suspended') {
+    liveOutAudioCtx.resume();
+  }
+
+  const audioBuffer = base64ToPCM24kAudioBuffer(liveOutAudioCtx, base64Pcm);
+  const source = liveOutAudioCtx.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(liveOutAnalyser);
+
+  const now = liveOutAudioCtx.currentTime;
+  if (liveNextPlayTime < now) {
+    liveNextPlayTime = now + 0.04;
+  }
+  source.start(liveNextPlayTime);
+  liveNextPlayTime += audioBuffer.duration;
+
+  liveActiveAudioSources.push(source);
+  updateInterruptBtnVisibility();
+
+  source.onended = () => {
+    const idx = liveActiveAudioSources.indexOf(source);
+    if (idx !== -1) liveActiveAudioSources.splice(idx, 1);
+    updateInterruptBtnVisibility();
+  };
+}
+
+function stopLiveAudioPlayback() {
+  liveActiveAudioSources.forEach(s => {
+    try { s.stop(); } catch (e) {}
+  });
+  liveActiveAudioSources.length = 0;
+  if (liveOutAudioCtx) {
+    liveNextPlayTime = liveOutAudioCtx.currentTime;
+  }
+  updateInterruptBtnVisibility();
+}
+
+function updateInterruptBtnVisibility() {
+  const btn = document.getElementById('btn-interrupt-live');
+  if (btn) {
+    btn.style.display = liveActiveAudioSources.length > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+async function connectGeminiLive() {
+  const statusLabel = document.getElementById('voice-status-label');
+  const dot = document.getElementById('live-connection-dot');
+  const transcript = document.getElementById('voice-transcript');
+
+  // 1. Get API key (from state, localStorage, or server)
+  let apiKey = state.geminiApiKey || localStorage.getItem('gemini_api_key') || '';
+  if (!apiKey) {
+    try {
+      const cfg = await fetch('/api/live-config').then(r => r.json());
+      if (cfg.apiKey) {
+        apiKey = cfg.apiKey;
+        state.geminiApiKey = apiKey;
+        localStorage.setItem('gemini_api_key', apiKey);
+      }
+    } catch (e) {}
+  }
+
+  if (!apiKey) {
+    statusLabel.textContent = 'API key required in Settings or .env';
+    transcript.innerHTML = `<div style="color:#ef4444;">⚠️ No Gemini API key detected. Add your GEMINI_API_KEY to .env or click Settings (top right) to enter your API key.</div>`;
+    return;
+  }
+
+  if (liveWs && (liveWs.readyState === WebSocket.OPEN || liveWs.readyState === WebSocket.CONNECTING)) {
+    return;
+  }
+
+  statusLabel.textContent = 'Connecting to Gemini 3.8 Live...';
+  if (dot) dot.style.background = '#f59e0b';
+
+  const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`;
+
+  try {
+    liveWs = new WebSocket(wsUrl);
+
+    liveWs.onopen = () => {
+      console.log('[Live] WebSocket connected to Gemini 3.8 Live');
+      statusLabel.textContent = 'Configuring session...';
+      if (dot) dot.style.background = '#10b981';
+
+      // Assemble workspace context
+      const activeSources = state.sources.filter(s => state.activeSourceIds.has(s.id));
+      let context = '';
+      activeSources.slice(0, 4).forEach((s, idx) => {
+        context += `[Source ${idx+1}: "${s.title}"]\n${(s.content || s.excerpt || '').slice(0, 1000)}\n\n`;
+      });
+
+      const instruction = `You are a real-time, highly intelligent research partner inside NBLMimic.
+Keep your spoken responses natural, concise (1-3 spoken sentences), and direct.
+If the researcher asks about their documents, refer to the active research context:
+${context || 'No specific sources are active right now.'}`;
+
+      const setupMsg = {
+        setup: {
+          model: 'models/gemini-3.8-live',
+          generationConfig: {
+            responseModalities: ['AUDIO']
+          },
+          systemInstruction: {
+            parts: [{ text: instruction }]
+          }
+        }
+      };
+
+      liveWs.send(JSON.stringify(setupMsg));
+    };
+
+    liveWs.onmessage = async (event) => {
+      try {
+        const raw = typeof event.data === 'string' ? event.data : await event.data.text();
+        const msg = JSON.parse(raw);
+
+        if (msg.setupComplete) {
+          console.log('[Live] Setup complete');
+          statusLabel.textContent = isLiveMicActive ? 'Listening (mic active)...' : 'Connected. Tap mic or type below.';
+          if (dot) dot.style.background = '#10b981';
+          return;
+        }
+
+        if (msg.serverContent) {
+          const sc = msg.serverContent;
+
+          if (sc.interrupted) {
+            console.log('[Live] Model generation interrupted by user');
+            stopLiveAudioPlayback();
+            statusLabel.textContent = 'Listening (interrupted)...';
+            appendLiveTranscript('Gemini', '<em>[Spoken response interrupted]</em>', '#a1a1aa');
+            return;
+          }
+
+          if (sc.modelTurn?.parts) {
+            for (const part of sc.modelTurn.parts) {
+              if (part.inlineData?.data) {
+                queueLiveAudioPlayback(part.inlineData.data);
+                statusLabel.textContent = 'Gemini speaking...';
+                if (dot) dot.style.background = '#38bdf8';
+              }
+              if (part.text) {
+                appendLiveTranscript('Gemini', part.text, '#38bdf8');
+              }
+            }
+          }
+
+          if (sc.outputTranscription?.text) {
+            appendLiveTranscript('Gemini', sc.outputTranscription.text, '#38bdf8');
+          }
+
+          if (sc.inputTranscription?.text) {
+            appendLiveTranscript('You', sc.inputTranscription.text, '#f4f4f5');
+          }
+
+          if (sc.turnComplete) {
+            statusLabel.textContent = isLiveMicActive ? 'Listening...' : 'Ready. Tap mic to speak.';
+            if (dot) dot.style.background = '#10b981';
+          }
+        }
+      } catch (err) {
+        console.error('[Live] Message parsing error:', err);
+      }
+    };
+
+    liveWs.onerror = (err) => {
+      console.error('[Live] WebSocket error:', err);
+      statusLabel.textContent = 'Connection error. Check API key.';
+      if (dot) dot.style.background = '#ef4444';
+    };
+
+    liveWs.onclose = (ev) => {
+      console.log('[Live] WebSocket closed:', ev.code, ev.reason);
+      statusLabel.textContent = 'Live session disconnected. Tap to reconnect.';
+      if (dot) dot.style.background = '#71717a';
+      stopLiveAudioPlayback();
+      stopMicCapture();
+    };
+
+  } catch (err) {
+    console.error('[Live] Connection failed:', err);
+    statusLabel.textContent = `Connection error: ${err.message}`;
+  }
+}
+
+async function startMicCapture() {
+  try {
+    liveMicStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        sampleRate: 16000,
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    liveInAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    liveInAnalyser = liveInAudioCtx.createAnalyser();
+    liveInAnalyser.fftSize = 64;
+
+    const source = liveInAudioCtx.createMediaStreamSource(liveMicStream);
+    source.connect(liveInAnalyser);
+
+    // Buffer size 2048 at 16000Hz = ~128ms chunks
+    liveMicProcessor = liveInAudioCtx.createScriptProcessor(2048, 1, 1);
+    liveMicProcessor.onaudioprocess = (e) => {
+      if (!isLiveMicActive) return;
+      if (!liveWs || liveWs.readyState !== WebSocket.OPEN) return;
+
+      const inputFloats = e.inputBuffer.getChannelData(0);
+      const pcm16 = float32To16BitPCM(inputFloats);
+      const b64 = bufferToBase64(pcm16.buffer);
+
+      liveWs.send(JSON.stringify({
+        realtimeInput: {
+          audio: {
+            data: b64,
+            mimeType: 'audio/pcm;rate=16000'
+          }
+        }
+      }));
+    };
+
+    source.connect(liveMicProcessor);
+    liveMicProcessor.connect(liveInAudioCtx.destination);
+
+    isLiveMicActive = true;
+    const btn = document.getElementById('btn-toggle-voice-stream');
+    if (btn) btn.classList.add('active');
+    document.getElementById('voice-status-label').textContent = 'Listening to your microphone...';
+
+  } catch (err) {
+    console.error('[Live] Mic access error:', err);
+    isLiveMicActive = false;
+    document.getElementById('voice-status-label').textContent = 'Microphone permission denied. You can type below.';
+    showToast('Microphone access blocked. Use the text input below to converse.');
+  }
+}
+
+function stopMicCapture() {
+  isLiveMicActive = false;
+  if (liveMicStream) {
+    liveMicStream.getTracks().forEach(t => t.stop());
+    liveMicStream = null;
+  }
+  if (liveMicProcessor) {
+    try { liveMicProcessor.disconnect(); } catch (e) {}
+    liveMicProcessor = null;
+  }
+  if (liveInAudioCtx) {
+    try { liveInAudioCtx.close(); } catch (e) {}
+    liveInAudioCtx = null;
+  }
+  const btn = document.getElementById('btn-toggle-voice-stream');
+  if (btn) btn.classList.remove('active');
+  document.getElementById('voice-status-label').textContent = 'Microphone muted. Tap to speak.';
+}
+
+function toggleLiveMic() {
+  if (isLiveMicActive) {
+    stopMicCapture();
+  } else {
+    if (!liveWs || liveWs.readyState !== WebSocket.OPEN) {
+      connectGeminiLive();
+    }
+    startMicCapture();
+  }
+}
+
+function sendLiveTextMessage(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('live-text-input');
+  const text = (input ? input.value : '').trim();
+  if (!text) return;
+
+  if (!liveWs || liveWs.readyState !== WebSocket.OPEN) {
+    connectGeminiLive();
+    showToast('Reconnecting Gemini Live session...');
+    return;
+  }
+
+  appendLiveTranscript('You', text, '#f4f4f5');
+  input.value = '';
+  document.getElementById('voice-status-label').textContent = 'Synthesizing response...';
+
+  liveWs.send(JSON.stringify({
+    realtimeInput: {
+      text: text
+    }
+  }));
+}
+
+function interruptLivePlayback() {
+  stopLiveAudioPlayback();
+  appendLiveTranscript('System', 'Playback interrupted', '#f59e0b');
+  document.getElementById('voice-status-label').textContent = isLiveMicActive ? 'Listening...' : 'Ready.';
+}
+
+function appendLiveTranscript(sender, text, color) {
+  const container = document.getElementById('voice-transcript');
+  if (!container) return;
+
+  // Clear initial placeholder if present
+  if (container.querySelector('em') || container.querySelector('div')?.style?.color === 'rgb(113, 113, 122)') {
+    container.innerHTML = '';
+  }
+
+  const p = document.createElement('div');
+  p.style.marginBottom = '6px';
+  p.style.lineHeight = '1.45';
+  p.innerHTML = `<strong style="color:${color || '#fff'}; font-size:11.5px;">${escapeHtml(sender)}:</strong> <span style="color:#d4d4d8;">${escapeHtml(text)}</span>`;
+  container.appendChild(p);
+  container.scrollTop = container.scrollHeight;
+}
+
+function startRealVoiceWave() {
   const canvas = document.getElementById('voice-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let phase = 0;
+  const width = canvas.width;
+  const height = canvas.height;
+  const midY = height / 2;
 
-  function loop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const mid = canvas.height / 2;
+  const freqData = new Uint8Array(32);
 
-    for (let w = 0; w < 3; w++) {
+  function draw() {
+    liveVisualizerAnimId = requestAnimationFrame(draw);
+
+    let maxEnergy = 0;
+    if (liveOutAnalyser && liveActiveAudioSources.length > 0) {
+      liveOutAnalyser.getByteFrequencyData(freqData);
+    } else if (liveInAnalyser && isLiveMicActive) {
+      liveInAnalyser.getByteFrequencyData(freqData);
+    } else {
+      freqData.fill(0);
+    }
+
+    for (let i = 0; i < freqData.length; i++) {
+      if (freqData[i] > maxEnergy) maxEnergy = freqData[i];
+    }
+    const energyRatio = maxEnergy / 255; // 0.0 to 1.0
+
+    ctx.clearRect(0, 0, width, height);
+
+    const waves = [
+      { color: 'rgba(56, 189, 248, 0.85)', baseAmp: 4, dynamicAmp: 32, freq: 0.025, speed: 0.003 },
+      { color: 'rgba(129, 140, 248, 0.75)', baseAmp: 3, dynamicAmp: 24, freq: 0.03, speed: 0.004 },
+      { color: 'rgba(192, 132, 252, 0.65)', baseAmp: 2, dynamicAmp: 18, freq: 0.035, speed: 0.002 }
+    ];
+
+    const time = performance.now();
+
+    waves.forEach((w, idx) => {
       ctx.beginPath();
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = w === 0 ? '#38bdf8' : (w === 1 ? '#818cf8' : '#c084fc');
+      ctx.lineWidth = 1.75;
+      ctx.strokeStyle = w.color;
 
-      for (let x = 0; x < canvas.width; x++) {
-        const amp = isVoiceLive ? 22 : 6;
-        const y = mid + Math.sin(x * 0.025 + phase + w) * amp * Math.sin(x / canvas.width * Math.PI);
+      const currentAmp = w.baseAmp + (w.dynamicAmp * energyRatio);
+
+      for (let x = 0; x <= width; x += 4) {
+        const envelope = Math.sin((x / width) * Math.PI);
+        const y = midY + Math.sin(x * w.freq + time * w.speed + idx) * currentAmp * envelope;
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
-    }
-    phase += isVoiceLive ? 0.09 : 0.03;
-    voiceAnimId = requestAnimationFrame(loop);
+    });
   }
-  loop();
+
+  if (liveVisualizerAnimId) cancelAnimationFrame(liveVisualizerAnimId);
+  draw();
 }
 
-function stopVoiceWave() {
-  if (voiceAnimId) cancelAnimationFrame(voiceAnimId);
-  voiceAnimId = null;
+function stopRealVoiceWave() {
+  if (liveVisualizerAnimId) cancelAnimationFrame(liveVisualizerAnimId);
+  liveVisualizerAnimId = null;
 }
 
-function toggleVoiceSession() {
-  isVoiceLive = !isVoiceLive;
-  const btn = document.getElementById('btn-toggle-voice-stream');
-  const label = document.getElementById('voice-status-label');
-  const transcript = document.getElementById('voice-transcript');
+function openLiveDialog() {
+  document.getElementById('live-voice-modal').classList.add('active');
+  isLiveSessionOpen = true;
 
-  btn.classList.toggle('active', isVoiceLive);
-  if (isVoiceLive) {
-    label.textContent = 'Streaming spoken reasoning...';
-    transcript.innerHTML = `<strong>Live Session Active:</strong> Listening for your research inquiries...`;
-    showToast('Gemini 3.8 Live session connected');
-  } else {
-    label.textContent = 'Session paused. Tap to resume';
+  const count = state.activeSourceIds.size;
+  const label = document.getElementById('live-source-context-label');
+  if (label) {
+    label.textContent = `${count} sources in context`;
+  }
+
+  startRealVoiceWave();
+  connectGeminiLive();
+}
+
+function closeLiveDialog() {
+  document.getElementById('live-voice-modal').classList.remove('active');
+  isLiveSessionOpen = false;
+  stopRealVoiceWave();
+  stopMicCapture();
+  stopLiveAudioPlayback();
+  if (liveWs) {
+    try { liveWs.close(); } catch (e) {}
+    liveWs = null;
   }
 }
 
@@ -3224,7 +3799,7 @@ document.getElementById('btn-trigger-podcast').addEventListener('click', () => {
   showToast('Synthesizing Audio Overview...');
   addMessage('user', `Generate an Audio Overview summarizing the ${activeSources.length} active research sources.`);
 
-  const prompt = `Synthesize an engaging spoken deep-dive podcast script reviewing the key takeaways across: ${activeSources.map(s => s.title).join('; ')}.`;
+  const prompt = `Synthesize an engaging, highly structured spoken deep-dive podcast script reviewing the key takeaways across: ${activeSources.map(s => s.title).join('; ')}.`;
   const thinkingId = addThinking();
 
   fetch('/api/chat', {
@@ -3232,6 +3807,7 @@ document.getElementById('btn-trigger-podcast').addEventListener('click', () => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'gemini-3.5-flash-lite',
+      apiKey: state.geminiApiKey,
       contents: [{ role: 'user', parts: [{ text: prompt }] }]
     })
   }).then(r => r.json()).then(data => {
@@ -3240,10 +3816,11 @@ document.getElementById('btn-trigger-podcast').addEventListener('click', () => {
     addMessage('ai', `🎙️ **Audio Overview Synthesis:**\n\n${reply}`);
 
     if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(reply.slice(0, 280));
-      u.rate = 1.05;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(reply.slice(0, 450));
+      u.rate = 1.0;
       window.speechSynthesis.speak(u);
-      showToast('Playing spoken overview');
+      showToast('Playing spoken overview snippet');
     }
   }).catch(e => {
     removeThinking(thinkingId);
@@ -3274,13 +3851,27 @@ function toggleTheme() {
 }
 
 async function checkHealth() {
+  const savedKey = localStorage.getItem('gemini_api_key');
+  if (savedKey) {
+    state.geminiApiKey = savedKey;
+    const input = document.getElementById('setting-gemini-key');
+    if (input) input.value = savedKey;
+  }
+
   try {
     const res = await fetch('/api/health');
     if (res.ok) {
       const data = await res.json();
-      if (data.hasServerKey) {
-        document.getElementById('setting-key-status').textContent = '✓ Securely loaded from .env';
-        document.getElementById('setting-key-status').style.color = 'var(--success)';
+      if (data.hasServerKey && data.apiKey) {
+        state.geminiApiKey = data.apiKey;
+        localStorage.setItem('gemini_api_key', data.apiKey);
+        const statusEl = document.getElementById('setting-key-status');
+        if (statusEl) {
+          statusEl.textContent = '✓ Securely loaded from .env';
+          statusEl.style.color = 'var(--success)';
+        }
+        const input = document.getElementById('setting-gemini-key');
+        if (input && !input.value) input.value = data.apiKey;
       }
     }
   } catch (e) {}
@@ -3288,7 +3879,21 @@ async function checkHealth() {
 
 function saveSettings() {
   const model = document.getElementById('setting-default-model').value;
+  const keyInput = document.getElementById('setting-gemini-key').value.trim();
+
+  state.activeModel = model;
   document.getElementById('select-active-model').value = model;
+
+  if (keyInput) {
+    state.geminiApiKey = keyInput;
+    localStorage.setItem('gemini_api_key', keyInput);
+    const statusEl = document.getElementById('setting-key-status');
+    if (statusEl) {
+      statusEl.textContent = '✓ API key saved in browser';
+      statusEl.style.color = 'var(--success)';
+    }
+  }
+
   closeSettings();
   showToast('Settings saved');
 }

@@ -393,21 +393,12 @@ const server = http.createServer(async (req, res) => {
           }
         }
 
-        // Fast path for lite model: generous timeout, responds in <1s with auto-retry
-        if (requestedModel === 'gemini-3.5-flash-lite') {
-          let result = await callGoogleModel('gemini-3.5-flash-lite', 10000);
-          if (!result.ok && (result.status === 504 || result.status === 503 || result.status === 500)) {
-            console.log(`[Proxy] Transient ${result.status} on gemini-3.5-flash-lite, quick retrying...`);
-            result = await callGoogleModel('gemini-3.5-flash-lite', 12000);
-          }
-          res.writeHead(result.status, { 'Content-Type': 'application/json' });
-          res.end(result.rawText);
-          return;
-        }
+        // Dynamic model timeout allocation based on architecture
+        const modelTimeoutMs = (requestedModel === 'gemini-3.8-flash' || requestedModel === 'gemini-4-argon') ? 45000 :
+                               (requestedModel === 'gemini-3.5-flash') ? 25000 : 15000;
 
-        // For other models, try with 7s timeout. If slow/503/429, auto-fallback to flash-lite!
-        console.log(`[Proxy] Requesting model: ${requestedModel}`);
-        const primaryResult = await callGoogleModel(requestedModel, 7000);
+        console.log(`[Proxy] Requesting model: ${requestedModel} (timeout: ${modelTimeoutMs/1000}s)`);
+        let primaryResult = await callGoogleModel(requestedModel, modelTimeoutMs);
 
         if (primaryResult.ok) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -416,22 +407,25 @@ const server = http.createServer(async (req, res) => {
         }
 
         // Primary failed or timed out or high demand/quota (503, 429, 504, 404)
-        console.log(`[Proxy] ${requestedModel} issue (status: ${primaryResult.status}). Auto-falling back to gemini-3.5-flash-lite...`);
-        const fallbackResult = await callGoogleModel('gemini-3.5-flash-lite', 10000);
+        if (requestedModel !== 'gemini-3.5-flash-lite') {
+          console.log(`[Proxy] ${requestedModel} issue (status: ${primaryResult.status}). Auto-falling back to gemini-3.5-flash-lite...`);
+          const fallbackResult = await callGoogleModel('gemini-3.5-flash-lite', 15000);
 
-        if (fallbackResult.ok && fallbackResult.json?.candidates?.[0]?.content?.parts?.[0]) {
-          const reason = primaryResult.status === 503 ? 'high demand / traffic spike' :
-                         primaryResult.status === 429 ? 'free-tier quota limit' :
-                         primaryResult.status === 504 ? 'server delay (>7s)' : 'server issue';
-          const notice = `\n\n> ⚡ *Auto-accelerated via **gemini-3.5-flash-lite** in ~1s (Google's servers for \`${requestedModel}\` had a temporary ${reason}).*`;
-          
-          fallbackResult.json.candidates[0].content.parts[0].text += notice;
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(fallbackResult.json));
-          return;
+          if (fallbackResult.ok && fallbackResult.json?.candidates?.[0]?.content?.parts?.[0]) {
+            const reason = primaryResult.status === 503 ? 'high demand / traffic spike' :
+                           primaryResult.status === 429 ? 'free-tier quota limit' :
+                           primaryResult.status === 504 ? `server delay (>${modelTimeoutMs/1000}s)` :
+                           primaryResult.status === 404 ? 'model endpoint unavailable' : 'server issue';
+            const notice = `\n\n> ⚡ *Auto-accelerated via **gemini-3.5-flash-lite** in ~1s (Google's servers for \`${requestedModel}\` had a temporary ${reason}).*`;
+            
+            fallbackResult.json.candidates[0].content.parts[0].text += notice;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(fallbackResult.json));
+            return;
+          }
         }
 
-        // If fallback also failed, return primary error
+        // If fallback also failed or requested was flash-lite, return primary error
         res.writeHead(primaryResult.status, { 'Content-Type': 'application/json' });
         res.end(primaryResult.rawText);
       } catch (err) {

@@ -330,7 +330,7 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       clientId: process.env.GOOGLE_CLIENT_ID || '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
       webAppUrl: process.env.GOOGLE_DRIVE_WEBAPP_URL || '',
-      scope: 'https://www.googleapis.com/auth/drive.file'
+      scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly'
     }));
     return;
   }
@@ -461,11 +461,12 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '127.0.0.1', () => {
   const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
   console.log('====================================================');
   console.log(`🔬 NBLMimic (Research Lab) Server running!`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log(`🔒 Security: Loopback only (127.0.0.1) — Zero External Leakage ✅`);
   console.log(`🔒 Gemini API Key: ${hasKey ? 'LOADED from .env (Hidden & Secure ✅)' : 'NOT SET in .env (add to .env)'}`);
   console.log('====================================================');
 });

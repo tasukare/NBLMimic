@@ -3776,50 +3776,57 @@ const GOOGLE_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbzkuR4WPxj
 const USER_STORAGE_LIMIT_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per user
 let CURRENT_STORAGE_USED_BYTES = 0;
 
-// Default research documents
-const DEFAULT_DOCS = [
-  {
-    id: 'guide-1',
-    type: 'note',
-    icon: '📝',
-    title: 'Welcome to NBLMimic Research Workspace',
-    source: 'Google Drive Sync',
-    category: 'Notes & Uploads',
-    excerpt: 'Your personal research assistant using Google Drive as a 50 GB database.',
-    content: 'Welcome to NBLMimic!\n\nThis is your private research workspace. Each user is allocated 50 GB of storage inside your Google Drive.\n\nFolder Path in Google Drive:\n📁 NBLMimic_Database/user/<username>/\n\nFeatures:\n- Notes and sources are synchronized with your Google Drive.\n- Real-time 50 GB storage meter tracks your usage.\n- Grounded AI analysis with Google Gemini.',
-    url: '',
-    date: 'Today',
-    timestamp: Date.now(),
-    tags: ['#welcome', '#notes', '#guide']
-  }
-];
+// Default research documents (Clean empty library by default)
+const DEFAULT_DOCS = [];
 
-// Document storage
+// Document storage: Only keep documents uploaded/imported by the user or synced from Drive
 let DOCS = (() => {
   try {
     const saved = localStorage.getItem('nblmimic_user_sources');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Clean up any old news scraping articles from previous versions
-      const cleaned = parsed.filter(d => d.source !== 'Hacker News' && d.source !== 'Ars Technica' && d.source !== 'ScienceDaily' && d.source !== 'Google AI Research' && d.source !== 'Reuters / Policy');
-      if (cleaned.length > 0) return cleaned;
+      // Clean up any old dummy articles, guide-1, or news feed sources
+      const cleaned = parsed.filter(d => 
+        d.id !== 'guide-1' &&
+        d.source !== 'Hacker News' && 
+        d.source !== 'Ars Technica' && 
+        d.source !== 'ScienceDaily' && 
+        d.source !== 'Google AI Research' && 
+        d.source !== 'Reuters / Policy' &&
+        d.source !== 'Climate Policy' &&
+        d.source !== 'Nature Climate Change' &&
+        d.source !== 'World Bank' &&
+        d.source !== 'IPCC Synthesis' &&
+        d.source !== 'Global Environmental Change'
+      );
+      localStorage.setItem('nblmimic_user_sources', JSON.stringify(cleaned));
+      return cleaned;
     }
-    return DEFAULT_DOCS;
+    return [];
   } catch (e) {
-    return DEFAULT_DOCS;
+    return [];
   }
 })();
 
 // Active sources set (all active by default)
 let activeSourceIds = new Set(DOCS.map(d => d.id));
 
-// Chat History storage
-let CHAT_HISTORY = (() => {
+// Per-Topic / Per-Notebook Chat Histories Map
+let CHAT_HISTORIES = (() => {
   try {
-    const saved = localStorage.getItem('nblmimic_chat_history');
-    return saved ? JSON.parse(saved) : [];
+    const saved = localStorage.getItem('nblmimic_chat_histories_map');
+    if (saved) return JSON.parse(saved);
+    // Migrate old single chat history if exists
+    const oldHistory = localStorage.getItem('nblmimic_chat_history');
+    if (oldHistory) {
+      const parsedOld = JSON.parse(oldHistory);
+      if (Array.isArray(parsedOld) && parsedOld.length > 0) {
+        return { 'default': parsedOld };
+      }
+    }
+    return {};
   } catch (e) {
-    return [];
+    return {};
   }
 })();
 
@@ -3833,6 +3840,29 @@ let NOTEBOOKS = (() => {
   }
 })();
 let activeNotebookId = localStorage.getItem('nblmimic_active_notebook_id') || (NOTEBOOKS.length > 0 ? NOTEBOOKS[0].id : null);
+
+// Helper to get active topic/notebook key
+function getActiveChatTopicId() {
+  return activeNotebookId || 'default';
+}
+
+// Helper to get chat history for current active topic
+function getActiveChatHistory() {
+  const topicId = getActiveChatTopicId();
+  if (!CHAT_HISTORIES[topicId]) {
+    CHAT_HISTORIES[topicId] = [];
+  }
+  return CHAT_HISTORIES[topicId];
+}
+
+// Helper to save active chat history
+function saveActiveChatHistory(history) {
+  const topicId = getActiveChatTopicId();
+  CHAT_HISTORIES[topicId] = history;
+  localStorage.setItem('nblmimic_chat_histories_map', JSON.stringify(CHAT_HISTORIES));
+  // Keep legacy key synced with active topic for backwards compatibility
+  localStorage.setItem('nblmimic_chat_history', JSON.stringify(history));
+}
 
 // App Settings
 const SETTINGS = (() => {
@@ -3941,8 +3971,6 @@ async function checkServerBackend() {
             }
 
             updateServerStatusBadge();
-            // Automatically fetch newest live news feed in background
-            fetchLiveNews(false);
             return;
           }
         }
@@ -4031,12 +4059,14 @@ function updateModelBadge() {
 
 function switchAndRetryModel(newModel) {
   selectChatModel(newModel);
+  const currentChat = getActiveChatHistory();
   // Find last user prompt
-  const lastUserMsg = [...CHAT_HISTORY].reverse().find(m => m.role === 'user');
+  const lastUserMsg = [...currentChat].reverse().find(m => m.role === 'user');
   if (lastUserMsg) {
-    // Remove the error response from CHAT_HISTORY so conversation remains clean
-    if (CHAT_HISTORY.length && CHAT_HISTORY[CHAT_HISTORY.length - 1].role === 'model') {
-      CHAT_HISTORY.pop();
+    // Remove the error response from currentChat so conversation remains clean
+    if (currentChat.length && currentChat[currentChat.length - 1].role === 'model') {
+      currentChat.pop();
+      saveActiveChatHistory(currentChat);
     }
     const input = document.getElementById('chat-input');
     if (input) input.value = lastUserMsg.text;
@@ -4189,25 +4219,38 @@ function renderChat() {
   const messagesContainer = document.getElementById('chat-messages');
   if (!messagesContainer) return;
 
+  // Sync notebook title in chat header
+  const titleEl = document.getElementById('chat-notebook-title');
+  const metaEl = document.getElementById('chat-notebook-meta');
+  const activeNb = NOTEBOOKS.find(n => n.id === activeNotebookId);
+  if (titleEl) {
+    titleEl.textContent = activeNb ? activeNb.title : 'Research Lab Agent';
+  }
+  if (metaEl) {
+    metaEl.textContent = `Topic: ${activeNb ? activeNb.title : 'General Workspace'} · Grounded in active sources`;
+  }
+
   // Preserve the api-key-banner
   const banner = document.getElementById('api-key-banner');
   messagesContainer.innerHTML = '';
   if (banner) messagesContainer.appendChild(banner);
 
-  if (CHAT_HISTORY.length === 0) {
+  const currentChat = getActiveChatHistory();
+
+  if (currentChat.length === 0) {
     const welcome = document.createElement('div');
     welcome.className = 'msg-group ai';
     welcome.id = 'chat-welcome-msg';
+    const topicHeading = activeNb ? `Workspace: ${activeNb.title}` : 'Welcome to the Research Lab AI Agent';
     welcome.innerHTML = `
       <div class="msg-sender">Research Lab Agent</div>
       <div class="msg-bubble">
-        <p><strong>👋 Welcome to the Research Lab AI Agent.</strong></p>
-        <p>I am your autonomous research analyst and synthesizer inspired by Google NotebookLM. I answer queries grounded strictly in your active sources, cite reference documents, and generate synthesis notes.</p>
+        <p><strong>👋 ${topicHeading}</strong></p>
+        <p>This discussion thread is dedicated exclusively to this topic. All queries are grounded strictly in your selected active research sources.</p>
         <div class="prompt-chips">
           <button class="prompt-chip" onclick="askPreset('Summarize the key findings and major takeaways across all active sources.')">📑 Summarize active sources</button>
-          <button class="prompt-chip" onclick="askPreset('How does the EU Green Deal compare to the IPCC recommended approach?')">⚖️ Compare EU vs IPCC</button>
-          <button class="prompt-chip" onclick="askPreset('What does Stiglitz et al. say about carbon leakage specifically?')">🔍 Carbon leakage analysis</button>
           <button class="prompt-chip" onclick="askPreset('Synthesize an executive briefing note with key recommendations.')">📝 Generate briefing note</button>
+          <button class="prompt-chip" onclick="askPreset('Identify any gaps, limitations, or open questions in the current sources.')">🔍 Analyze gaps & questions</button>
         </div>
       </div>
     `;
@@ -4215,7 +4258,7 @@ function renderChat() {
     return;
   }
 
-  CHAT_HISTORY.forEach((msg, idx) => {
+  currentChat.forEach((msg, idx) => {
     const group = document.createElement('div');
     group.className = `msg-group ${msg.role === 'user' ? 'user' : 'ai'}`;
     
@@ -4447,9 +4490,10 @@ async function sendMessage() {
   const text = input ? input.value.trim() : '';
   if (!text) return;
 
-  // Add user message to history
-  CHAT_HISTORY.push({ role: 'user', text: text });
-  localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+  // Add user message to current topic history
+  const currentChat = getActiveChatHistory();
+  currentChat.push({ role: 'user', text: text });
+  saveActiveChatHistory(currentChat);
   renderChat();
 
   if (input) {
@@ -4474,7 +4518,7 @@ async function sendMessage() {
 
   try {
     const activeDocs = DOCS.filter(d => activeSourceIds.has(d.id));
-    const previousHistory = CHAT_HISTORY.slice(0, -1);
+    const previousHistory = currentChat.slice(0, -1);
     
     let replyText = '';
     if (SETTINGS.provider === 'gemini') {
@@ -4485,8 +4529,8 @@ async function sendMessage() {
 
     if (typing) typing.style.display = 'none';
 
-    CHAT_HISTORY.push({ role: 'model', text: replyText });
-    localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+    currentChat.push({ role: 'model', text: replyText });
+    saveActiveChatHistory(currentChat);
     renderChat();
   } catch (err) {
     if (typing) typing.style.display = 'none';
@@ -4519,8 +4563,8 @@ async function sendMessage() {
       errorMsg = `❌ **Error querying ${SETTINGS.provider === 'gemini' ? 'Gemini API' : 'Ollama'}:** ${err.message}\n\nPlease check your key and connection in [Settings](javascript:switchView("settings")).`;
     }
 
-    CHAT_HISTORY.push({ role: 'model', text: errorMsg });
-    localStorage.setItem('nblmimic_chat_history', JSON.stringify(CHAT_HISTORY));
+    currentChat.push({ role: 'model', text: errorMsg });
+    saveActiveChatHistory(currentChat);
     renderChat();
     showToast(isHighDemand ? 'Model high demand. Click suggestion to switch.' : (isQuotaExceeded ? 'Quota limit reached on this model.' : `AI query failed: ${err.message}`), 'error');
   }
@@ -4539,7 +4583,8 @@ function autoResize(el) {
 }
 
 function copyMessage(idx) {
-  const msg = CHAT_HISTORY[idx];
+  const currentChat = getActiveChatHistory();
+  const msg = currentChat[idx];
   if (!msg) return;
   navigator.clipboard.writeText(msg.text).then(() => {
     showToast('Copied message to clipboard', 'success');
@@ -4549,7 +4594,8 @@ function copyMessage(idx) {
 }
 
 function saveToNotesByIndex(idx) {
-  const msg = CHAT_HISTORY[idx];
+  const currentChat = getActiveChatHistory();
+  const msg = currentChat[idx];
   if (!msg) return;
   const notesArea = document.querySelector('#sp-notes textarea');
   if (notesArea) {
@@ -4562,10 +4608,9 @@ function saveToNotesByIndex(idx) {
 }
 
 function clearChatHistory() {
-  CHAT_HISTORY = [];
-  localStorage.removeItem('nblmimic_chat_history');
+  saveActiveChatHistory([]);
   renderChat();
-  showToast('Chat conversation history cleared', 'success');
+  showToast('Chat conversation history cleared for this topic', 'success');
 }
 
 /* ════ REAL-TIME LIVE NEWS, CATEGORY & AUTO-SORT ENGINE ════ */
@@ -4786,10 +4831,16 @@ function renderLibrary(categoryFilter = CURRENT_CATEGORY_FILTER, searchQuery = '
 
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align:center; padding: 48px 16px; color:var(--text-tertiary);">
-        <div style="font-size:32px; margin-bottom:8px;">🔍</div>
-        <div style="font-size:14px; font-weight:600; color:var(--text-secondary);">No documents match this category</div>
-        <div style="font-size:12px; margin-top:4px;">Try selecting another category or click "Refresh News".</div>
+      <div style="grid-column: 1/-1; text-align:center; padding: 56px 16px; color:var(--text-tertiary);">
+        <div style="font-size:36px; margin-bottom:12px;">📚</div>
+        <div style="font-size:15px; font-weight:600; color:var(--text-primary);">No sources in your library yet</div>
+        <div style="font-size:13px; margin-top:6px; color:var(--text-secondary); max-width:440px; margin-left:auto; margin-right:auto;">Upload research papers, PDFs, notes, or import Wikipedia / web articles using the button above to begin.</div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary btn-sm" onclick="openModal()" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Import First Source
+          </button>
+        </div>
       </div>
     `;
     return;
@@ -5365,18 +5416,19 @@ function selectNotebook(id) {
   localStorage.setItem('nblmimic_active_notebook_id', id);
   renderSidebarNotebooks();
   switchView('chat');
+  renderChat();
   const nb = NOTEBOOKS.find(n => n.id === id);
   if (nb) {
-    showToast(`Switched to notebook "${nb.title}"`, 'info');
+    showToast(`Switched to topic "${nb.title}"`, 'info');
   }
 }
 
 function createNewNotebook() {
-  const name = prompt('Enter notebook title:', 'New Research Notebook');
+  const name = prompt('Enter topic / notebook title:', 'New Research Topic');
   if (name === null) return;
   const trimmed = name.trim();
   if (!trimmed) {
-    showToast('Notebook name cannot be empty', 'error');
+    showToast('Topic title cannot be empty', 'error');
     return;
   }
   const id = 'nb_' + Date.now();
@@ -5391,32 +5443,38 @@ function createNewNotebook() {
   localStorage.setItem('nblmimic_active_notebook_id', id);
   renderSidebarNotebooks();
   switchView('chat');
-  showToast(`Created notebook "${trimmed}"`, 'success');
+  renderChat();
+  showToast(`Created topic "${trimmed}"`, 'success');
 }
 
 function renameNotebook(id) {
   const nb = NOTEBOOKS.find(n => n.id === id);
   if (!nb) return;
-  const newName = prompt('Enter new notebook title:', nb.title);
+  const newName = prompt('Enter new topic title:', nb.title);
   if (newName === null) return;
   const trimmed = newName.trim();
   if (!trimmed) {
-    showToast('Notebook title cannot be empty', 'error');
+    showToast('Topic title cannot be empty', 'error');
     return;
   }
   nb.title = trimmed;
   localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
   renderSidebarNotebooks();
-  showToast(`Renamed notebook to "${trimmed}"`, 'success');
+  if (activeNotebookId === id) {
+    renderChat();
+  }
+  showToast(`Renamed topic to "${trimmed}"`, 'success');
 }
 
 function deleteNotebook(id) {
   const index = NOTEBOOKS.findIndex(n => n.id === id);
   if (index === -1) return;
   const nb = NOTEBOOKS[index];
-  if (!confirm(`Are you sure you want to delete notebook "${nb.title}"?`)) {
+  if (!confirm(`Are you sure you want to delete topic "${nb.title}"? Its individual chat history will also be removed.`)) {
     return;
   }
+  delete CHAT_HISTORIES[id];
+  localStorage.setItem('nblmimic_chat_histories_map', JSON.stringify(CHAT_HISTORIES));
   NOTEBOOKS.splice(index, 1);
   if (activeNotebookId === id) {
     activeNotebookId = NOTEBOOKS.length > 0 ? NOTEBOOKS[0].id : null;
@@ -5424,7 +5482,8 @@ function deleteNotebook(id) {
   }
   localStorage.setItem('nblmimic_user_notebooks', JSON.stringify(NOTEBOOKS));
   renderSidebarNotebooks();
-  showToast(`Deleted notebook "${nb.title}"`, 'info');
+  renderChat();
+  showToast(`Deleted topic "${nb.title}"`, 'info');
 }
 
 /* ════ VIEW SWITCHING ════ */

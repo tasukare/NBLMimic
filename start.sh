@@ -3,7 +3,7 @@
 cd "$(dirname "$0")"
 
 echo "===================================================="
-echo " Starting Research Lab on http://localhost:3000..."
+echo " Starting NBLMimic on http://localhost:3000..."
 echo "===================================================="
 
 # Open browser if graphical environment is running

@@ -583,7 +583,7 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
   console.log('====================================================');
-  console.log(`🔬 NBLMimic (Research Lab) Server running!`);
+  console.log(`🔬 NBLMimic Server running!`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`🔒 Gemini API Key: ${hasKey ? 'LOADED from .env (Hidden & Secure ✅)' : 'NOT SET in .env (add to .env)'}`);
   console.log('====================================================');

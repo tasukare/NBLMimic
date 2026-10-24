@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Research Lab</title>
+<title>NBLMimic</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="alternate icon" href="favicon.ico">
 <style>
@@ -2700,7 +2700,7 @@ svg { display: block; flex-shrink: 0; }
           <path d="M5.5 7.5h5M5.5 10h3" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
       </div>
-      Research Lab
+      NBLMimic
     </div>
 
     <div class="header-search">
@@ -2978,7 +2978,7 @@ svg { display: block; flex-shrink: 0; }
           </svg>
         </div>
         <div class="chat-notebook-info">
-          <div class="chat-notebook-name" id="chat-notebook-title">Research Lab Agent</div>
+          <div class="chat-notebook-name" id="chat-notebook-title">NBLMimic Agent</div>
           <div class="chat-notebook-count" id="chat-notebook-meta">Grounded in active sources · Powered by Gemini 3.8 Flash</div>
         </div>
         <!-- Interactive Model Selector Dropdown -->
@@ -3040,7 +3040,7 @@ svg { display: block; flex-shrink: 0; }
 
       <!-- Typing Indicator -->
       <div class="msg-group ai" id="typing-group" style="display:none; padding: 0 24px 12px;">
-        <div class="msg-sender">Research Lab Agent</div>
+        <div class="msg-sender">NBLMimic Agent</div>
         <div class="typing-indicator">
           <div class="typing-dot"></div>
           <div class="typing-dot"></div>
@@ -3063,7 +3063,7 @@ svg { display: block; flex-shrink: 0; }
             class="chat-textarea"
             id="chat-input"
             rows="1"
-            placeholder="Ask Research Lab Agent about your sources…"
+            placeholder="Ask NBLMimic Agent about your sources…"
             aria-label="Message input"
             onkeydown="handleChatKey(event)"
             oninput="autoResize(this)"
@@ -3095,7 +3095,7 @@ svg { display: block; flex-shrink: 0; }
     <div class="view settings-view" id="view-settings">
       <div class="settings-inner">
         <h2 class="settings-title">Settings</h2>
-        <p class="settings-subtitle">Manage your Research Lab preferences</p>
+        <p class="settings-subtitle">Manage your NBLMimic preferences</p>
 
         <div class="settings-section">
           <div class="settings-section-title">Drive Account</div>
@@ -3728,7 +3728,7 @@ svg { display: block; flex-shrink: 0; }
         </div>
       </div>
       <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
-        Your Google account profile picture and information are safely synchronized in your browser session to personalize your Research Lab workspace.
+        Your Google account profile picture and information are safely synchronized in your browser session to personalize your NBLMimic workspace.
       </div>
     </div>
     <div class="modal-footer">
@@ -3744,7 +3744,7 @@ svg { display: block; flex-shrink: 0; }
 <!-- ═══════════════════ SCRIPT ═══════════════════ -->
 <script>
 /* ════════════════════════════════════════════════
-   RESEARCH LAB — AI AGENT & DATA STORE
+   NBLMIMIC — AI AGENT & DATA STORE
    Powered by Google Gemini API
 ════════════════════════════════════════════════ */
 
@@ -4213,7 +4213,7 @@ function renderChat() {
   const metaEl = document.getElementById('chat-notebook-meta');
   const activeNb = NOTEBOOKS.find(n => n.id === activeNotebookId);
   if (titleEl) {
-    titleEl.textContent = activeNb ? activeNb.title : 'Research Lab Agent';
+    titleEl.textContent = activeNb ? activeNb.title : 'NBLMimic Agent';
   }
   if (metaEl) {
     metaEl.textContent = `Topic: ${activeNb ? activeNb.title : 'General Workspace'} · Grounded in active sources`;
@@ -4230,9 +4230,9 @@ function renderChat() {
     const welcome = document.createElement('div');
     welcome.className = 'msg-group ai';
     welcome.id = 'chat-welcome-msg';
-    const topicHeading = activeNb ? `Workspace: ${activeNb.title}` : 'Welcome to the Research Lab AI Agent';
+    const topicHeading = activeNb ? `Workspace: ${activeNb.title}` : 'Welcome to the NBLMimic AI Agent';
     welcome.innerHTML = `
-      <div class="msg-sender">Research Lab Agent</div>
+      <div class="msg-sender">NBLMimic Agent</div>
       <div class="msg-bubble">
         <p><strong>👋 ${topicHeading}</strong></p>
         <p>This discussion thread is dedicated exclusively to this topic. All queries are grounded strictly in your selected active research sources.</p>
@@ -4259,7 +4259,7 @@ function renderChat() {
     } else {
       const formatted = formatMarkdown(msg.text);
       group.innerHTML = `
-        <div class="msg-sender">Research Lab Agent</div>
+        <div class="msg-sender">NBLMimic Agent</div>
         <div class="msg-bubble">${formatted}</div>
         <div class="msg-actions">
           <button class="msg-action-btn" onclick="copyMessage(${idx})">Copy</button>
@@ -4328,7 +4328,7 @@ async function callGemini(messagesHistory, userPrompt, activeSources) {
 - Assist the user creatively while grounding in active sources [1], [2] where applicable.`;
   }
 
-  const systemPrompt = `You are Research Lab AI, a knowledgeable, objective, and analytical research partner inspired by Google NotebookLM.
+  const systemPrompt = `You are NBLMimic AI, a knowledgeable, objective, and analytical research partner inspired by Google NotebookLM.
 ${groundingRules}
 ${customInst ? '\nUser-defined Persona Instructions:\n' + customInst : ''}
 ${sourcesSection}`;
@@ -4454,7 +4454,7 @@ async function callOllama(messagesHistory, userPrompt, activeSources) {
   const model = SETTINGS.ollama_model || 'llama3.1';
 
   let sourcesSection = activeSources.map((doc, idx) => `[${idx + 1}] ${doc.title}: ${doc.content || doc.excerpt}`).join('\n\n');
-  const systemPrompt = `You are Research Lab AI, a research assistant inspired by NotebookLM. Synthesize answers grounded in these sources with citations like [1], [2]:\n\n${sourcesSection}`;
+  const systemPrompt = `You are NBLMimic AI, a research assistant inspired by NotebookLM. Synthesize answers grounded in these sources with citations like [1], [2]:\n\n${sourcesSection}`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -4502,7 +4502,7 @@ async function sendMessage() {
     typing.style.display = 'flex';
     if (typingStatus) {
       typingStatus.textContent = SETTINGS.provider === 'gemini'
-        ? `Research Lab Agent (${SETTINGS.gemini_model || 'gemini-3.5-flash-lite'}) is synthesizing sources…`
+        ? `NBLMimic Agent (${SETTINGS.gemini_model || 'gemini-3.5-flash-lite'}) is synthesizing sources…`
         : `Ollama (${SETTINGS.ollama_model}) is reasoning…`;
     }
   }
@@ -6161,7 +6161,7 @@ function connectGeminiLive(keyConfig, sessionType = 'voice', customPrompt = '') 
 
     let systemText = '';
     if (sessionType === 'overview') {
-      systemText = `You are the dynamic, articulate host of Research Lab Deep Dive (inspired by NotebookLM Audio Overview).
+      systemText = `You are the dynamic, articulate host of NBLMimic Deep Dive (inspired by NotebookLM Audio Overview).
 You deliver a lively, natural, conversational spoken overview of the user's active research sources.
 Explain the key insights, highlight surprising findings, and provide thoughtful analysis.
 Speak clearly, engagingly, with conversational pacing.${sourcesText}`;

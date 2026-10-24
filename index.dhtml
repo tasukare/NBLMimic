@@ -4982,7 +4982,7 @@ function openSourcePanel(num) {
 }
 
 /* ════ ADD / IMPORT SOURCES ════ */
-function handleImportModal() {
+async function handleImportModal() {
   const tabText = document.getElementById('tab-text');
   const tabFile = document.getElementById('tab-file');
   const tabUrl = document.getElementById('tab-url');
@@ -5000,15 +5000,115 @@ function handleImportModal() {
     closeModal();
     showToast(`"${title}" added to your research library!`, 'success');
   } else if (tabUrl && tabUrl.style.display !== 'none') {
-    const url = document.getElementById('url-input')?.value.trim();
-    if (!url) {
+    const rawUrl = document.getElementById('url-input')?.value.trim();
+    if (!rawUrl) {
       showToast('Please enter a valid URL', 'error');
       return;
     }
-    addNewSource(`Web Source: ${url.replace(/^https?:\/\//, '')}`, `Reference content retrieved from ${url}`, 'web', url);
-    document.getElementById('url-input').value = '';
-    closeModal();
-    showToast('Web source registered for research', 'success');
+    const cleanUrl = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+    const importBtn = document.querySelector('#modal .modal-footer .btn-primary');
+    const originalBtnText = importBtn ? importBtn.innerHTML : 'Import';
+    if (importBtn) {
+      importBtn.disabled = true;
+      importBtn.innerHTML = 'Fetching context…';
+    }
+    showToast('Fetching article context from URL…', 'info');
+
+    try {
+      let docTitle = `Web Source: ${cleanUrl.replace(/^https?:\/\//, '')}`;
+      let docContent = '';
+      let sourceName = 'Web Source';
+
+      // 1. Wikipedia Special Extractor (Client-side directly via Wikipedia REST/action API)
+      const wikiMatch = cleanUrl.match(/https?:\/\/([a-z0-9_-]+)\.wikipedia\.org\/wiki\/([^#?]+)/i);
+      if (wikiMatch) {
+        const lang = wikiMatch[1];
+        const rawWikiTitle = decodeURIComponent(wikiMatch[2]);
+        const apiUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&titles=${encodeURIComponent(rawWikiTitle)}&format=json&origin=*`;
+        try {
+          const wRes = await fetch(apiUrl);
+          if (wRes.ok) {
+            const wData = await wRes.json();
+            const pages = wData.query?.pages;
+            const pageId = Object.keys(pages || {})[0];
+            const extract = pages?.[pageId]?.extract || '';
+            const fetchedTitle = pages?.[pageId]?.title || rawWikiTitle.replace(/_/g, ' ');
+            if (extract && extract.trim().length > 50) {
+              docTitle = fetchedTitle;
+              docContent = extract.trim();
+              sourceName = `Wikipedia (${lang.toUpperCase()})`;
+            }
+          }
+        } catch (wikiErr) {
+          console.warn('Wikipedia direct API fallback:', wikiErr);
+        }
+      }
+
+      // 2. Local Backend Scraper (/api/scrape proxy)
+      if (!docContent && SERVER_STATUS.baseUrl) {
+        try {
+          const sRes = await fetch(`${SERVER_STATUS.baseUrl}/api/scrape`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: cleanUrl })
+          });
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            if (sData.data && sData.data.content && sData.data.content.length > 50) {
+              docTitle = sData.data.title || docTitle;
+              docContent = sData.data.content;
+              sourceName = sData.data.source || sourceName;
+            }
+          }
+        } catch (serverErr) {
+          console.warn('Server scraper proxy error:', serverErr);
+        }
+      }
+
+      // 3. Jina Reader CORS-friendly fallback (for general web articles when server is not running)
+      if (!docContent) {
+        try {
+          const jinaRes = await fetch(`https://r.jina.ai/${cleanUrl}`, {
+            headers: { 'Accept': 'text/plain' }
+          });
+          if (jinaRes.ok) {
+            const jinaText = await jinaRes.text();
+            if (jinaText && jinaText.trim().length > 60) {
+              const titleMatch = jinaText.match(/Title:\s*(.+)/i);
+              if (titleMatch) docTitle = titleMatch[1].trim();
+              docContent = jinaText.trim();
+              sourceName = 'Web Article';
+            }
+          }
+        } catch (jinaErr) {
+          console.warn('Jina fallback error:', jinaErr);
+        }
+      }
+
+      // Fallback if no full text could be fetched: record clean reference header
+      if (!docContent) {
+        docContent = `Full URL reference: ${cleanUrl}\n\nNote: Automated body extraction for this domain was restricted or unavailable. You can also copy and paste the article text into the 'Paste Text' tab for guaranteed AI full-context coverage.`;
+      }
+
+      addNewSource(docTitle, docContent, 'web', cleanUrl, {
+        icon: '🌐',
+        sourceName: sourceName,
+        category: 'Data & Research',
+        sizeBytes: docContent.length
+      });
+
+      document.getElementById('url-input').value = '';
+      closeModal();
+      showToast(`"${docTitle}" added with full article context!`, 'success');
+    } catch (err) {
+      console.error('URL import error:', err);
+      showToast(`Failed to fetch URL context: ${err.message}`, 'error');
+    } finally {
+      if (importBtn) {
+        importBtn.disabled = false;
+        importBtn.innerHTML = originalBtnText;
+      }
+    }
   } else {
     // File upload
     const fileInput = document.getElementById('file-input');
@@ -5075,6 +5175,20 @@ function processUploadedFile(file) {
       // For JSON, pretty-print if valid
       if (ext === 'json') {
         try { content = JSON.stringify(JSON.parse(content), null, 2); } catch(e) {}
+      } else if (ext === 'pdf') {
+        // Extract readable text chunks from raw PDF stream
+        try {
+          const parts = [];
+          const tjMatches = content.match(/\((?:\\\(|\\\)|[^()])*\)\s*Tj/g) || [];
+          for (const m of tjMatches) {
+            const rawChunk = m.slice(1, m.lastIndexOf(')'));
+            const unescaped = rawChunk.replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+            if (unescaped.trim()) parts.push(unescaped.trim());
+          }
+          if (parts.length > 5) {
+            content = parts.join(' ');
+          }
+        } catch (pdfErr) {}
       }
       addNewSource(file.name, content, meta.type, '', {
         icon: meta.icon, sourceName: meta.source, category: meta.cat,

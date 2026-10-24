@@ -257,6 +257,101 @@ async function fetchLiveNewsFeed(force = false) {
   return NEWS_CACHE.articles;
 }
 
+// ════════════════════════════════════════════════
+// Real-time Web Content Scraper & Extractor
+// ════════════════════════════════════════════════
+function fetchUrlStream(targetUrl, maxRedirects = 5) {
+  return new Promise((resolve, reject) => {
+    if (maxRedirects <= 0) return reject(new Error('Too many redirects'));
+    const parsed = new URL(targetUrl);
+    const client = parsed.protocol === 'https:' ? https : http;
+    const req = client.get(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/json,text/plain;q=0.9,*/*;q=0.8'
+      },
+      timeout: 10000
+    }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        const nextUrl = new URL(res.headers.location, targetUrl).href;
+        return resolve(fetchUrlStream(nextUrl, maxRedirects - 1));
+      }
+      let data = '';
+      res.on('data', chunk => {
+        data += chunk;
+        if (data.length > 5000000) { req.destroy(); }
+      });
+      res.on('end', () => resolve({ status: res.statusCode, data }));
+    });
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('Scrape timeout after 10s')); });
+  });
+}
+
+function cleanHtmlToArticleText(html) {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+    .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, ' ')
+    .replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, ' ')
+    .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, ' ')
+    .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, ' ')
+    .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, ' ')
+    .replace(/<br\s*[\/]?>/gi, '\n')
+    .replace(/<\/(p|div|h[1-6]|li|tr|blockquote|section|article)>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n\s*\n\s*\n+/g, '\n\n')
+    .trim();
+}
+
+async function scrapeWebUrl(targetUrl) {
+  // 1. Specialized Wikipedia Article Extractor (fetches clean encyclopedic full text)
+  const wikiMatch = targetUrl.match(/https?:\/\/([a-z0-9_-]+)\.wikipedia\.org\/wiki\/([^#?]+)/i);
+  if (wikiMatch) {
+    const lang = wikiMatch[1];
+    const rawTitle = decodeURIComponent(wikiMatch[2]);
+    const apiUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&titles=${encodeURIComponent(rawTitle)}&format=json`;
+    try {
+      const res = await fetchUrlStream(apiUrl);
+      const json = JSON.parse(res.data);
+      const pages = json.query?.pages;
+      const pageId = Object.keys(pages || {})[0];
+      const extract = pages?.[pageId]?.extract || '';
+      const title = pages?.[pageId]?.title || rawTitle.replace(/_/g, ' ');
+      if (extract && extract.trim().length > 50) {
+        return {
+          title: title,
+          content: extract.trim(),
+          source: `Wikipedia (${lang})`,
+          url: targetUrl
+        };
+      }
+    } catch (e) {
+      console.log(`[Scraper] Wikipedia API fallback: ${e.message}`);
+    }
+  }
+
+  // 2. Generic Web Scraper for any website / blog / paper
+  const res = await fetchUrlStream(targetUrl);
+  const html = res.data;
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  const title = titleMatch ? titleMatch[1].replace(/[\r\n\t]+/g, ' ').trim() : targetUrl.replace(/^https?:\/\//, '');
+  const content = cleanHtmlToArticleText(html);
+  return {
+    title: title,
+    content: content || `Web content from ${targetUrl}`,
+    source: 'Web Source',
+    url: targetUrl
+  };
+}
+
 const server = http.createServer(async (req, res) => {
   // Enable CORS for local development
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -313,6 +408,34 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: { message: `News fetch error: ${err.message}` } }));
     }
+    return;
+  }
+
+  // 1d. URL & Wikipedia Scraper Endpoint
+  if (pathname === '/api/scrape' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const targetUrl = (payload.url || '').trim();
+        if (!targetUrl) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: { message: 'Missing target URL in request body.' } }));
+          return;
+        }
+
+        const scraped = await scrapeWebUrl(targetUrl);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: 'ok',
+          data: scraped
+        }));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: { message: `Scrape error: ${err.message}` } }));
+      }
+    });
     return;
   }
 

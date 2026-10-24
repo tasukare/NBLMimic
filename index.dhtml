@@ -490,15 +490,86 @@
       color: var(--text-main);
     }
 
-    /* Category Filter Tabs */
+    /* Category Filter Carousel with < and > Buttons */
+    .category-carousel-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--border);
+      padding: 0 4px;
+      height: 38px;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .category-arrow-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      z-index: 4;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .category-arrow-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-hover);
+      border-color: var(--border-strong);
+      transform: scale(1.08);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .category-arrow-btn:active {
+      transform: scale(0.92);
+    }
+
+    .category-arrow-btn.disabled,
+    .category-arrow-btn:disabled {
+      opacity: 0.25;
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .category-fade-edge {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 22px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    .category-fade-edge.left {
+      left: 26px;
+      background: linear-gradient(to right, var(--bg-canvas), transparent);
+    }
+
+    .category-fade-edge.right {
+      right: 26px;
+      background: linear-gradient(to left, var(--bg-canvas), transparent);
+    }
+
     .filter-tabs {
       display: flex;
-      gap: 4px;
-      padding: 8px 12px;
+      gap: 5px;
+      padding: 4px 6px;
       overflow-x: auto;
+      scroll-behavior: smooth;
       scrollbar-width: none;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg-canvas);
+      -ms-overflow-style: none;
+      align-items: center;
+      flex: 1;
     }
 
     .filter-tabs::-webkit-scrollbar {
@@ -506,26 +577,44 @@
     }
 
     .filter-tab {
-      padding: 3px 8px;
-      border-radius: var(--radius-sm);
+      padding: 3.5px 10px;
+      border-radius: 20px;
       font-size: 11.5px;
       font-weight: 500;
       color: var(--text-secondary);
       white-space: nowrap;
-      transition: all 120ms ease;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      user-select: none;
+      transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .filter-tab:hover {
       color: var(--text-main);
-      background: var(--bg-subtle);
+      background: var(--bg-hover);
+      border-color: var(--border-subtle);
+      transform: translateY(-0.5px);
+    }
+
+    .filter-tab:active {
+      transform: scale(0.95);
     }
 
     .filter-tab.active {
-      background: var(--bg-surface);
-      color: var(--text-main);
-      box-shadow: var(--shadow-xs);
+      background: var(--text-main);
+      color: var(--bg-surface);
+      border-color: var(--text-main);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.14);
       font-weight: 600;
-      border: 1px solid var(--border);
+      transform: translateY(-0.5px);
+      animation: tabPillPop 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes tabPillPop {
+      0% { transform: scale(0.92); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
     }
 
     /* Sources Cards */
@@ -536,6 +625,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      scroll-behavior: smooth;
     }
 
     .source-item-card {
@@ -547,17 +637,47 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
-      transition: all 120ms ease;
+      transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      animation: cardEntrance 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      position: relative;
+    }
+
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .source-item-card:hover {
       border-color: var(--border-hover);
-      box-shadow: var(--shadow-xs);
+      transform: translateY(-1.5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .source-item-card:active {
+      transform: scale(0.985);
     }
 
     .source-item-card.selected {
       border-color: var(--accent);
       background: var(--accent-subtle);
+      box-shadow: 0 0 0 1px var(--accent-border);
+    }
+
+    .source-item-card.selected::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--accent);
     }
 
     .source-item-header {
@@ -919,6 +1039,21 @@
       color: var(--text-main);
     }
 
+    .reader-prose-animate {
+      animation: readerArticleFadeIn 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes readerArticleFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .reader-prose-content p {
       margin-bottom: 1.35em;
     }
@@ -1025,6 +1160,19 @@
       max-width: 88%;
       font-size: 13.5px;
       line-height: 1.5;
+      animation: chatMsgEntrance 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: all 140ms ease;
+    }
+
+    @keyframes chatMsgEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .chat-msg.user {
@@ -1779,13 +1927,38 @@
       </div>
     </div>
 
-    <!-- File Type Filter Tabs -->
-    <div class="filter-tabs" id="filter-tabs-bar">
-      <button class="filter-tab active" data-cat="all">All</button>
-      <button class="filter-tab" data-cat="Docs">Docs</button>
-      <button class="filter-tab" data-cat="Notes">Notes</button>
-      <button class="filter-tab" data-cat="PDFs">PDFs</button>
-      <button class="filter-tab" data-cat="Sheets">Sheets</button>
+    <!-- Category Carousel Bar with < and > Navigation -->
+    <div class="category-carousel-wrapper">
+      <button class="category-arrow-btn prev" id="btn-cat-prev" aria-label="Scroll categories left" title="Scroll left">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+
+      <div class="category-fade-edge left" id="cat-fade-left"></div>
+
+      <div class="filter-tabs" id="filter-tabs-bar">
+        <button class="filter-tab active" data-cat="all">All</button>
+        <button class="filter-tab" data-cat="AI & ML">AI &amp; ML</button>
+        <button class="filter-tab" data-cat="Tech">Tech</button>
+        <button class="filter-tab" data-cat="Science">Science</button>
+        <button class="filter-tab" data-cat="Business">Business</button>
+        <button class="filter-tab" data-cat="Research">Research</button>
+        <button class="filter-tab" data-cat="Google Drive">Google Drive</button>
+        <button class="filter-tab" data-cat="Docs">Docs</button>
+        <button class="filter-tab" data-cat="Notes">Notes</button>
+        <button class="filter-tab" data-cat="PDFs">PDFs</button>
+        <button class="filter-tab" data-cat="Sheets">Sheets</button>
+        <button class="filter-tab" data-cat="Bio & Genetics">Bio &amp; Genetics</button>
+        <button class="filter-tab" data-cat="Physics & Quantum">Physics &amp; Quantum</button>
+        <button class="filter-tab" data-cat="Finance & Markets">Finance &amp; Markets</button>
+        <button class="filter-tab" data-cat="Philosophy">Philosophy</button>
+        <button class="filter-tab" data-cat="Drafts">Drafts</button>
+      </div>
+
+      <div class="category-fade-edge right" id="cat-fade-right"></div>
+
+      <button class="category-arrow-btn next" id="btn-cat-next" aria-label="Scroll categories right" title="Scroll right">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
     </div>
 
     <!-- Drive Files Cards List -->
@@ -2786,10 +2959,60 @@ function renderSources() {
   }
 
   const filtered = state.sources.filter(source => {
-    if (state.filterCategory !== 'all') {
-      if (source.category !== state.filterCategory) {
-        return false;
+    if (state.filterCategory && state.filterCategory !== 'all') {
+      const cat = state.filterCategory.toLowerCase();
+      const title = (source.title || '').toLowerCase();
+      const srcCat = (source.category || '').toLowerCase();
+      const srcType = (source.mimeType || '').toLowerCase();
+      const excerpt = (source.excerpt || '').toLowerCase();
+      const combined = `${title} ${srcCat} ${srcType} ${excerpt}`;
+
+      let matches = false;
+
+      if (cat === 'google drive') {
+        matches = source.source === 'Google Drive';
+      } else if (cat === 'docs') {
+        matches = srcCat === 'docs' || srcType.includes('document') || title.endsWith('.doc') || title.endsWith('.docx');
+      } else if (cat === 'sheets') {
+        matches = srcCat === 'sheets' || srcType.includes('spreadsheet') || title.endsWith('.xls') || title.endsWith('.xlsx') || title.endsWith('.csv');
+      } else if (cat === 'pdfs') {
+        matches = srcCat === 'pdfs' || srcType.includes('pdf') || title.endsWith('.pdf');
+      } else if (cat === 'notes') {
+        matches = srcCat === 'notes' || srcCat.includes('note') || title.endsWith('.md') || title.endsWith('.txt');
+      } else if (cat === 'drafts') {
+        matches = title.includes('draft') || srcCat.includes('draft') || source.type === 'note';
+      } else if (cat === 'ai & ml') {
+        const kws = ['ai', 'ml', 'neural', 'gpt', 'llm', 'gemini', 'model', 'vision', 'transformer', 'agent', 'deep', 'learning', 'embedding', 'prompt', 'algorithm', 'weights', 'inference'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat === 'tech') {
+        const kws = ['tech', 'software', 'dev', 'code', 'python', 'javascript', 'system', 'cloud', 'database', 'server', 'api', 'git', 'web', 'data', 'architecture', 'engineering'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat === 'science') {
+        const kws = ['science', 'physics', 'bio', 'chem', 'quantum', 'nature', 'experiment', 'lab', 'cell', 'particle', 'energy', 'astronomy'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat === 'business') {
+        const kws = ['business', 'market', 'finance', 'revenue', 'startup', 'strategy', 'venture', 'pitch', 'invest', 'budget', 'growth', 'sales', 'metrics', 'deck'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat === 'research') {
+        const kws = ['research', 'paper', 'study', 'arxiv', 'journal', 'thesis', 'survey', 'analysis', 'benchmark', 'review', 'method', 'abstract'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat.includes('bio') || cat.includes('genetics')) {
+        const kws = ['bio', 'gene', 'crispr', 'dna', 'rna', 'protein', 'cell', 'genom', 'medic', 'pharma', 'clinic'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat.includes('physics') || cat.includes('quantum')) {
+        const kws = ['physics', 'quantum', 'qubit', 'relativity', 'optics', 'particle', 'gravity', 'mechanics', 'superconductor'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat.includes('finance') || cat.includes('market')) {
+        const kws = ['finance', 'market', 'stock', 'crypto', 'asset', 'macro', 'econ', 'portfolio', 'fund', 'trading'];
+        matches = kws.some(k => combined.includes(k));
+      } else if (cat === 'philosophy') {
+        const kws = ['philosophy', 'ethics', 'logic', 'epistem', 'mind', 'conscious', 'reason', 'cognit'];
+        matches = kws.some(k => combined.includes(k));
+      } else {
+        matches = srcCat.includes(cat) || title.includes(cat);
       }
+
+      if (!matches) return false;
     }
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
@@ -2805,17 +3028,25 @@ function renderSources() {
   document.getElementById('sources-grounding-count').textContent = `${state.activeSourceIds.size} sources in context`;
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--text-tertiary); font-size:12.5px;">No matching Drive files found</div>`;
+    const activeCat = state.filterCategory && state.filterCategory !== 'all' ? state.filterCategory : '';
+    container.innerHTML = `
+      <div style="text-align:center; padding:36px 16px; color:var(--text-tertiary); animation: cardEntrance 200ms ease forwards;">
+        <div style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:4px;">No documents in ${escapeHtml(activeCat || 'view')}</div>
+        <p style="font-size:11.5px; max-width:220px; margin:0 auto 12px; line-height:1.4;">Add research notes or papers tagged with this topic.</p>
+        <button class="btn-tiny-action" style="margin:0 auto; height:28px; padding:0 12px; font-weight:500;" onclick="openAddSourceModal()">+ Add ${escapeHtml(activeCat || 'Source')}</button>
+      </div>
+    `;
     return;
   }
 
-  filtered.forEach(source => {
+  filtered.forEach((source, idx) => {
     const isChecked = state.activeSourceIds.has(source.id);
     const isSelected = state.selectedDocId === source.id;
     const badgeInfo = getFileTypeBadge(source.mimeType, source.title);
 
     const card = document.createElement('div');
     card.className = `source-item-card ${isSelected ? 'selected' : ''}`;
+    card.style.animationDelay = `${Math.min(idx * 30, 240)}ms`;
     card.onclick = (e) => {
       if (e.target.type !== 'checkbox') {
         viewDocument(source.id);
@@ -2890,7 +3121,7 @@ function renderReader(doc) {
   const readMin = Math.ceil(words / 200) || 1;
 
   container.innerHTML = `
-    <article>
+    <article class="reader-prose-animate">
       <div class="reader-article-header">
         <div class="reader-article-category">${escapeHtml(doc.category || 'Google Drive')}</div>
         <h1 class="reader-article-title">${escapeHtml(doc.title)}</h1>
@@ -3910,6 +4141,97 @@ function resetLocalCache() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// CATEGORY CAROUSEL & HORIZONTAL NAVIGATION (< >)
+// ══════════════════════════════════════════════════════════════
+
+function initCategoryCarousel() {
+  const tabsBar = document.getElementById('filter-tabs-bar');
+  const prevBtn = document.getElementById('btn-cat-prev');
+  const nextBtn = document.getElementById('btn-cat-next');
+  const fadeLeft = document.getElementById('cat-fade-left');
+  const fadeRight = document.getElementById('cat-fade-right');
+
+  if (!tabsBar || !prevBtn || !nextBtn) return;
+
+  function updateArrows() {
+    const scrollLeft = tabsBar.scrollLeft;
+    const maxScroll = Math.max(0, tabsBar.scrollWidth - tabsBar.clientWidth);
+
+    const canPrev = scrollLeft > 6;
+    const canNext = scrollLeft < maxScroll - 6;
+
+    prevBtn.classList.toggle('disabled', !canPrev);
+    prevBtn.disabled = !canPrev;
+
+    nextBtn.classList.toggle('disabled', !canNext);
+    nextBtn.disabled = !canNext;
+
+    if (fadeLeft) fadeLeft.style.opacity = canPrev ? '1' : '0';
+    if (fadeRight) fadeRight.style.opacity = canNext ? '1' : '0';
+  }
+
+  prevBtn.onclick = () => {
+    tabsBar.scrollBy({ left: -140, behavior: 'smooth' });
+    setTimeout(updateArrows, 180);
+  };
+
+  nextBtn.onclick = () => {
+    tabsBar.scrollBy({ left: 140, behavior: 'smooth' });
+    setTimeout(updateArrows, 180);
+  };
+
+  // Drag-to-scroll support for mouse/trackpad
+  let isDown = false;
+  let startX = 0;
+  let scrollStart = 0;
+
+  tabsBar.addEventListener('mousedown', (e) => {
+    isDown = true;
+    startX = e.pageX - tabsBar.offsetLeft;
+    scrollStart = tabsBar.scrollLeft;
+  });
+  window.addEventListener('mouseup', () => { isDown = false; });
+  tabsBar.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - tabsBar.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    tabsBar.scrollLeft = scrollStart - walk;
+    updateArrows();
+  });
+
+  // Mouse wheel horizontal scroll support
+  tabsBar.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0) {
+      e.preventDefault();
+      tabsBar.scrollLeft += e.deltaY;
+      updateArrows();
+    }
+  }, { passive: false });
+
+  tabsBar.addEventListener('scroll', updateArrows, { passive: true });
+  window.addEventListener('resize', updateArrows, { passive: true });
+
+  setTimeout(updateArrows, 60);
+  setTimeout(updateArrows, 300);
+
+  // Tab click delegation
+  tabsBar.addEventListener('click', (e) => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+
+    tabsBar.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    // Smoothly scroll active tab into view
+    tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+    state.filterCategory = tab.getAttribute('data-cat') || 'all';
+    renderSources();
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
 // EVENT BINDINGS
 // ══════════════════════════════════════════════════════════════
 
@@ -3934,15 +4256,8 @@ function bindUIEvents() {
   document.getElementById('btn-sync-live-news').addEventListener('click', () => loadGoogleDriveFiles(true));
   document.getElementById('btn-open-settings').addEventListener('click', openSettings);
 
-  // Category filter tabs
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      state.filterCategory = tab.getAttribute('data-cat');
-      renderSources();
-    });
-  });
+  // Category carousel with < and > controls
+  initCategoryCarousel();
 
   // Search input
   document.getElementById('global-search').addEventListener('input', (e) => {

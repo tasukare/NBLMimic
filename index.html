@@ -959,23 +959,28 @@
     }
 
     /* ══════════════════════════════════════════════════════════════
-       CENTER PANEL: DISTRACTION-FREE READER
+       CENTER PANEL: DIRECT EMBEDDED VIEWER & DISTRACTION-FREE READER
        ══════════════════════════════════════════════════════════════ */
     .center-reader {
       background: var(--bg-canvas);
       display: flex;
       flex-direction: column;
+      height: 100%;
+      width: 100%;
       overflow: hidden;
+      position: relative;
     }
 
     .reader-top-bar {
       height: 42px;
+      flex-shrink: 0;
       padding: 0 20px;
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      z-index: 5;
     }
 
     .grounded-state-badge {
@@ -991,73 +996,45 @@
       border-radius: var(--radius-full);
     }
 
-    .reader-scrollable {
-      flex: 1;
-      overflow-y: auto;
-      padding: 40px 60px 80px;
-      max-width: 800px;
-      margin: 0 auto;
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-      transition: padding 120ms ease;
-    }
-
-    .reader-scrollable.embedded-mode {
-      padding: 0 !important;
-      max-width: 100% !important;
-      margin: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      overflow: hidden !important;
-      display: flex !important;
-      flex-direction: column !important;
-      background: var(--bg-surface);
-    }
-
-    .reader-scrollable.embedded-mode #reader-main-content {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    /* Center Panel Embedded Preview Filling Middle Column Above Metadata Footer */
-    .center-preview-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-      flex: 1;
-      overflow: hidden;
-      background: var(--bg-surface);
-      position: relative;
-    }
-
-    .center-preview-viewport {
+    .center-preview-body {
       flex: 1;
       width: 100%;
       height: 100%;
       min-height: 0;
-      position: relative;
-      background: #09090b;
-      overflow: hidden;
       display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      background: var(--bg-canvas);
     }
 
-    .center-preview-viewport iframe {
+    .center-preview-body #reader-main-content {
+      flex: 1;
       width: 100%;
       height: 100%;
-      border: 0;
-      display: block;
-      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .center-preview-metadata-footer {
+    .center-preview-body.prose-scrollable {
+      overflow-y: auto;
+      padding: 40px 60px 80px;
+      max-width: 800px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .center-preview-body.prose-scrollable #reader-main-content {
+      display: block;
+      height: auto;
+      overflow: visible;
+    }
+
+    .center-metadata-bar {
       flex-shrink: 0;
-      height: 46px;
+      height: 44px;
       padding: 0 18px;
       border-top: 1px solid var(--border);
       background: var(--bg-surface);
@@ -1067,11 +1044,11 @@
       gap: 12px;
       font-size: 12px;
       color: var(--text-secondary);
-      z-index: 10;
+      z-index: 5;
       user-select: none;
     }
 
-    .center-preview-meta-left {
+    .center-metadata-left {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -1079,25 +1056,25 @@
       overflow: hidden;
     }
 
-    .center-preview-meta-title {
+    .center-metadata-title {
       font-weight: 600;
       color: var(--text-main);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 360px;
+      max-width: 380px;
     }
 
-    .center-preview-meta-dot {
+    .center-metadata-dot {
       color: var(--text-tertiary);
     }
 
-    .center-preview-meta-item {
+    .center-metadata-item {
       color: var(--text-secondary);
       white-space: nowrap;
     }
 
-    .center-preview-meta-right {
+    .center-metadata-right {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -1178,35 +1155,12 @@
       margin-bottom: 0.4em;
     }
 
-    /* Google Drive Interactive Sandboxed Preview */
-    .drive-preview-container {
-      width: 100%;
-      margin: 18px 0 24px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      background: var(--bg-surface);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-      animation: readerArticleFadeIn 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .drive-preview-iframe {
-      width: 100%;
-      height: 520px;
-      border: none;
-      background: #09090b;
-      display: block;
-    }
-
-    .drive-preview-toolbar {
-      padding: 10px 14px;
-      background: var(--bg-subtle);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+    /* Utility classes for direct flush iframe embedding */
+    .h-full { height: 100%; }
+    .w-full { width: 100%; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .border-0 { border: none !important; border-width: 0 !important; }
 
     .drive-security-shield-badge {
       display: inline-flex;
@@ -2129,10 +2083,10 @@
   </aside>
 
   <!-- ══════════════════════════════════════════════════════════════
-       CENTER PANEL: DISTRACTION-FREE READER
+       CENTER PANEL: DIRECT EMBEDDED VIEWER
        ══════════════════════════════════════════════════════════════ -->
-  <main class="center-reader">
-    <div class="reader-top-bar">
+  <main class="center-reader" id="center-reader-pane">
+    <div class="reader-top-bar" id="reader-top-bar">
       <div style="display:flex; align-items:center; gap:8px;">
         <span class="grounded-state-badge" id="reader-grounded-badge">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -2143,20 +2097,28 @@
         <button class="header-btn header-btn-icon-only" id="btn-copy-reader-text" title="Copy document text">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
-        <button class="header-btn" id="btn-open-original-link" title="Open file in Google Drive" style="display:none; font-size:11.5px; gap:5px; height:28px; padding:0 8px;">
-          <span>Open in Drive</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-        </button>
       </div>
     </div>
 
-    <div class="reader-scrollable" id="reader-scroll-container">
+    <!-- Center preview body fixed inside flex flow between top navbar and bottom metadata bar -->
+    <div class="center-preview-body" id="center-preview-body">
       <div id="reader-main-content">
         <!-- Rendered dynamically -->
         <div style="padding:60px 0; text-align:center; color:var(--text-tertiary);">
           <div style="font-size:16px; font-weight:600; color:var(--text-main); margin-bottom:6px;">Select a Source</div>
           <p style="font-size:13px; max-width:320px; margin:0 auto;">Click any document, note, or news story on the left to read and analyze it here.</p>
         </div>
+      </div>
+    </div>
+
+    <!-- Flush bottom metadata bar -->
+    <div class="center-metadata-bar" id="center-metadata-bar" style="display:none;">
+      <div class="center-metadata-left" id="center-metadata-left"></div>
+      <div class="center-metadata-right">
+        <span class="drive-security-shield-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>AES-256 Vault Protected</span>
+        </span>
       </div>
     </div>
   </main>
@@ -3199,35 +3161,6 @@ function getDriveFileId(doc) {
   return null;
 }
 
-function buildDrivePreviewCard(doc) {
-  const fileId = getDriveFileId(doc);
-  const badge = getFileTypeBadge(doc.mimeType, doc.title);
-
-  return `
-    <div class="center-preview-container">
-      <div class="center-preview-viewport">
-        <iframe src="https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview" width="100%" height="100%" frameborder="0" allow="autoplay"></iframe>
-      </div>
-      <div class="center-preview-metadata-footer">
-        <div class="center-preview-meta-left">
-          <span class="source-pill-badge ${badge.cls}">${badge.label}</span>
-          <span class="center-preview-meta-title" title="${escapeHtml(doc.title)}">${escapeHtml(doc.title)}</span>
-          <span class="center-preview-meta-dot">&bull;</span>
-          <span class="center-preview-meta-item">${escapeHtml(doc.sizeFormatted || 'Cloud File')}</span>
-          <span class="center-preview-meta-dot">&bull;</span>
-          <span class="center-preview-meta-item">Modified ${escapeHtml(doc.date || 'Recent')}</span>
-        </div>
-        <div class="center-preview-meta-right">
-          <span class="drive-security-shield-badge" title="End-to-End Encrypted Session · Zero Cloud Exposure">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            <span>AES-256 Vault Protected</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
 async function fetchDriveDocumentContent(doc) {
   if (!state.driveToken) {
     return `Google Drive Document: ${doc.title} (${doc.sizeFormatted || 'Cloud File'}). Connect Google Drive to load full text.`;
@@ -3452,10 +3385,10 @@ async function viewDocument(id) {
 
   renderSources();
 
-  const fileId = getDriveFileId(doc);
+  const selectedFileId = getDriveFileId(doc);
 
-  if (fileId) {
-    // Immediately render embedded preview in the center pane (zero window.open, zero popups)
+  if (selectedFileId) {
+    // Render the preview directly inside the center container
     renderReader(doc);
 
     // Silently fetch content in background for AI Chat grounding if needed
@@ -3463,7 +3396,7 @@ async function viewDocument(id) {
       try {
         doc.content = await fetchDriveDocumentContent(doc);
       } catch (err) {
-        doc.content = `Google Drive File: ${doc.title} (${doc.sizeFormatted || 'Cloud File'}). Interactive embedded preview active.`;
+        doc.content = `Google Drive File: ${doc.title} (${doc.sizeFormatted || 'Cloud File'}). Grounding context active.`;
       }
     }
     return;
@@ -3471,8 +3404,8 @@ async function viewDocument(id) {
 
   // If local note with null content
   if (doc.content === null) {
-    const scrollContainer = document.getElementById('reader-scroll-container');
-    if (scrollContainer) scrollContainer.classList.remove('embedded-mode');
+    const previewBody = document.getElementById('center-preview-body');
+    if (previewBody) previewBody.classList.add('prose-scrollable');
     const container = document.getElementById('reader-main-content');
     container.innerHTML = `
       <div style="padding:60px 0; text-align:center; color:var(--text-tertiary);">
@@ -3492,24 +3425,45 @@ async function viewDocument(id) {
 
 function renderReader(doc) {
   const container = document.getElementById('reader-main-content');
-  const scrollContainer = document.getElementById('reader-scroll-container');
-  const extBtn = document.getElementById('btn-open-original-link');
+  const previewBody = document.getElementById('center-preview-body');
+  const metadataBar = document.getElementById('center-metadata-bar');
+  const metadataLeft = document.getElementById('center-metadata-left');
 
-  // Clean up any external window triggers or popups on selection
-  if (extBtn) {
-    extBtn.style.display = 'none';
-    extBtn.onclick = null;
-  }
+  const selectedFileId = getDriveFileId(doc);
 
-  const fileId = getDriveFileId(doc);
+  if (selectedFileId) {
+    // 1. Direct flush embedding filling middle column space
+    if (previewBody) previewBody.classList.remove('prose-scrollable');
 
-  if (fileId) {
-    // Embedded mode: iframe expands to fill available height of middle column above metadata footer
-    if (scrollContainer) scrollContainer.classList.add('embedded-mode');
-    container.innerHTML = buildDrivePreviewCard(doc);
+    container.innerHTML = `
+      <div class="h-full w-full flex flex-col" style="height:100%; width:100%; display:flex; flex-direction:column; flex:1; min-height:0;">
+        <iframe 
+          src="https://drive.google.com/file/d/${encodeURIComponent(selectedFileId)}/preview" 
+          class="w-full h-full border-0"
+          style="min-height: 100%; width: 100%; border: none; flex: 1;"
+          allow="autoplay">
+        </iframe>
+      </div>
+    `;
+
+    // 2. Flush bottom metadata bar
+    if (metadataBar && metadataLeft) {
+      const badge = getFileTypeBadge(doc.mimeType, doc.title);
+      metadataLeft.innerHTML = `
+        <span class="source-pill-badge ${badge.cls}">${badge.label}</span>
+        <span class="center-metadata-title" title="${escapeHtml(doc.title)}">${escapeHtml(doc.title)}</span>
+        <span class="center-metadata-dot">&bull;</span>
+        <span class="center-metadata-item">${escapeHtml(doc.sizeFormatted || 'Cloud File')}</span>
+        <span class="center-metadata-dot">&bull;</span>
+        <span class="center-metadata-item">Modified ${escapeHtml(doc.date || 'Recent')}</span>
+      `;
+      metadataBar.style.display = 'flex';
+    }
   } else {
-    // Local text notes reader
-    if (scrollContainer) scrollContainer.classList.remove('embedded-mode');
+    // Standard text notes reader
+    if (previewBody) previewBody.classList.add('prose-scrollable');
+    if (metadataBar) metadataBar.style.display = 'none';
+
     const words = (doc.content || '').split(/\s+/).filter(Boolean).length;
     const readMin = Math.ceil(words / 200) || 1;
 

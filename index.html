@@ -568,12 +568,67 @@
     }
 
     .source-pill-badge {
-      font-size: 10.5px;
-      font-weight: 600;
+      font-size: 10px;
+      font-weight: 700;
       padding: 1px 6px;
       border-radius: 4px;
       background: var(--bg-subtle);
       color: var(--text-secondary);
+      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
+    }
+    .source-pill-badge.badge-doc {
+      background: rgba(37, 99, 235, 0.12);
+      color: #2563eb;
+    }
+    .source-pill-badge.badge-pdf {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+    .source-pill-badge.badge-note {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+    }
+    .source-pill-badge.badge-sheet {
+      background: rgba(5, 150, 105, 0.12);
+      color: #059669;
+    }
+    .source-pill-badge.badge-file {
+      background: var(--bg-muted);
+      color: var(--text-secondary);
+    }
+
+    .sidebar-drive-connect-hero {
+      padding: 32px 18px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .drive-hero-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drive-hero-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .drive-hero-text {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.45;
+      margin: 0;
     }
 
     .source-check-wrap {
@@ -1563,7 +1618,7 @@
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" class="spotlight-input" id="global-search" placeholder="Search research notes, papers, or news..." aria-label="Search">
+        <input type="text" class="spotlight-input" id="global-search" placeholder="Search Google Drive files, notes, or papers..." aria-label="Search">
         <span class="spotlight-kbd">⌘K</span>
       </div>
     </div>
@@ -1677,38 +1732,38 @@
   </header>
 
   <!-- ══════════════════════════════════════════════════════════════
-       LEFT SIDEBAR: SOURCES & FEEDS
+       LEFT SIDEBAR: GOOGLE DRIVE FILES
        ══════════════════════════════════════════════════════════════ -->
   <aside class="sidebar">
     <div class="sidebar-top">
-      <span class="section-title-label">
-        <span>Sources</span>
+      <span class="section-title-label" style="display:flex; align-items:center; gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+        <span>Drive Files</span>
         <span style="font-family:var(--font-mono); color:var(--text-main);" id="badge-total-sources">0</span>
       </span>
       <div class="sidebar-actions-btn-group">
-        <button class="btn-tiny-action" id="btn-sidebar-add-source">
+        <button class="btn-tiny-action" id="btn-sidebar-add-source" title="Add or upload file">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>New</span>
+          <span>Upload</span>
         </button>
-        <button class="btn-tiny-action" id="btn-sync-live-news" title="Fetch latest research news">
+        <button class="btn-tiny-action" id="btn-sync-live-news" title="Refresh Google Drive files">
           <svg id="icon-sync-spin" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- Category Filter Tabs -->
+    <!-- File Type Filter Tabs -->
     <div class="filter-tabs" id="filter-tabs-bar">
       <button class="filter-tab active" data-cat="all">All</button>
-      <button class="filter-tab" data-cat="AI & ML">AI & ML</button>
-      <button class="filter-tab" data-cat="Tech & Dev">Tech</button>
-      <button class="filter-tab" data-cat="Science">Science</button>
-      <button class="filter-tab" data-cat="Business">Business</button>
-      <button class="filter-tab" data-cat="Notes & Uploads">Notes</button>
+      <button class="filter-tab" data-cat="Docs">Docs</button>
+      <button class="filter-tab" data-cat="Notes">Notes</button>
+      <button class="filter-tab" data-cat="PDFs">PDFs</button>
+      <button class="filter-tab" data-cat="Sheets">Sheets</button>
     </div>
 
-    <!-- Sources Cards List -->
+    <!-- Drive Files Cards List -->
     <div class="sources-scroll-area" id="sources-card-list">
-      <!-- Injected dynamically -->
+      <!-- Injected dynamically with Google Drive files -->
     </div>
 
     <!-- Sidebar Footer / Drive Storage -->
@@ -1741,8 +1796,9 @@
         <button class="header-btn header-btn-icon-only" id="btn-copy-reader-text" title="Copy document text">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
-        <button class="header-btn header-btn-icon-only" id="btn-open-original-link" title="Open source URL" style="display:none;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        <button class="header-btn" id="btn-open-original-link" title="Open file in Google Drive" style="display:none; font-size:11.5px; gap:5px; height:28px; padding:0 8px;">
+          <span>Open in Drive</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         </button>
       </div>
     </div>
@@ -2206,29 +2262,6 @@ const state = {
   driveWebAppUrl: ''
 };
 
-const SAMPLE_FALLBACKS = [
-  {
-    id: 1,
-    title: 'Gemini 3.8 Live Multimodal Audio & Reasoning',
-    category: 'AI & ML',
-    source: 'Google DeepMind',
-    excerpt: 'Deep dive into low-latency bidirectional WebSockets and grounded citation graphs.',
-    content: 'Gemini 3.8 introduces sub-second multimodal reasoning and real-time audio interaction over WebSockets.\n\nKey Innovations:\n- Asynchronous function calling without interrupting conversation flow.\n- Grounded citation graphs linking every generative claim directly to user uploaded documents.\n- Low-overhead token efficiency optimized for research synthesis.',
-    date: 'Today',
-    timestamp: Date.now()
-  },
-  {
-    id: 2,
-    title: 'Local-First Knowledge Management Architecture',
-    category: 'Tech & Dev',
-    source: 'Research Lab',
-    excerpt: 'Preserving intellectual privacy through zero-dependency local-first proxies.',
-    content: 'Storing knowledge graphs and confidential research papers locally guarantees zero data leakage.\n\nBy leveraging standard Web APIs and client-side encryption, researchers maintain full control over intellectual property without trusting multi-tenant cloud databases.',
-    date: 'Yesterday',
-    timestamp: Date.now() - 86400000
-  }
-];
-
 // ══════════════════════════════════════════════════════════════
 // INITIALIZATION
 // ══════════════════════════════════════════════════════════════
@@ -2240,8 +2273,13 @@ document.addEventListener('DOMContentLoaded', () => {
   bindUIEvents();
   fetchServerAuth();
   fetchServerDriveConfig();
-  fetchNewsFeed();
   checkHealth();
+
+  if (state.isDriveConnected) {
+    loadGoogleDriveFiles();
+  } else {
+    renderSources();
+  }
 });
 
 // ══════════════════════════════════════════════════════════════
@@ -2543,56 +2581,170 @@ document.addEventListener('click', (e) => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// SOURCES & LIVE NEWS STREAM
+// GOOGLE DRIVE FILES EXPLORER & SOURCES
 // ══════════════════════════════════════════════════════════════
 
-async function fetchNewsFeed(force = false) {
+function getFileCategory(mimeType, fileName = '') {
+  const name = (fileName || '').toLowerCase();
+  if (mimeType === 'application/vnd.google-apps.document' || name.endsWith('.docx') || name.endsWith('.doc')) {
+    return 'Docs';
+  }
+  if (mimeType === 'application/pdf' || name.endsWith('.pdf')) {
+    return 'PDFs';
+  }
+  if (mimeType === 'application/vnd.google-apps.spreadsheet' || name.endsWith('.xlsx') || name.endsWith('.csv')) {
+    return 'Sheets';
+  }
+  if (name.endsWith('.md') || name.endsWith('.txt') || name.endsWith('.json') || (mimeType && mimeType.startsWith('text/'))) {
+    return 'Notes';
+  }
+  return 'Docs';
+}
+
+function getFileTypeBadge(mimeType, fileName = '') {
+  const cat = getFileCategory(mimeType, fileName);
+  if (cat === 'Docs') return { label: 'DOC', cls: 'badge-doc' };
+  if (cat === 'PDFs') return { label: 'PDF', cls: 'badge-pdf' };
+  if (cat === 'Sheets') return { label: 'SHEET', cls: 'badge-sheet' };
+  if (cat === 'Notes') return { label: 'NOTE', cls: 'badge-note' };
+  return { label: 'FILE', cls: 'badge-file' };
+}
+
+async function loadGoogleDriveFiles(force = false) {
   const icon = document.getElementById('icon-sync-spin');
   if (icon) icon.style.animation = 'spin 700ms linear infinite';
 
+  if (!state.isDriveConnected || !state.driveToken) {
+    if (icon) icon.style.animation = '';
+    renderSources();
+    return;
+  }
+
   try {
-    const res = await fetch(`/api/news${force ? '?refresh=1' : ''}`);
+    const q = "trashed = false and mimeType != 'application/vnd.google-apps.folder'";
+    const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&pageSize=50&orderBy=modifiedTime desc&fields=files(id,name,mimeType,size,modifiedTime,webViewLink,iconLink)`;
+
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${state.driveToken}` }
+    });
+
+    if (res.status === 401) {
+      console.warn('[Drive] Token expired');
+      disconnectGoogleDrive();
+      if (icon) icon.style.animation = '';
+      renderSources();
+      return;
+    }
+
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.articles) && data.articles.length > 0) {
-        state.sources = data.articles;
-        if (state.activeSourceIds.size === 0) {
-          state.sources.slice(0, 3).forEach(s => state.activeSourceIds.add(s.id));
-        }
-        renderSources();
-        if (!state.selectedDocId && state.sources.length > 0) {
-          viewDocument(state.sources[0].id);
-        }
-        showToast(`Synced ${data.articles.length} research stories`);
+      const driveFiles = data.files || [];
+
+      // Transform Drive files to notebook sources
+      state.sources = driveFiles.map(file => {
+        const cat = getFileCategory(file.mimeType, file.name);
+        const modDate = file.modifiedTime ? new Date(file.modifiedTime) : new Date();
+        const dateStr = modDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const sizeStr = file.size ? formatBytes(file.size) : (cat === 'Docs' ? 'Google Doc' : (cat === 'Sheets' ? 'Google Sheet' : 'Cloud File'));
+
+        return {
+          id: file.id,
+          driveFileId: file.id,
+          title: file.name,
+          mimeType: file.mimeType,
+          category: cat,
+          source: 'Google Drive',
+          sizeBytes: file.size,
+          sizeFormatted: sizeStr,
+          webViewLink: file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`,
+          url: file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`,
+          date: dateStr,
+          timestamp: modDate.getTime(),
+          excerpt: `${cat} · ${sizeStr} · Modified ${dateStr}`,
+          content: null // loaded on demand when clicked or grounded
+        };
+      });
+
+      // Default ground the first 3 files
+      if (state.activeSourceIds.size === 0 && state.sources.length > 0) {
+        state.sources.slice(0, 3).forEach(s => state.activeSourceIds.add(s.id));
       }
+
+      renderSources();
+
+      if (!state.selectedDocId && state.sources.length > 0) {
+        viewDocument(state.sources[0].id);
+      }
+
+      showToast(`Loaded ${state.sources.length} Google Drive files`);
     } else {
-      fallbackSources();
+      showToast('Could not load Google Drive files');
     }
   } catch (err) {
-    fallbackSources();
+    console.error('[Drive Files Error]', err);
+    showToast(`Error fetching Drive files: ${err.message}`);
   } finally {
     if (icon) icon.style.animation = '';
   }
 }
 
-function fallbackSources() {
-  if (state.sources.length === 0) {
-    state.sources = [...SAMPLE_FALLBACKS];
-    state.sources.forEach(s => state.activeSourceIds.add(s.id));
-    renderSources();
-    viewDocument(state.sources[0].id);
+async function fetchDriveDocumentContent(doc) {
+  if (!state.driveToken) return 'Please connect Google Drive to read this document.';
+
+  if (doc.mimeType === 'application/vnd.google-apps.document') {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${doc.driveFileId}/export?mimeType=text/plain`, {
+      headers: { Authorization: `Bearer ${state.driveToken}` }
+    });
+    if (!res.ok) throw new Error(`Google Doc export failed (${res.status})`);
+    return await res.text();
   }
+
+  if (doc.mimeType === 'application/vnd.google-apps.spreadsheet') {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${doc.driveFileId}/export?mimeType=text/csv`, {
+      headers: { Authorization: `Bearer ${state.driveToken}` }
+    });
+    if (!res.ok) throw new Error(`Sheet export failed (${res.status})`);
+    const csv = await res.text();
+    return `# ${doc.title}\n\nGoogle Spreadsheet (CSV Export):\n\`\`\`csv\n${csv.slice(0, 8000)}\n\`\`\``;
+  }
+
+  if (doc.mimeType === 'application/pdf') {
+    return `# ${doc.title}\n\n[Google Drive PDF Document]\n\nFile size: ${doc.sizeFormatted || 'Unknown'}\nLast modified: ${doc.date}\n\nClick the "Open in Drive" button in the reader top toolbar to view this PDF directly in Google Drive.`;
+  }
+
+  // Text, markdown, JSON, source code
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${doc.driveFileId}?alt=media`, {
+    headers: { Authorization: `Bearer ${state.driveToken}` }
+  });
+  if (!res.ok) throw new Error(`File download failed (${res.status})`);
+  return await res.text();
 }
 
 function renderSources() {
   const container = document.getElementById('sources-card-list');
   container.innerHTML = '';
 
+  if (!state.isDriveConnected && state.sources.length === 0) {
+    container.innerHTML = `
+      <div class="sidebar-drive-connect-hero">
+        <div class="drive-hero-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+        </div>
+        <div class="drive-hero-title">Google Drive Files</div>
+        <p class="drive-hero-text">Connect your Google Drive to load your research documents, papers, and notes directly into this notebook.</p>
+        <button class="btn-primary-auth-action" onclick="connectGoogleDrive()" style="height:34px; font-size:12.5px; font-weight:600; margin-top:8px;">
+          Connect Google Drive
+        </button>
+      </div>
+    `;
+    document.getElementById('badge-total-sources').textContent = '0';
+    document.getElementById('sources-grounding-count').textContent = '0 sources in context';
+    return;
+  }
+
   const filtered = state.sources.filter(source => {
     if (state.filterCategory !== 'all') {
-      if (state.filterCategory === 'Notes & Uploads') {
-        if (source.type !== 'note' && source.type !== 'upload') return false;
-      } else if (source.category !== state.filterCategory) {
+      if (source.category !== state.filterCategory) {
         return false;
       }
     }
@@ -2610,13 +2762,14 @@ function renderSources() {
   document.getElementById('sources-grounding-count').textContent = `${state.activeSourceIds.size} sources in context`;
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-tertiary); font-size:12px;">No matching sources</div>`;
+    container.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--text-tertiary); font-size:12.5px;">No matching Drive files found</div>`;
     return;
   }
 
   filtered.forEach(source => {
     const isChecked = state.activeSourceIds.has(source.id);
     const isSelected = state.selectedDocId === source.id;
+    const badgeInfo = getFileTypeBadge(source.mimeType, source.title);
 
     const card = document.createElement('div');
     card.className = `source-item-card ${isSelected ? 'selected' : ''}`;
@@ -2628,15 +2781,15 @@ function renderSources() {
 
     card.innerHTML = `
       <div class="source-item-header">
-        <span class="source-pill-badge">${escapeHtml(source.category || 'General')}</span>
+        <span class="source-pill-badge ${badgeInfo.cls}">${badgeInfo.label}</span>
         <label class="source-check-wrap" title="Include in Grounded Context">
-          <input type="checkbox" class="source-check" ${isChecked ? 'checked' : ''} onchange="toggleGrounding(${source.id}, this.checked)">
+          <input type="checkbox" class="source-check" ${isChecked ? 'checked' : ''} onchange="toggleGrounding('${source.id}', this.checked)">
         </label>
       </div>
       <div class="source-item-title">${escapeHtml(source.title)}</div>
-      <div class="source-item-snippet">${escapeHtml(source.excerpt || '')}</div>
+      <div class="source-item-snippet">${escapeHtml(source.excerpt || source.sizeFormatted || 'Google Drive File')}</div>
       <div class="source-item-meta">
-        <span>${escapeHtml(source.source || 'Local')}</span>
+        <span>${escapeHtml(source.source || 'Google Drive')}</span>
         <span>${escapeHtml(source.date || 'Today')}</span>
       </div>
     `;
@@ -2653,12 +2806,29 @@ function toggleGrounding(id, checked) {
   updateGroundedBadge();
 }
 
-function viewDocument(id) {
+async function viewDocument(id) {
   state.selectedDocId = id;
   const doc = state.sources.find(s => s.id === id);
   if (!doc) return;
 
   renderSources();
+
+  // If content is null, fetch content from Drive
+  if (doc.content === null) {
+    const container = document.getElementById('reader-main-content');
+    container.innerHTML = `
+      <div style="padding:60px 0; text-align:center; color:var(--text-tertiary);">
+        <div style="font-size:15px; font-weight:600; color:var(--text-main); margin-bottom:8px;">Loading from Google Drive...</div>
+        <p style="font-size:12.5px; max-width:320px; margin:0 auto;">Fetching content for <strong>${escapeHtml(doc.title)}</strong></p>
+      </div>
+    `;
+    try {
+      doc.content = await fetchDriveDocumentContent(doc);
+    } catch (err) {
+      doc.content = `# ${doc.title}\n\nCould not fetch file content from Google Drive.\n\nError: ${err.message}\n\nYou can open the file directly in Google Drive using the button in the top right.`;
+    }
+  }
+
   renderReader(doc);
 }
 
@@ -2666,9 +2836,9 @@ function renderReader(doc) {
   const container = document.getElementById('reader-main-content');
   const extBtn = document.getElementById('btn-open-original-link');
 
-  if (doc.url) {
+  if (doc.url || doc.webViewLink) {
     extBtn.style.display = 'inline-flex';
-    extBtn.onclick = () => window.open(doc.url, '_blank');
+    extBtn.onclick = () => window.open(doc.webViewLink || doc.url, '_blank');
   } else {
     extBtn.style.display = 'none';
   }
@@ -2679,14 +2849,16 @@ function renderReader(doc) {
   container.innerHTML = `
     <article>
       <div class="reader-article-header">
-        <div class="reader-article-category">${escapeHtml(doc.category || 'Research')}</div>
+        <div class="reader-article-category">${escapeHtml(doc.category || 'Google Drive')}</div>
         <h1 class="reader-article-title">${escapeHtml(doc.title)}</h1>
         <div class="reader-article-meta">
           <span>${readMin} min read</span>
           <span>&bull;</span>
           <span>${words} words</span>
           <span>&bull;</span>
-          <span>Source: ${escapeHtml(doc.source || 'Notebook')}</span>
+          <span>Source: ${escapeHtml(doc.source || 'Google Drive')}</span>
+          <span>&bull;</span>
+          <span>Size: ${escapeHtml(doc.sizeFormatted || 'Cloud')}</span>
         </div>
       </div>
       <div class="reader-prose-content">
@@ -2746,9 +2918,17 @@ document.getElementById('chat-submit-form').addEventListener('submit', async (e)
 
   // Grounding sources payload
   const activeSources = state.sources.filter(s => state.activeSourceIds.has(s.id));
+  for (const src of activeSources) {
+    if (src.content === null && src.driveFileId && state.driveToken) {
+      try {
+        src.content = await fetchDriveDocumentContent(src);
+      } catch (e) {}
+    }
+  }
+
   let context = '';
   activeSources.forEach((src, idx) => {
-    context += `[Source ${idx + 1}: "${src.title}"]\n${src.content}\n\n`;
+    context += `[Source ${idx + 1}: "${src.title}"]\n${src.content || src.excerpt || ''}\n\n`;
   });
 
   const systemInstruction = `You are a research partner inside Research Lab (NBLMimic).
@@ -3146,7 +3326,7 @@ function bindUIEvents() {
   document.getElementById('btn-open-live-dialog').addEventListener('click', openLiveDialog);
   document.getElementById('btn-quick-add-source').addEventListener('click', openAddSourceModal);
   document.getElementById('btn-sidebar-add-source').addEventListener('click', openAddSourceModal);
-  document.getElementById('btn-sync-live-news').addEventListener('click', () => fetchNewsFeed(true));
+  document.getElementById('btn-sync-live-news').addEventListener('click', () => loadGoogleDriveFiles(true));
   document.getElementById('btn-open-settings').addEventListener('click', openSettings);
 
   // Category filter tabs
@@ -3212,7 +3392,7 @@ function initDriveOAuth() {
           await fetchDriveQuota();
           await ensureDriveAppFolder();
           syncCurrentNotesToDrive(true);
-          fetchUserDriveFiles();
+          loadGoogleDriveFiles(true);
         } else if (tokenResponse && tokenResponse.error) {
           console.error('[Drive Auth Error]', tokenResponse);
           showToast(`Drive connection error: ${tokenResponse.error}`);
@@ -3244,10 +3424,12 @@ function initDriveSession() {
       state.isDriveConnected = true;
       updateDriveUI();
       fetchDriveQuota();
+      loadGoogleDriveFiles();
     } else {
       state.isDriveConnected = false;
       state.driveToken = null;
       updateDriveUI();
+      renderSources();
     }
   } catch (e) {
     console.warn('[Drive] Session load error:', e);
@@ -3300,9 +3482,13 @@ function disconnectGoogleDrive() {
   state.isDriveConnected = false;
   state.driveStorage = null;
   state.driveFiles = [];
+  state.sources = [];
+  state.activeSourceIds.clear();
+  state.selectedDocId = null;
   localStorage.removeItem('nbl_drive_token');
   localStorage.removeItem('nbl_drive_token_expires');
   updateDriveUI();
+  renderSources();
   showToast('Google Drive disconnected');
 }
 

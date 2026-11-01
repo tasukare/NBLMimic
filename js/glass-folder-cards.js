@@ -4,7 +4,7 @@
  * Pure Canvas 2D liquid procedural art & CSS 3D frosted-glass folder cards.
  */
 
-import { openModal, showToast, escapeHtml } from './ui.js';
+import { openModal, showToast, escapeHtml, showLiquidConfirm, showLiquidPrompt } from './ui.js';
 
 // Procedural Art Presets
 export const ART_PRESETS = {
@@ -1124,8 +1124,13 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     renderGlassFolderGallery(container, sources, onSelectDocument, onAddSource);
   };
 
-  const handleRename = (key, currentLabel, isCustom = false) => {
-    const newName = prompt(`Enter new name for "${currentLabel}":`, currentLabel);
+  const handleRename = async (key, currentLabel, isCustom = false) => {
+    const newName = await showLiquidPrompt({
+      title: 'Rename Folder',
+      message: `Enter new name for "${currentLabel}":`,
+      defaultValue: currentLabel,
+      confirmText: 'Save Name'
+    });
     if (!newName || !newName.trim() || newName.trim() === currentLabel) return;
     const clean = newName.trim();
     if (isCustom) {
@@ -1147,8 +1152,14 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     handleRefreshGallery();
   };
 
-  const handleDelete = (key, currentLabel, isCustom = false) => {
-    const ok = confirm(`Delete folder "${currentLabel}"?\nDocuments will remain safe in your library.`);
+  const handleDelete = async (key, currentLabel, isCustom = false) => {
+    const ok = await showLiquidConfirm({
+      title: 'Delete Folder?',
+      targetName: currentLabel,
+      message: `Are you sure you want to delete "${currentLabel}"? Your files and documents will remain safe in your library.`,
+      confirmText: 'Delete Folder',
+      isDanger: true
+    });
     if (!ok) return;
     if (isCustom) {
       deleteCustomFolder(key);

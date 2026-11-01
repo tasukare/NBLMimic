@@ -152,3 +152,187 @@ export function formatBytes(bytes, decimals = 1) {
   const i = Math.floor(Math.log(num) / Math.log(k));
   return parseFloat((num / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+
+
+// ── Aceternity Clear Liquid Glass Confirmation Modal ──
+export function showLiquidConfirm({
+  title = "Delete Folder?",
+  targetName = "",
+  message = "Are you sure you want to delete this folder? Documents will remain safe in your library.",
+  confirmText = "Delete Folder",
+  cancelText = "Cancel",
+  isDanger = true
+} = {}) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("nbl-liquid-modal");
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "nbl-liquid-modal";
+    backdrop.className = "liquid-modal-backdrop";
+    backdrop.setAttribute("role", "dialog");
+    backdrop.setAttribute("aria-modal", "true");
+
+    const targetBadgeHtml = targetName ? `
+      <div class="liquid-modal-target-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>${escapeHtml(targetName)}</span>
+      </div>
+    ` : '';
+
+    const iconHtml = isDanger ? `
+      <div class="liquid-modal-icon-badge">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+    ` : `
+      <div class="liquid-modal-icon-badge liquid-modal-icon-badge--info">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+    `;
+
+    backdrop.innerHTML = `
+      <div class="liquid-modal-glow ${isDanger ? 'liquid-modal-glow--rose' : 'liquid-modal-glow--cyan'}"></div>
+      <div class="liquid-modal-glow liquid-modal-glow--indigo"></div>
+      <div class="liquid-modal-dialog">
+        ${iconHtml}
+        <h3 class="liquid-modal-title">${escapeHtml(title)}</h3>
+        ${targetBadgeHtml}
+        <p class="liquid-modal-desc">${escapeHtml(message)}</p>
+        <div class="liquid-modal-actions">
+          <button type="button" class="liquid-btn-cancel">${escapeHtml(cancelText)}</button>
+          <button type="button" class="${isDanger ? 'liquid-btn-danger' : 'liquid-btn-primary'}">${escapeHtml(confirmText)}</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    requestAnimationFrame(() => {
+      backdrop.classList.add("is-active");
+    });
+
+    const close = (result) => {
+      backdrop.classList.remove("is-active");
+      document.removeEventListener("keydown", onKeyDown);
+      setTimeout(() => backdrop.remove(), 240);
+      resolve(result);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close(false);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        close(true);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
+    backdrop.querySelector(".liquid-btn-cancel").addEventListener("click", () => close(false));
+    backdrop.querySelector(isDanger ? ".liquid-btn-danger" : ".liquid-btn-primary").addEventListener("click", () => close(true));
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close(false);
+    });
+  });
+}
+
+// ── Aceternity Clear Liquid Glass Prompt Modal ──
+export function showLiquidPrompt({
+  title = "Rename Folder",
+  targetName = "",
+  message = "Enter a new name for this research collection:",
+  placeholder = "e.g. Deep Learning Architectures",
+  defaultValue = "",
+  confirmText = "Save Changes",
+  cancelText = "Cancel"
+} = {}) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("nbl-liquid-modal");
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "nbl-liquid-modal";
+    backdrop.className = "liquid-modal-backdrop";
+    backdrop.setAttribute("role", "dialog");
+    backdrop.setAttribute("aria-modal", "true");
+
+    backdrop.innerHTML = `
+      <div class="liquid-modal-glow liquid-modal-glow--cyan"></div>
+      <div class="liquid-modal-glow liquid-modal-glow--indigo"></div>
+      <div class="liquid-modal-dialog">
+        <div class="liquid-modal-icon-badge liquid-modal-icon-badge--info">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </div>
+        <h3 class="liquid-modal-title">${escapeHtml(title)}</h3>
+        <p class="liquid-modal-desc" style="margin-bottom:14px;">${escapeHtml(message)}</p>
+        <div class="liquid-modal-input-wrap">
+          <input type="text" class="liquid-modal-input" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(defaultValue)}" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="liquid-modal-actions">
+          <button type="button" class="liquid-btn-cancel">${escapeHtml(cancelText)}</button>
+          <button type="button" class="liquid-btn-primary">${escapeHtml(confirmText)}</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    const input = backdrop.querySelector(".liquid-modal-input");
+
+    requestAnimationFrame(() => {
+      backdrop.classList.add("is-active");
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+
+    const close = (val) => {
+      backdrop.classList.remove("is-active");
+      document.removeEventListener("keydown", onKeyDown);
+      setTimeout(() => backdrop.remove(), 240);
+      resolve(val);
+    };
+
+    const submit = () => {
+      const val = input.value.trim();
+      if (!val) {
+        input.focus();
+        return;
+      }
+      close(val);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close(null);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        submit();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
+    backdrop.querySelector(".liquid-btn-cancel").addEventListener("click", () => close(null));
+    backdrop.querySelector(".liquid-btn-primary").addEventListener("click", submit);
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close(null);
+    });
+  });
+}

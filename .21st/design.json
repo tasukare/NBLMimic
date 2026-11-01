@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "project": {
+    "name": "NBLMimic Research Lab",
+    "productType": "Multimodal AI Knowledge Workspace",
+    "stack": [
+      "html5",
+      "es6-modules",
+      "webgl2",
+      "node.js"
+    ]
+  },
+  "sources": {
+    "tokens": [
+      "css/tokens.css"
+    ],
+    "components": [
+      "components/ui"
+    ],
+    "assets": [
+      "favicon.svg"
+    ],
+    "instructions": [
+      "STYLEGUIDE.md"
+    ]
+  },
+  "design": {
+    "colorMode": "adaptive-dark-default",
+    "colors": {
+      "canvas": "#0A0A0B",
+      "surface": "#111113",
+      "elevated": "#18181B",
+      "accent": "#F4F4F5",
+      "border": "rgba(255, 255, 255, 0.08)"
+    },
+    "typography": {
+      "ui": "Inter",
+      "prose": "Newsreader",
+      "mono": "JetBrains Mono"
+    },
+    "spacing": "4px/8px grid",
+    "radius": "4px/6px/8px",
+    "shadows": "hairline 1px specular elevation, zero neon blur",
+    "motion": "tactile 120ms-180ms ease, spring droplet physics on startup",
+    "density": "comfortable-editorial"
+  },
+  "components": {
+    "installed": [
+      "demo",
+      "liquid-glass-logo-reveal",
+      "glass-folder-cards"
+    ],
+    "preferredPrimitives": [
+      "command-bar",
+      "segmented-control",
+      "composer-dock",
+      "reader-canvas"
+    ],
+    "patterns": [
+      "3-pane-studio",
+      "raycast-composer",
+      "editorial-chat",
+      "floating-live-voice"
+    ]
+  },
+  "constraints": {
+    "must": [
+      "Preserve 100% of DOM IDs for state and event dispatchers",
+      "Zero emojis in UI controls — use 1.5px stroke Lucide SVGs",
+      "65ch max-width reading measure for serif document canvas",
+      "Clean fail-safe offline mode if backend health check times out"
+    ],
+    "avoid": [
+      "Generic neon AI slop gradients",
+      "Sprawling carousels or clunky cards",
+      "Artificial delays without purpose"
+    ]
+  },
+  "decisions": [
+    {
+      "date": "2026-11-01",
+      "decision": "Integrated Liquid Glass Reveal as the in-app startup preloader on index.html with concurrent backend health check and smooth 550ms blur dissolution into workspace.",
+      "rationale": "Gives the backend time to verify API key pools, OAuth tokens, and storage state while offering a bespoke high-craft tactile entry experience."
+    },
+    {
+      "date": "2026-11-01",
+      "decision": "Overhauled index.html with editorial typography (Newsreader serif prose, Inter controls, JetBrains Mono citations), laboratory flask branding, and refined accessibility attributes.",
+      "rationale": "Eliminates generic AI template visuals and aligns with ex-Linear/Vercel warm minimalist aesthetic."
+    },
+    {
+      "date": "2026-11-01",
+      "decision": "Implemented intelligent auto-sort format collections engine for 3D Glass Folders partitioning PDFs, Google Docs/Word, Spreadsheets/CSV, Presentations/Slides, and Lab Notes/Markdown with live Google Drive synchronization.",
+      "rationale": "Ensures incoming cloud files and starter documents automatically route into dedicated tactile format collections with format badges, Drive provenance badges, and quick filter pills."
+    }
+  ],
+  "evidence": [
+    {
+      "fact": "components.installed",
+      "source": "components/ui"
+    }
+  ],
+  "generatedAt": "2026-11-01T01:34:45.000Z"
+}

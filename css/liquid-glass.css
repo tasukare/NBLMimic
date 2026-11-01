@@ -1,0 +1,334 @@
+/**
+ * Liquid Glass Stylesheet — Aceternity UI Design System
+ * Provides refraction geometry, specular rim lighting, ambient glow orbs,
+ * and physical interactive physics for NBLMimic.
+ */
+
+/* ── Ambient Background Glow Orbs (Provides Vibrant Backdrop for Refraction) ── */
+.ambient-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  z-index: 0;
+  will-change: transform;
+}
+
+.ambient-glow-top {
+  top: -80px;
+  left: 28%;
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(79, 70, 229, 0.08) 45%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(110px);
+}
+
+.ambient-glow-bottom {
+  bottom: 20px;
+  right: 22%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.06) 45%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(110px);
+}
+
+[data-theme="light"] .ambient-glow-top {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(79, 70, 229, 0.04) 50%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(90px);
+}
+
+[data-theme="light"] .ambient-glow-bottom {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.03) 50%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(90px);
+}
+
+/* ── Liquid Glass Component Base ── */
+.liquid-glass {
+  position: relative;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.04);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: border-color var(--transition-fast, 150ms ease), box-shadow var(--transition-fast, 150ms ease);
+}
+
+[data-theme="light"] .liquid-glass {
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* ── Top Floating Command Header with Liquid Glass ── */
+.command-header.liquid-glass-header {
+  background: rgba(18, 18, 22, 0.72);
+  backdrop-filter: blur(20px) saturate(1.75);
+  -webkit-backdrop-filter: blur(20px) saturate(1.75);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .command-header.liquid-glass-header {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Header Liquid Workspace Indicator Badge */
+.header-liquid-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: var(--text-primary, #fff);
+  user-select: none;
+}
+
+[data-theme="light"] .header-liquid-badge {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary, #111);
+}
+
+.header-liquid-badge .pulse-emerald {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background-color: #34d399;
+  box-shadow: 0 0 10px #34d399;
+  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.header-liquid-badge .badge-tag {
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-mono, monospace);
+}
+
+[data-theme="light"] .header-liquid-badge .badge-tag {
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.65);
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+/* ── Liquid Glass Composer Dock ── */
+.composer-dock.liquid-glass-dock {
+  background: transparent;
+  border-top: none;
+  padding: 8px 12px 14px;
+  position: relative;
+  z-index: 25;
+}
+
+.composer-box-liquid {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: rgba(22, 22, 28, 0.78);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(20px) saturate(1.85);
+  -webkit-backdrop-filter: blur(20px) saturate(1.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 6px 8px 6px 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] .composer-box-liquid {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.composer-box-liquid:focus-within {
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.composer-liquid-main-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.composer-sparkle-icon {
+  flex-shrink: 0;
+  color: #fde68a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="light"] .composer-sparkle-icon {
+  color: #d97706;
+}
+
+.composer-liquid-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--text-primary, #fff);
+  padding: 6px 0;
+  resize: none;
+  min-height: 32px;
+  max-height: 120px;
+  font-family: var(--font-ui, sans-serif);
+}
+
+.composer-liquid-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="light"] .composer-liquid-input::placeholder {
+  color: rgba(0, 0, 0, 0.42);
+}
+
+.composer-liquid-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Gemini Live Voice Trigger Button in Aceternity Style */
+.btn-liquid-live-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-liquid-live-trigger:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: scale(1.02);
+}
+
+.btn-liquid-live-trigger:active {
+  transform: scale(0.97);
+}
+
+.btn-liquid-live-trigger svg {
+  color: #fda4af;
+}
+
+[data-theme="light"] .btn-liquid-live-trigger {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+}
+
+[data-theme="light"] .btn-liquid-live-trigger:hover {
+  background: rgba(0, 0, 0, 0.09);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .btn-liquid-live-trigger svg {
+  color: #e11d48;
+}
+
+/* Elevated Circular Send Button matching Aceternity UI */
+.btn-liquid-send-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #0f172a;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.btn-liquid-send-circle:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  background: #f8fafc;
+}
+
+.btn-liquid-send-circle:active {
+  transform: scale(0.94);
+}
+
+[data-theme="light"] .btn-liquid-send-circle {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+[data-theme="light"] .btn-liquid-send-circle:hover {
+  background: #1e293b;
+}
+
+/* Sub-toolbar inside the liquid dock for model selection & voice mic */
+.composer-liquid-sub-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .composer-liquid-sub-bar {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.composer-liquid-sub-bar .model-selector-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 10.5px;
+  height: 20px;
+  border-radius: 999px;
+  padding: 0 8px;
+}
+
+[data-theme="light"] .composer-liquid-sub-bar .model-selector-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Motion Tap Physics (Hover & Click Scale) */
+.motion-tap {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.motion-tap:hover {
+  transform: scale(1.02);
+}
+
+.motion-tap:active {
+  transform: scale(0.97);
+}

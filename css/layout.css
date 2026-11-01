@@ -1,0 +1,333 @@
+/* ==========================================================================
+   RESEARCH LAB (NBLMimic) — LAYOUT STYLES
+   3-Panel Studio Layout: Header, Resizable Splitters, Panels & Grid
+   Tactile & Editorial Craftsman UI (Cursor / Linear / Readwise / no-slop-ui)
+   ========================================================================== */
+
+/* ── Base Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Slim Dark Scrollbars (Cross-Platform) ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-tertiary);
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Application Root ── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Top Command Header (48px Height) ── */
+.command-header {
+  height: var(--header-height);
+  min-height: var(--header-height);
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  z-index: var(--z-header);
+  position: relative;
+  user-select: none;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 240px;
+}
+
+.header-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.breadcrumb-root {
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+}
+
+.breadcrumb-root:hover {
+  color: var(--text-primary);
+}
+
+.breadcrumb-separator {
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.breadcrumb-current {
+  color: var(--text-secondary);
+  font-weight: 400;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Spotlight Search Trigger (Centered) */
+.header-center {
+  flex: 1;
+  max-width: 440px;
+  margin: 0 var(--space-4);
+}
+
+.spotlight-trigger {
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-2-5, 10px);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: background-color var(--transition-tactile), border-color var(--transition-tactile), color var(--transition-tactile);
+}
+
+.spotlight-trigger:hover {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.spotlight-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.spotlight-inner svg {
+  color: var(--text-tertiary);
+}
+
+.spotlight-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spotlight-kbd {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 1px 5px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* Header Right Actions */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+/* ── Workspace Studio (3-Pane Resizable) ── */
+.workspace-studio {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - var(--header-height));
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Left Pane — Source Library (Removed per user layout request) */
+.pane-sources,
+#splitter-left {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Center Pane — Document & Reader Canvas (Expanded Full Width) */
+.pane-canvas {
+  flex: 1;
+  min-width: 320px;
+  height: 100%;
+  background-color: var(--bg-canvas);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Right Pane — Synthesis Studio */
+.pane-studio {
+  width: var(--sidepanel-width);
+  min-width: 320px;
+  max-width: 600px;
+  height: 100%;
+  background-color: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: width var(--transition-tactile), margin-right var(--transition-tactile);
+}
+
+.sidepanel-collapsed .pane-studio {
+  margin-right: calc(-1 * var(--sidepanel-width));
+  width: 0;
+  min-width: 0;
+  border-left: none;
+}
+
+/* ── Resizable Splitters (Tactile Hairlines) ── */
+.pane-splitter {
+  width: 5px;
+  margin: 0 -2px;
+  height: 100%;
+  cursor: col-resize;
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  user-select: none;
+  background: transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.pane-splitter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 1px;
+  background: transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.pane-splitter:hover::after,
+.pane-splitter.is-dragging::after {
+  background: var(--border-strong);
+  width: 2px;
+}
+
+.pane-splitter.is-dragging {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ── Responsive Adaptations ── */
+@media (max-width: 1024px) {
+  :root {
+    --sidepanel-width: 340px;
+    --sidebar-width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .command-header {
+    padding: 0 var(--space-2);
+  }
+  .header-breadcrumb .breadcrumb-current {
+    display: none;
+  }
+  .header-center {
+    max-width: none;
+    margin: 0 var(--space-2);
+  }
+  .pane-sources {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 45;
+    box-shadow: var(--shadow-lg);
+  }
+  .pane-studio {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 45;
+    box-shadow: var(--shadow-lg);
+  }
+}

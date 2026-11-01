@@ -1,265 +1,102 @@
-# Research Lab — Style Guide
+# Research Lab — Design Style Guide
 
-> A private, self-hosted research and knowledge management interface. Privacy-first. Typography-driven. Built to last.
+> A private, self-hosted research and knowledge management interface inspired by Google NotebookLM, Linear, and Readwise Reader. Privacy-first. Typography-driven. Built to last.
 
 ---
 
-## Design Philosophy
+## 1. Design Philosophy & Anti-Slop Rules
 
 | Principle | Implementation |
 |-----------|---------------|
-| **Information density without clutter** | Three-panel layout, 8px spacing grid, purposeful whitespace |
-| **Trust through craftsmanship** | No gradients on components, consistent use of color meaning, precise alignment |
-| **Speed perception** | Skeleton loaders (not spinners), 150ms transitions, optimistic UI |
-| **Timeless, not trendy** | System font stack, stone/neutral palette, no trend-dependent effects |
+| **Zero Emojis in the UI** | Replace all emojis with crisp 1.5px stroke inline Lucide SVGs (`14px`–`16px`). |
+| **No Badge Clutter** | Eliminate neon badges and redundant context pills; use subtle monochrome file icons and muted metadata. |
+| **Information Density without Clutter** | Three-panel studio layout, 4px/8px spacing grid, purposeful whitespace, resizable splitters. |
+| **Trust through Craftsmanship** | Hairline `1px solid` borders (`--border-subtle`, `--border-strong`), subtle surface elevation, zero neon drop shadows. |
+| **Speed & Tactile Perception** | Fast micro-interactions (`120ms` cubic-bezier), skeleton loaders, optimistic UI updates. |
+| **Editorial Reading Measure** | `65ch` optimal measure with classic serif prose (`Charter`, `Newsreader`, `Georgia`) at `17px` with `1.75` line height. |
 
 ---
 
-## Typography
+## 2. Typography
 
 ### Font Stack
 
-| Role | Stack |
-|------|-------|
-| **UI** | `'Inter'`, `'SF Pro Display'`, `-apple-system`, `BlinkMacSystemFont`, `'Segoe UI'`, `system-ui`, `sans-serif` |
-| **Prose** | `'Charter'`, `'Georgia'`, `'Iowan Old Style'`, `'Times New Roman'`, `serif` |
-| **Code** | `'JetBrains Mono'`, `'Fira Code'`, `'Consolas'`, `'Monaco'`, `monospace` |
-
-> **Offline note:** Inter is loaded via Google Fonts (optional). In production, bundle the variable font locally or fall back gracefully to `system-ui`.
-
-### Type Scale
-
-| Token | Size | Weight | Tracking | Line-height | Usage |
-|-------|------|--------|----------|-------------|-------|
-| `--text-h1` | 32px | 600 | −0.02em | 1.3 | Page titles |
-| `--text-h2` | 24px | 600 | −0.01em | 1.3 | Section headers |
-| `--text-h3` | 18px | 600 | 0 | 1.3 | Subsections |
-| `--text-body` | 15px | 400 | 0 | 1.6 | Main text |
-| `--text-small` | 13px | 400 | 0 | 1.5 | Metadata, labels |
-| `--text-tiny` | 11px | 500 | +0.06em | — | Uppercase badges, section labels |
+| Role | Font Family Stack | Size | Tracking | Line-Height |
+|------|-------------------|------|----------|-------------|
+| **UI & Controls** | `'Inter'`, `-apple-system`, `BlinkMacSystemFont`, `system-ui`, sans-serif | `13px` base | `-0.01em` | `1.45`–`1.5` |
+| **Reader & Notes Prose** | `'Charter'`, `'Newsreader'`, `'Georgia'`, `'Iowan Old Style'`, serif | `17px` body | `0` | `1.75` |
+| **Citations & Metadata** | `'JetBrains Mono'`, `'Fira Code'`, monospace | `11.5px` | `0` | `1.2`–`1.4` |
 
 ### Rules
-
-- **Weights:** 400, 500, 600 only — never below 400, never above 600 for UI text
-- **Measure:** 65–75 characters for reading comfort in document views
-- **Tabular numbers:** Always use `font-variant-numeric: tabular-nums` for dates, counts, file sizes
-- **Truncation:** Always truncate with `text-overflow: ellipsis` — never clip mid-character
+- **Weights:** 400 (regular), 500 (medium), 600 (semibold) only. Never bold beyond 600.
+- **Tabular Numbers:** Always apply `font-variant-numeric: tabular-nums` to dates, counts, and file sizes.
+- **Reading Measure:** Body prose clamped to `65ch` (`--measure-prose`) for optimal ocular tracking.
+- **Truncation:** Use `overflow: hidden; text-overflow: ellipsis; white-space: nowrap;` — never clip mid-glyph.
 
 ---
 
-## Color Palette
+## 3. Unified Color Palette & Tokens
 
-### Light Mode (Default)
+### Light Mode (Warm Stone & Natural Minerals)
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--bg-primary` | `#FAFAF9` | Main background — warm white, not pure |
-| `--bg-secondary` | `#F5F5F4` | Sidebar, panels, input backgrounds |
-| `--bg-tertiary` | `#E7E5E4` | Hover states, skeleton loaders |
-| `--text-primary` | `#1C1917` | Main readable text |
+| Token | Hex Value | Semantic Purpose |
+|-------|-----------|------------------|
+| `--bg-canvas` | `#FAFAF9` | Warm stone base canvas |
+| `--bg-surface` | `#FFFFFF` | Surface elevation (cards, header, panels) |
+| `--bg-subtle` | `#F5F5F4` | Input backgrounds, segmented track |
+| `--bg-muted` | `#E7E5E4` | Skeleton bars, active tab highlights |
+| `--border-subtle` | `#E7E5E4` | 1px hairline dividers |
+| `--border-strong` | `#D6D3D1` | Input outlines, card boundaries |
+| `--border-focus` | `#1C1917` | High-contrast focus state |
+| `--text-primary` | `#1C1917` | Main readable text (warm charcoal) |
 | `--text-secondary` | `#57534E` | Metadata, secondary labels |
-| `--text-tertiary` | `#A8A29E` | Disabled states, hints, placeholders |
-| `--border` | `#E7E5E4` | Subtle dividers |
-| `--border-strong` | `#D6D3D1` | Emphasized dividers, focus states |
-| `--accent` | `#2563EB` | Primary actions only |
-| `--accent-hover` | `#1D4ED8` | Accent hover state |
-| `--success` | `#059669` | Confirmations |
-| `--warning` | `#D97706` | Alerts |
-| `--danger` | `#DC2626` | Destructive actions |
+| `--text-tertiary` | `#A8A29E` | Disabled text, subtle hints |
+| `--accent` | `#1C1917` | Editorial primary action button |
+| `--accent-contrast` | `#FFFFFF` | Text on primary button |
+| `--success` | `#059669` | Muted emerald signal |
+| `--warning` | `#D97706` | Muted amber alert |
+| `--danger` | `#DC2626` | Destructive action |
 
-### Dark Mode
+### Dark Mode (Deep Charcoal & Graphite Zinc)
 
-| Token | Value |
-|-------|-------|
-| `--bg-primary` | `#1C1917` |
-| `--bg-secondary` | `#292524` |
-| `--bg-tertiary` | `#3F3F46` |
-| `--text-primary` | `#FAFAF9` |
-| `--text-secondary` | `#D6D3D1` |
-| `--text-tertiary` | `#78716C` |
-| `--border` | `#3F3F46` |
-| `--border-strong` | `#52525B` |
-
-> Accent, success, warning, and danger colors remain identical in dark mode for semantic consistency.
-
-### Color Usage Rules
-
-- **Accent = action only.** Never use accent color for decoration.
-- **One semantic, one meaning.** Red = danger/destructive. Green = success/confirmed. Yellow = caution.
-- **No gradients** on interactive components. One subtle gradient is permitted for logo/brand marks only.
+| Token | Hex Value | Semantic Purpose |
+|-------|-----------|------------------|
+| `--bg-canvas` | `#121214` | Deep neutral base canvas |
+| `--bg-surface` | `#18181B` | Zinc 900 panel surfaces |
+| `--bg-subtle` | `#202023` | Dark input backgrounds |
+| `--bg-muted` | `#27272A` | Elevated surfaces |
+| `--border-subtle` | `#27272A` | 1px dark hairline dividers |
+| `--border-strong` | `#3F3F46` | Zinc 700 outlines |
+| `--border-focus` | `#F4F4F5` | Pure light focus ring |
+| `--text-primary` | `#F4F4F5` | High-contrast readable text |
+| `--text-secondary` | `#A1A1AA` | Secondary labels |
+| `--text-tertiary` | `#71717A` | Metadata |
+| `--accent` | `#F4F4F5` | Crisp light primary action |
+| `--accent-contrast` | `#18181B` | Text on dark mode primary button |
 
 ---
 
-## Layout
+## 4. 3-Pane Studio Layout & Components
 
-### Three-Panel Grid
+### Layout Dimensions
 
-```
-┌─────────────────────────────────────────────────────┐
-│ Header (56px, full-width)                           │
-├────────────┬──────────────────────┬─────────────────┤
-│ Sidebar    │ Main Content         │ Side Panel      │
-│ 240px      │ flexible (1fr)       │ 320px           │
-│ (fixed)    │                      │ (collapsible)   │
-└────────────┴──────────────────────┴─────────────────┘
-```
+- **Command Header:** Fixed `48px` height with minimal breadcrumb, centered `⌘K` spotlight trigger, and compact right icon controls.
+- **Left Pane (Source Library):** Resizable between `240px` and `440px` (default `280px`).
+- **Center Pane (Document Canvas):** Flexible `1fr` with mode switcher (`Reader View` vs `Native Drive Preview` vs `Split View`) and metadata breadcrumb bar.
+- **Right Pane (Synthesis Studio):** Resizable between `320px` and `600px` (default `380px`) with tabs for `Research Chat` and `Lab Notes`.
 
-- **Collapse behavior:** Side panel collapses to `0px` via CSS grid `grid-template-columns` transition
-- **Mobile (≤768px):** Sidebar = bottom-anchored drawer, Side panel = right slide-in, main content fills full width
+### Component Standards
 
-### Spacing Scale (8px base)
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-1` | 4px | Compact: badges, tight icon gaps |
-| `--space-2` | 8px | Default gap between related elements |
-| `--space-3` | 12px | Between component groups |
-| `--space-4` | 16px | Between sections, card padding |
-| `--space-6` | 24px | Between major blocks, chat messages |
-| `--space-8` | 32px | Page padding, modal inner spacing |
-| `--space-10` | 40px | Input height |
-| `--space-12` | 48px | Large section spacing |
-
----
-
-## Components
-
-### Document Card
-
-```
-┌──────────────────────────────────────┐  ← 8px radius, 1px border
-│ [Icon 36×36] Title (2 lines max)     │  ← 16px padding
-│              Source URL              │
-│                                      │
-│ Excerpt text (2 lines max)           │
-│                                      │
-│ [tag] [tag]                  Jan 15  │
-└──────────────────────────────────────┘
-    ↑ On hover: shadow-sm lifts card, action buttons fade in at top-right
-```
-
-- Border: `1px solid var(--border)`
-- Hover: `box-shadow: 0 2px 8px rgba(0,0,0,0.06)`
-- Transition: `150ms ease-out`
-- Animation on load: `translateY(4px)` → `translateY(0)`, 200ms, staggered by 30ms
-
-### Chat Bubbles
-
-| Property | User | AI |
-|----------|------|----|
-| Alignment | Right | Left |
-| Background | `var(--accent)` | `var(--bg-secondary)` |
-| Text color | `#fff` | `var(--text-primary)` |
-| Corner radius | 12px, 2px bottom-right | 12px, 2px bottom-left |
-| Max-width | 680px | 680px |
-| Padding | 12px 16px | 12px 16px |
-| Border | none | `1px solid var(--border)` |
-
-### Input Fields
-
-- Height: `40px`
-- Border: `1.5px solid var(--border)`
-- Focus: border → `var(--accent)`, `box-shadow: 0 0 0 3px rgba(37,99,235,0.08)`
-- Radius: `6px`
-- Padding: `0 12px` (search: `0 12px 0 34px`)
-- Placeholder: `var(--text-tertiary)`
-
-### Buttons
-
-| Variant | Background | Color | Border | Height | Padding |
-|---------|-----------|-------|--------|--------|---------|
-| Primary | `var(--accent)` | `#fff` | none | 36px | `0 16px` |
-| Secondary | transparent | `var(--text-primary)` | `1.5px solid var(--border)` | 36px | `0 14px` |
-| Ghost | transparent | `var(--text-secondary)` | none | 36px | `0 12px` |
-| Danger | `var(--danger-light)` | `var(--danger)` | none | 36px | `0 14px` |
-| Icon | transparent | `var(--text-secondary)` | none | 32px | square |
-
-Size modifier `.btn-sm`: height 28px, font-size `11px`.
-
-### Sidebar Navigation Items
-
-- Default: 13px, 400 weight, `var(--text-secondary)`
-- Hover: `background: var(--bg-tertiary)`
-- Active: `border-left: 3px solid var(--accent)`, `background: var(--accent-subtle)`, `color: var(--accent)`, 500 weight
-- Icons: 16×16px, 8px gap to label
-- Section headers: 11px, 500, uppercase, 0.06em tracking, `var(--text-tertiary)`
-
----
-
-## Interaction Patterns
-
-### Loading States
-
-| Situation | Pattern |
-|-----------|---------|
-| Document grid loading | Skeleton cards (pulsing gray blocks, 1.6s ease-in-out) |
-| AI response generating | Typing indicator (3 animated dots, scale pulse) |
-| File uploading | Progress bar fills with `width` transition |
-| Button submitting | Do not add spinner; rely on skeleton/progress elsewhere |
-
-> **Never** use a full-page spinner. Use skeleton screens that reflect the shape of real content.
-
-### Micro-interactions
-
-| Element | Behavior | Duration |
-|---------|----------|---------|
-| Card hover | Lift with `shadow-sm`, no transform | 150ms |
-| Button click | `scale(0.96)` on `:active` | 100ms |
-| Send button hover | `scale(1.05)` | 100ms |
-| Modal open | Scale `0.96 → 1.0` + backdrop fade | 200ms |
-| Source pill hover | Border → accent, text → accent | 100ms |
-| Toast in | `translateY(8px) → 0`, fade in | 200ms |
-| Theme transition | `background`, `color` smooth | 200ms |
-
-### Empty States
-
-```
-      [64×64 icon, bg-secondary, border]
-         No documents yet
-    Upload your first source to get started
-         [Primary Button: Import Source]
-```
-
-Never: overwhelming wizard, confetti, marketing copy.
-
----
-
-## Accessibility
-
-| Requirement | Implementation |
-|-------------|---------------|
-| Keyboard navigation | All interactive elements have `:focus-visible` outline: `2px solid var(--accent)`, `2px offset` |
-| Screen readers | `aria-label` on icon-only buttons, `role="dialog"` + `aria-modal` on modals, `role="tab"` + `aria-selected` on tabs |
-| Color contrast | All text combinations meet 4.5:1 minimum (WCAG AA) |
-| Reduced motion | `@media (prefers-reduced-motion: reduce)` sets all durations to 0.01ms |
-| Touch targets | Min 44×44px on mobile (achieved via padding expansion) |
-| Live regions | `aria-live="polite"` on toast stack |
-| Custom checkboxes | `role="checkbox"`, `aria-checked`, keyboard: Space/Enter to toggle |
-
----
-
-## What Makes This Not Look Generic
-
-1. **Stone/warm neutral palette** — Not blue-gray (Tailwind default), not pure black/white
-2. **Inter at precise weights** — 400/500/600 only, optical letter-spacing on headings
-3. **Serif for document excerpts** — Charter/Georgia for long-form content, not sans-serif everywhere
-4. **Asymmetric border-radius on chat bubbles** — 12px except the "tail" corner (2px), like real messaging apps
-5. **Skeleton loaders shaped like real content** — Icon + two lines, not a generic rectangle
-6. **3px left-border accent on active nav** — Subtle but distinctive active indicator
-7. **Real content** — Actual document titles, real academic authors, proper citation format
-8. **Tabular numbers everywhere** — Dates, counts, file sizes use `font-variant-numeric: tabular-nums`
-9. **Warm dark mode** — `#1C1917` base (not `#000` or `#1F2937`), matching the light mode's stone family
-10. **Shadow discipline** — Only two shadow uses: hover lift on cards, modal elevation. No box shadows on buttons.
-
----
-
-## File Structure
-
-```
-research-lab/
-├── index.html          ← Complete self-contained interface
-├── tokens.css          ← Design tokens (CSS custom properties)
-└── STYLEGUIDE.md       ← This document
-```
-
-The `index.html` is fully self-contained with inline CSS and JavaScript — no build step, no dependencies, works offline immediately.
+1. **Source Rows:**
+   - Custom 14px checkbox for grounding selection.
+   - Monochrome SVG file type icon (`file-text` for docs, `file-pdf` for PDFs, `file-spreadsheet` for sheets, `file` for notes).
+   - Minimal 1-line Drive storage meter in sidebar footer.
+2. **Segmented Filter Bar:**
+   - 5 compact segments (`All`, `Drive`, `Docs`, `PDFs`, `Notes`) plus a clean topic tag dropdown. Sprawling 16-tab horizontal carousels with arrow buttons are banned.
+3. **Editorial Research Chat:**
+   - User messages: subtle minimal right-aligned pill (`background: var(--bg-subtle)`).
+   - AI messages: full-width structured research brief (no heavy bubble) with interactive superscript `[1]` citation chips linking to sources.
+4. **Composer Dock:**
+   - Raycast-style floating composer box anchored at the bottom with integrated compact model selector (`3.5 Flash-Lite`, `3.5 Flash`, `3.8 Flash`), inline voice dictation mic, and quick chips (`Audio Overview`, `Summarize All`).
+5. **Gemini Live Voice Bar:**
+   - Floating glassmorphic audio bar in the workspace featuring a real-time canvas waveform visualizer, mute/interrupt buttons, and collapsible transcript drawer.

@@ -1,0 +1,162 @@
+/* ==========================================================================
+   RESEARCH LAB (NBLMimic) — UNIFIED DESIGN TOKENS
+   Strict Anti-Slop Palette: Warm Archival Paper & Obsidian Carbon Monochrome
+   ========================================================================== */
+
+:root {
+  /* ── Light Mode Palette (Warm Archival Paper) ── */
+  --bg-canvas:        #FAF9F5; /* Warm archival paper background */
+  --bg-surface:       #F3F1EC; /* Archival stone surface / panels */
+  --bg-elevated:      #FFFFFF; /* Elevated clean white cards / modals */
+  --bg-subtle:        #ECEAE4; /* Muted stone element background */
+  --bg-muted:         #E3E0D8; /* Deeper subtle stone */
+  --bg-hover:         #EAE7E0; /* Tactile hover */
+  --bg-active:        #E0DDD4; /* Active press */
+
+  /* Hairline Borders (Crisp 1px solid, zero slop) */
+  --border-subtle:    rgba(28, 25, 23, 0.08); /* 1px hairline divider */
+  --border-strong:    rgba(28, 25, 23, 0.15); /* Input / card border */
+  --border-hover:     rgba(28, 25, 23, 0.28); /* Interactive hover */
+  --border-focus:     #2563EB; /* Crisp focus ring (slate blue) */
+
+  /* Text Hierarchy */
+  --text-primary:     #141413; /* Deep warm ink */
+  --text-secondary:   #5A5852; /* Archival secondary */
+  --text-tertiary:    #8F8D86; /* Metadata & counters */
+  --text-muted:       #BCB9B1; /* Disabled text / placeholders */
+
+  /* Primary Accent: Ink Black Button (Linear/Readwise style) */
+  --accent:           #141413; /* Solid ink primary */
+  --accent-contrast:  #FAF9F5;
+  --accent-hover:     #282725;
+  --accent-subtle:    rgba(20, 20, 19, 0.06);
+  --accent-border:    rgba(20, 20, 19, 0.18);
+
+  /* Semantic Signals & Citations (Zero Neon) */
+  --citation:         #2563EB; /* Slate blue citation */
+  --citation-subtle:  rgba(37, 99, 235, 0.08);
+  --success:          #15803D; /* Deep forest emerald */
+  --success-subtle:   rgba(21, 128, 61, 0.08);
+  --warning:          #B45309; /* Warm amber */
+  --warning-subtle:   rgba(180, 83, 9, 0.08);
+  --danger:           #B91C1C; /* Editorial crimson */
+  --danger-subtle:    rgba(185, 28, 28, 0.08);
+  --info:             #2563EB;
+  --info-subtle:      rgba(37, 99, 235, 0.08);
+
+  /* Typography Stacks */
+  --font-ui:          'Inter', 'Kantumruy Pro', 'Noto Sans Khmer', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-prose:       'Kantumruy Pro', 'Noto Sans Khmer', 'Newsreader', 'Charter', Georgia, -apple-system, sans-serif;
+  --font-mono:        'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Menlo, monospace;
+
+  /* Optical Type Scale */
+  --text-xs:          11.5px;
+  --text-sm:          13px;    /* Base UI font size */
+  --text-base:        14px;
+  --text-prose:       17px;    /* Editorial reading measure body */
+  --text-lg:          16px;
+  --text-xl:          20px;
+  --text-2xl:         24px;
+  --text-3xl:         30px;
+
+  /* Editorial Spacing Scale */
+  --space-05:         2px;
+  --space-1:          4px;
+  --space-1-5:        6px;
+  --space-2:          8px;
+  --space-2-5:        10px;
+  --space-3:          12px;
+  --space-4:          16px;
+  --space-5:          20px;
+  --space-6:          24px;
+  --space-8:          32px;
+  --space-10:         40px;
+  --space-12:         48px;
+
+  /* Corner Radii (Linear / Raycast Style, No 20px+ rounded slop) */
+  --radius-xs:        4px;
+  --radius-sm:        6px;
+  --radius-md:        8px;
+  --radius-lg:        10px;
+  --radius-full:      9999px;
+
+  /* Elevation Shadows (Restrained hairline & soft diffusion, NO neon glows, NO 24px+ blur) */
+  --shadow-xs:        0 1px 2px rgba(20, 20, 19, 0.03);
+  --shadow-sm:        0 1px 3px rgba(20, 20, 19, 0.04), 0 1px 2px rgba(20, 20, 19, 0.02);
+  --shadow-md:        0 4px 10px -2px rgba(20, 20, 19, 0.06), 0 1px 3px rgba(20, 20, 19, 0.03);
+  --shadow-lg:        0 8px 18px -4px rgba(20, 20, 19, 0.08), 0 2px 6px rgba(20, 20, 19, 0.03);
+  --shadow-dock:      0 4px 16px rgba(20, 20, 19, 0.06), 0 0 1px rgba(20, 20, 19, 0.12);
+
+  /* Layout Dimensions */
+  --header-height:    48px;
+  --sidebar-width:    280px;
+  --sidepanel-width:  380px;
+  --measure-prose:    65ch;
+
+  /* Transitions (Strict 100-180ms ease, zero bouncy transforms) */
+  --transition-fast:    100ms ease;
+  --transition-tactile: 120ms ease;
+  --transition-normal:  180ms ease;
+
+  /* Z-Index Structure */
+  --z-base:           0;
+  --z-raised:         10;
+  --z-dock:           40;
+  --z-header:         50;
+  --z-dropdown:       100;
+  --z-modal:          200;
+  --z-toast:          300;
+}
+
+/* ── Dark Mode Palette (Obsidian Carbon) ── */
+[data-theme="dark"] {
+  --bg-canvas:        #0A0A0B; /* Deep obsidian background */
+  --bg-surface:       #111113; /* Dark carbon surface */
+  --bg-elevated:      #18181B; /* Elevated surface / modals / cards */
+  --bg-subtle:        #1A1A1E; /* Subtly raised elements */
+  --bg-muted:         #232328; /* Borders & active elements */
+  --bg-hover:         #212126; /* Tactile hover */
+  --bg-active:        #2B2B32;
+
+  --border-subtle:    rgba(255, 255, 255, 0.07); /* 1px dark hairline divider */
+  --border-strong:    rgba(255, 255, 255, 0.14); /* Zinc input & card border */
+  --border-hover:     rgba(255, 255, 255, 0.24);
+  --border-focus:     #60A5FA; /* Crisp light focus ring */
+
+  --text-primary:     #F4F4F5; /* Crisp white-zinc */
+  --text-secondary:   #A1A1AA; /* Zinc 400 */
+  --text-tertiary:    #71717A; /* Zinc 500 */
+  --text-muted:       #52525B; /* Disabled */
+
+  --accent:           #F4F4F5; /* Pure white tactile button in dark mode */
+  --accent-contrast:  #0A0A0B;
+  --accent-hover:     #FFFFFF;
+  --accent-subtle:    rgba(244, 244, 245, 0.08);
+  --accent-border:    rgba(244, 244, 245, 0.2);
+
+  --citation:         #60A5FA;
+  --citation-subtle:  rgba(96, 165, 250, 0.12);
+  --success:          #10B981;
+  --success-subtle:   rgba(16, 185, 129, 0.12);
+  --warning:          #F59E0B;
+  --warning-subtle:   rgba(245, 158, 11, 0.12);
+  --danger:           #EF4444;
+  --danger-subtle:    rgba(239, 68, 68, 0.12);
+  --info:             #60A5FA;
+  --info-subtle:      rgba(96, 165, 250, 0.12);
+
+  --shadow-xs:        0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg:        0 10px 24px rgba(0, 0, 0, 0.6);
+  --shadow-dock:      0 8px 24px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

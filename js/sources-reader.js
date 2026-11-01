@@ -8,6 +8,7 @@ import { state } from './state.js';
 import { getIcon, escapeHtml, showToast, openModal } from './ui.js';
 import { connectGoogleDrive, fetchDriveDocumentContent, isBinaryContent, generateDocumentExcerpt, fetchDriveDocumentBlob } from './auth-drive.js';
 import { renderGlassFolderGallery } from './glass-folder-cards.js';
+import { attach3DCardTilt } from './3d-card.js';
 
 // ── Curated Starter Research Papers (Rich, Grounded Knowledge Base) ──
 export const DEFAULT_STARTER_PAPERS = [
@@ -819,6 +820,30 @@ function formatTimeAgo(ts) {
   return `${diffDay}d ago`;
 }
 
+export function cleanNewsSnippetText(raw, title = '') {
+  if (!raw) return 'Detailed coverage filed across verified syndication. Open to inspect source materials.';
+  let text = String(raw).replace(/<[^>]*>/g, ' ');
+  text = text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#039;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, ' ');
+  text = text.replace(/https?:\/\/\S+/gi, '');
+  if (title && text.startsWith(title)) {
+    text = text.slice(title.length).trim();
+  }
+  text = text.replace(/\s+/g, ' ').trim();
+  if (!text || text.length < 15) {
+    return 'Detailed coverage filed across verified syndication. Open to inspect source materials.';
+  }
+  if (text.length > 210) {
+    text = text.slice(0, 207).trim() + '...';
+  }
+  return text;
+}
+
 export function renderNewsCardsGrid(articles, mountEl, category = 'all') {
   if (!mountEl) return;
 
@@ -846,30 +871,88 @@ export function renderNewsCardsGrid(articles, mountEl, category = 'all') {
   mountEl.innerHTML = '';
   filtered.forEach(art => {
     const isAlreadyImported = sources.some(s => s.id === art.id || (s.url && s.url === art.url));
-    const card = document.createElement('article');
-    card.className = 'news-card';
+    const card = document.createElement('div');
+    card.className = 'card-3d-container';
 
     const timeAgo = formatTimeAgo(art.timestamp || art.pubDate);
+    const catLower = (art.category || 'world').toLowerCase();
+
+    let dotClass = 'cat-dot-world';
+    let bannerTheme = 'banner-world';
+    let bannerLabel = 'Geopolitics & World Wire';
+    let bannerSvg = '<circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>';
+
+    if (catLower.includes('ai') || catLower.includes('tech')) {
+      dotClass = 'cat-dot-ai';
+      bannerTheme = 'banner-ai';
+      bannerLabel = 'AI Intelligence & Tech';
+      bannerSvg = '<rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line>';
+    } else if (catLower.includes('science')) {
+      dotClass = 'cat-dot-science';
+      bannerTheme = 'banner-science';
+      bannerLabel = 'Scientific Discoveries';
+      bannerSvg = '<circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93a10 10 0 0 0-14.14 0"></path><path d="M4.93 19.07a10 10 0 0 0 14.14 0"></path>';
+    } else if (catLower.includes('market') || catLower.includes('business')) {
+      dotClass = 'cat-dot-markets';
+      bannerTheme = 'banner-markets';
+      bannerLabel = 'Global Markets & Capital';
+      bannerSvg = '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>';
+    }
+
+    const rawSnippet = art.snippet || art.excerpt || '';
+    const cleanSnippet = cleanNewsSnippetText(rawSnippet, art.title);
+
+    let cleanTitle = art.title || 'Untitled Dispatch';
+    const publisher = art.publisher || art.source || 'Global Wire';
+    if (cleanTitle.endsWith(' - ' + publisher)) {
+      cleanTitle = cleanTitle.slice(0, cleanTitle.length - (publisher.length + 3)).trim();
+    }
 
     card.innerHTML = `
-      <div class="news-card-meta">
-        <span class="news-publisher-badge">${escapeHtml(art.publisher || art.source || 'World Wire')}</span>
-        <span class="news-card-time">${escapeHtml(timeAgo)}</span>
-        <span class="news-cat-pill">${escapeHtml(art.category || 'World')}</span>
-      </div>
-      <h3 class="news-card-title">
-        <a href="${escapeHtml(art.url || '#')}" target="_blank" rel="noopener noreferrer">${escapeHtml(art.title)}</a>
-      </h3>
-      <p class="news-card-snippet">${escapeHtml(art.snippet || art.excerpt || '')}</p>
-      <div class="news-card-footer">
-        <a href="${escapeHtml(art.url || '#')}" target="_blank" rel="noopener noreferrer" class="news-card-link">
-          <span>Open Original</span>
-          ${getIcon('external-link', 11)}
-        </a>
-        <button class="btn-import-source ${isAlreadyImported ? 'is-imported' : ''}" data-news-id="${escapeHtml(art.id)}">
-          ${isAlreadyImported ? getIcon('check', 11) : getIcon('plus', 11)}
-          <span>${isAlreadyImported ? 'Imported' : 'Import to Sources'}</span>
-        </button>
+      <div class="card-3d-body">
+        <div class="card-3d-item card-3d-meta-row" data-translate-z="30">
+          <div class="card-3d-publisher-group">
+            <span class="card-3d-publisher-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            </span>
+            <span>${escapeHtml(publisher)}</span>
+          </div>
+          <span class="card-3d-time-tag">${escapeHtml(timeAgo)}</span>
+          <span class="card-3d-cat-badge">
+            <span class="card-3d-cat-dot ${dotClass}"></span>
+            <span>${escapeHtml(art.category || 'World')}</span>
+          </span>
+        </div>
+
+        <h3 class="card-3d-item card-3d-title" data-translate-z="50">
+          <a href="${escapeHtml(art.url || '#')}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(cleanTitle)}">${escapeHtml(cleanTitle)}</a>
+        </h3>
+
+        <div class="card-3d-item card-3d-visual-banner ${bannerTheme}" data-translate-z="80">
+          <div class="banner-glow-orb"></div>
+          <div class="banner-text-tag">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${bannerSvg}</svg>
+            <span>${escapeHtml(bannerLabel)}</span>
+          </div>
+          <svg class="banner-svg-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            ${bannerSvg}
+          </svg>
+        </div>
+
+        <p class="card-3d-item card-3d-snippet" data-translate-z="40">
+          ${escapeHtml(cleanSnippet)}
+        </p>
+
+        <div class="card-3d-item card-3d-footer" data-translate-z="60">
+          <a href="${escapeHtml(art.url || '#')}" target="_blank" rel="noopener noreferrer" class="card-3d-link-btn" title="Open source dispatch in new tab">
+            <span>Read Story</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+          <button class="btn-3d-import-pill btn-import-source ${isAlreadyImported ? 'is-imported' : ''}" data-news-id="${escapeHtml(art.id)}">
+            ${isAlreadyImported ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>'}
+            <span>${isAlreadyImported ? 'Grounded' : 'Import to Sources'}</span>
+          </button>
+        </div>
       </div>
     `;
 
@@ -882,6 +965,7 @@ export function renderNewsCardsGrid(articles, mountEl, category = 'all') {
     }
 
     mountEl.appendChild(card);
+    attach3DCardTilt(card);
   });
 }
 

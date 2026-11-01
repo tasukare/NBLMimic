@@ -1,34 +1,53 @@
 # 🔬 NBLMimic (Research Lab)
 
-> A private, distraction-free knowledge management and research notebook inspired by Google NotebookLM — featuring real-time AI reasoning, Gemini 3.8 Live Voice, and native Google Account authentication.
+> A private, distraction-free knowledge management and research notebook inspired by Google NotebookLM — featuring real-time AI reasoning, Gemini 3.8 Live Voice, 3D Glass Research Folders, Aceternity UI Liquid Glass, and native Google Account authentication.
+
+---
+
+## 🌐 Live Repository & Instant Demo
+
+- **GitHub Repository**: [https://github.com/tasukare/NBLMimic](https://github.com/tasukare/NBLMimic)
+- **Live Branch**: `main` and `My-workspace`
+- **Instant Deploy / Test Options**:
+  - **Live Web Tunnel**: `https://eighty-baths-fix.loca.lt` (Enter IP `175.100.53.217` on first visit)
+  - **GitHub Pages**: Branch `gh-pages` is pushed and ready to serve at `https://tasukare.github.io/NBLMimic/`
+  - **Local 1-Click Launch**: Double-click `start.bat` to launch at `http://localhost:3000`
 
 ---
 
 ## 🎯 What Are We Building?
 
-**NBLMimic** is our team's project to recreate the power of Google NotebookLM while keeping it self-hosted, lightweight, and 100% private. 
+**NBLMimic** is our project to recreate the power of Google NotebookLM while keeping it self-hosted, lightweight, and 100% private. 
 
-Instead of relying on black-box cloud databases, NBLMimic stores your documents, notes, and research sources directly in your browser's local storage and syncs securely with Google services.
+Instead of relying on black-box cloud databases, NBLMimic stores your documents, notes, and research sources directly in your browser's local storage with client-side AES-GCM-256 encryption, and syncs seamlessly with Google Drive and Gemini.
 
 ---
 
 ### ✨ Key Features
 
-- **📚 3-Panel Research Workspace:** 
-  - **Left:** Source Library (manage uploaded documents, research papers, notes, and live news streams).
-  - **Center:** Distraction-Free Document & Citation Reader.
-  - **Right:** Notes editor, synthesis scratchpad, and grounded research chat.
-- **🔐 Official Google Account Authentication:**
+- **💎 Aceternity UI Liquid Glass Aesthetic:**
+  - Real-time Snell's law optical refraction powered by procedural SVG displacement mapping (`feDisplacementMap`).
+  - Specular rim highlighting with `GLASS_SHADOW` (`shadow-[0_10px_40px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.35)]`).
+  - Ambient indigo and amber background glow orbs that refract through the glass.
+  - Floating command header with emerald status pulse and Aceternity prompt composer dock with sparkles icon and circular send pill.
+- **📁 3D Interactive Glass Research Folders:**
+  - Procedural liquid art canvases with 5 customizable presets (`Aurora`, `Glacier`, `Ember`, `Dusk`, `Verdant`).
+  - Automated format separation & sorting: PDFs, Google Docs, Manuscripts, Code, Spreadsheets into dedicated category cards.
+  - Custom folder creation modal with instant color tone selection.
+- **📖 Clean Distraction-Free Reader:**
+  - Native PDF FlateDecode stream parser (renders binary compressed PDFs with full formatting, fonts, and clean readability).
+  - Proper paragraph spacing and typography for Google Docs manuscripts.
+  - Citations click-through highlighting connected directly to research answers.
+- **🔐 Official Google Account & Drive Integration:**
   - Real Google Identity Services (GSI) integration with one-click sign-in.
+  - Direct Google Drive Cloud Vault integration with encrypted local caching and document streaming.
   - Displays your official Google profile avatar, name, and email in the top navigation bar.
-  - Seamless account switcher, photo viewer, and session management saved safely to `localStorage`.
 - **📰 Real-Time Live News Stream & Auto-Categorization:** 
   - Automatically aggregates top stories from Hacker News, Ars Technica, and ScienceDaily with sub-5ms cached responsiveness.
   - Intelligent keyword categorizer dynamically tags articles: `🤖 AI & ML`, `💻 Tech & Dev`, `🔬 Science`, `📈 Business`, `🌐 World & Policy`, or `📝 Notes & Uploads`.
   - Filter pills with live article counters and instant multi-criteria sorting (Recency, Alphabetical, Category, Source, Active Status).
-  - User notes and uploaded source files are permanently preserved across live news updates.
 - **⚡ In-Chat Quick Model Switcher:** Switch models on the fly with one click directly inside the chat interface:
-  - `🚀 3.5 Lite` (Default — sub-second &lt;1s response, maximum free-tier quota, zero demand spikes)
+  - `🚀 3.5 Lite` (Default — sub-second <1s response, maximum free-tier quota, zero demand spikes)
   - `⚡ 3.5 Flash` (Standard model — 1M context window)
   - `✨ 3.8 Flash` (Next-generation multimodal reasoning preview)
 - **🎙️ Gemini 3.8 Live Real-Time Voice:** Interactive spoken audio conversations over WebSockets (`wss://...BidiGenerateContent`) with ultra-low latency, natural voice personas (Aoede, Puck, Charon, Kore, Fenrir), real-time waveform visualizer, and dual-channel live transcription.
@@ -37,9 +56,8 @@ Instead of relying on black-box cloud databases, NBLMimic stores your documents,
 - **🛡️ Smart Auto-Acceleration & High-Demand Recovery:** Automatically detects model rate limits (HTTP 429), server traffic spikes (HTTP 503), or server delays (>7s), instantly auto-routing your query through `gemini-3.5-flash-lite` so research answers are never blocked.
 - **🔒 Zero-Leak Privacy & Automatic `.env` Sync:**
   - Put your Gemini API key in `.env` once; the local server automatically syncs it with the browser upon startup.
-  - Zero risk of leaking secrets to git (strict `.gitignore` and zero npm dependencies).
+  - Strict `.gitignore` prevents secrets from ever being committed to git.
   - Runs with standard Node.js built-in modules (`http`, `https`, `fs`, `path`, `url`).
-- **🎨 Beautiful Design System:** Built with an 8px grid, typography-first layout (Inter + Charter), distinct Settings gear icon, and full Light/Dark mode support.
 
 ---
 
@@ -49,86 +67,56 @@ Instead of relying on black-box cloud databases, NBLMimic stores your documents,
 |---|---|
 | [`index.html`](file:///D:/NBLMimic%20project/NBLMimic/index.html) | The primary single-page web app and research interface |
 | [`server.js`](file:///D:/NBLMimic%20project/NBLMimic/server.js) | Built-in zero-dependency Node.js HTTP server + secure API & live news proxy |
+| [`js/liquid-glass.js`](file:///D:/NBLMimic%20project/NBLMimic/js/liquid-glass.js) | Aceternity UI Snell's law optical displacement engine |
+| [`css/liquid-glass.css`](file:///D:/NBLMimic%20project/NBLMimic/css/liquid-glass.css) | Liquid glass surface geometry and ambient glow styles |
+| [`js/glass-folder-cards.js`](file:///D:/NBLMimic%20project/NBLMimic/js/glass-folder-cards.js) | 3D glass folders and procedural liquid fluid canvases |
+| [`css/glass-folder-cards.css`](file:///D:/NBLMimic%20project/NBLMimic/css/glass-folder-cards.css) | 3D folder perspective transforms and card styling |
+| [`js/sources-reader.js`](file:///D:/NBLMimic%20project/NBLMimic/js/sources-reader.js) | PDF FlateDecode parser, Google Docs reader, and file auto-sort |
 | [`start.bat`](file:///D:/NBLMimic%20project/start.bat) | 1-Click Windows launcher (starts the server and opens `http://localhost:3000`) |
 | [`.env.example`](file:///D:/NBLMimic%20project/NBLMimic/.env.example) | Template for environment variables (`GEMINI_API_KEY`, `PORT`, `GOOGLE_CLIENT_ID`) |
 | [`.gitignore`](file:///D:/NBLMimic%20project/NBLMimic/.gitignore) | Git exclusion rules preventing `.env` and secrets from being committed |
-| [`google_client_secret.json`](file:///D:/NBLMimic%20project/NBLMimic/google_client_secret.json) | Google OAuth 2.0 Web Client configuration |
-| [`components.html`](file:///D:/NBLMimic%20project/NBLMimic/components.html) | Component gallery showing all UI buttons, cards, and panels |
-| [`tokens.css`](file:///D:/NBLMimic%20project/NBLMimic/tokens.css) | All design tokens (colors, typography, radii, elevation) |
-| [`STYLEGUIDE.md`](file:///D:/NBLMimic%20project/NBLMimic/STYLEGUIDE.md) | Official design guidelines (typography, colors, margins) |
-| [`AGENTS.md`](file:///D:/NBLMimic%20project/NBLMimic/AGENTS.md) | Architectural guidelines for AI coding assistants |
-| [`README.md`](file:///D:/NBLMimic%20project/NBLMimic/README.md) | Project documentation and setup guide |
 
 ---
 
-## 🚀 How to Run the App
+## 🚀 How to Run Locally
 
-### Option 1: 1-Click Launch with `start.bat` (Easiest for Windows)
-Simply double-click [`start.bat`](file:///D:/NBLMimic%20project/start.bat) in the project directory. 
-- It starts the local server on `http://localhost:3000`.
-- Automatically launches your default web browser to the app.
-
----
+### Option 1: 1-Click Launch with `start.bat` (Windows)
+Double-click `start.bat` in the project root. It launches the local server and opens your browser directly to `http://localhost:3000`.
 
 ### Option 2: Terminal / Command Line
 1. Navigate to the project directory:
-   ```powershell
-   # If using quotes:
-   cd "D:\NBLMimic project\NBLMimic"
-
-   # Or using the space-free shortcut:
-   cd D:\projects\NBLMimic
+   ```bash
+   cd NBLMimic
    ```
-2. Make sure your `.env` contains your Gemini API key:
+2. Ensure your `.env` contains your Gemini API key:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
    PORT=3000
    ```
 3. Start the server:
    ```bash
-   npm start
-   # or: node server.js
+   node server.js
    ```
 4. Open **[http://localhost:3000](http://localhost:3000)** in your browser.
-
-> [!IMPORTANT]
-> **Why `http://localhost:3000` is required for Google Sign-In:**
-> Google's OAuth 2.0 security policies strictly disallow the `file://` protocol (opening the `.html` file directly from Windows Explorer will return `Error 400: invalid_request`). Running via the local server on `http://localhost:3000` provides the authorized web origin required for real Google Sign-In.
 
 ---
 
 ## 🔒 Security & Privacy
 
 - **Protected Secrets:** `.env` and credentials files are permanently ignored by `.gitignore`.
-- **Zero Third-Party Trackers:** No analytics, spyware, or ad scripts.
-- **Zero NPM Dependencies:** `server.js` uses standard Node.js built-ins (`http`, `https`, `fs`, `path`, `dns`), eliminating third-party supply-chain risks.
-
----
-
-## 🤝 Team Workflow
-
-Always follow this simple routine when collaborating:
-
-1. **Pull the latest changes:**
-   ```bash
-   git pull
-   ```
-2. **Make your changes & verify:**
-   Test locally at `http://localhost:3000`.
-3. **Commit and push:**
-   ```bash
-   git add .
-   git commit -m "feat: describe your change"
-   git push
-   ```
+- **Zero Third-Party Trackers:** No telemetry, tracking, or ads.
+- **Client-Side Cryptography:** Documents stored in local vaults are encrypted with AES-GCM-256.
 
 ---
 
 ## 🛠️ Roadmap & Features Completed
 
 - [x] Base 3-panel UI & design tokens (`index.html`, `tokens.css`)
-- [x] UI component library (`components.html`)
-- [x] Design guide & AI agent rules (`STYLEGUIDE.md`, `AGENTS.md`)
+- [x] Aceternity UI Liquid Glass component with Snell's law refraction & chromatic aberration
+- [x] Interactive 3D glass research folders with procedural fluid art presets (Aurora, Glacier, Ember, Dusk, Verdant)
+- [x] Automated format sorting (PDFs, Google Docs, Manuscripts, Code, Spreadsheets)
+- [x] Google Drive Cloud Vault integration with encrypted local caching and document streaming
+- [x] Distraction-free reader with native PDF FlateDecode parsing & Google Docs formatted typography
 - [x] Official Google Sign-In with real Google Identity Services & Account Menu
 - [x] Google Gemini API integration with Grounded Research Agent & Interactive Citations
 - [x] In-chat quick model switcher (`3.5 Lite`, `3.5 Flash`, `3.8 Flash`)
@@ -141,4 +129,3 @@ Always follow this simple routine when collaborating:
 - [x] Dynamic source ingestion (file uploads, notes, active source toggles)
 - [x] Live search, category filtering, and notes auto-saving
 - [x] 1-Click Windows launcher (`start.bat`)
-- [ ] Connect Google Drive API for direct cloud sync & file storage

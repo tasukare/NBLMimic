@@ -4,7 +4,7 @@
  * Pure Canvas 2D liquid procedural art & CSS 3D frosted-glass folder cards.
  */
 
-import { openModal } from './ui.js';
+import { openModal, showToast, escapeHtml } from './ui.js';
 
 // Procedural Art Presets
 export const ART_PRESETS = {
@@ -354,6 +354,9 @@ export function createGlassFolderCard({
   width = 300,
   onFileSelect = null,
   onAdd = null,
+  onRename = null,
+  onDelete = null,
+  onChangeArt = null,
 }) {
   const k = width / W;
   const uid = Math.random().toString(36).slice(2, 9);
@@ -555,37 +558,114 @@ export function createGlassFolderCard({
     filesContainer.appendChild(sheet);
   });
 
-  // Action Key (+ or More)
+  // Action Key with Aceternity Options Popover (+ / Options Menu)
   let actionKey = null;
+  let popoverMenu = null;
+
   if (action !== "none") {
     actionKey = document.createElement("button");
     actionKey.type = "button";
-    actionKey.className = `gf-key gf-key--${action}`;
-    actionKey.setAttribute("aria-label", action === "add" ? "Add document" : "Folder options");
+    actionKey.className = "gf-key gf-key--add";
+    actionKey.setAttribute("aria-label", "Folder options");
+    actionKey.title = "Folder Options (Add, Rename, Delete, Fluid Art)";
 
-    if (action === "add") {
-      actionKey.innerHTML = `
-        <svg class="gf-glyph gf-glyph--plus" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 4.5v15M4.5 12h15"></path>
-        </svg>
-      `;
-      actionKey.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (typeof onAdd === "function") onAdd();
+    actionKey.innerHTML = `
+      <svg class="gf-glyph gf-glyph--plus" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4.5v15M4.5 12h15"></path>
+      </svg>
+    `;
+
+    // Aceternity 3D Floating Popover Menu
+    popoverMenu = document.createElement("div");
+    popoverMenu.className = "gf-folder-popover-menu";
+    popoverMenu.setAttribute("role", "menu");
+    popoverMenu.innerHTML = `
+      <div class="gf-popover-header">
+        <span class="gf-popover-folder-name">${escapeHtml(label)}</span>
+        <span class="gf-popover-badge">${escapeHtml(metaText)}</span>
+      </div>
+      <div class="gf-popover-divider"></div>
+      <button type="button" class="gf-popover-item gf-popover-add" role="menuitem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Add Documents</span>
+      </button>
+      <button type="button" class="gf-popover-item gf-popover-rename" role="menuitem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        <span>Rename Folder</span>
+      </button>
+      <div class="gf-popover-theme-row">
+        <span>Fluid Art</span>
+        <div class="gf-popover-theme-swatches">
+          <button type="button" class="gf-theme-dot swatch-aurora" data-art="aurora" title="Aurora (Teal/Pink)"></button>
+          <button type="button" class="gf-theme-dot swatch-glacier" data-art="glacier" title="Glacier (Cyan)"></button>
+          <button type="button" class="gf-theme-dot swatch-ember" data-art="ember" title="Ember (Gold)"></button>
+          <button type="button" class="gf-theme-dot swatch-dusk" data-art="dusk" title="Dusk (Violet)"></button>
+          <button type="button" class="gf-theme-dot swatch-verdant" data-art="verdant" title="Verdant (Emerald)"></button>
+        </div>
+      </div>
+      <div class="gf-popover-divider"></div>
+      <button type="button" class="gf-popover-item gf-popover-delete" role="menuitem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <span>Delete Folder</span>
+      </button>
+    `;
+
+    const closeMenu = () => {
+      popoverMenu.classList.remove("is-open");
+      actionKey.classList.remove("is-active");
+    };
+
+    actionKey.addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.querySelectorAll(".gf-folder-popover-menu.is-open").forEach(m => {
+        if (m !== popoverMenu) m.classList.remove("is-open");
       });
-    } else {
-      actionKey.innerHTML = `
-        <svg class="gf-glyph gf-glyph--more" viewBox="0 0 30 12" aria-hidden="true">
-          <circle cx="5" cy="6" r="3" fill="currentColor"></circle>
-          <circle cx="15" cy="6" r="3" fill="currentColor"></circle>
-          <circle cx="25" cy="6" r="3" fill="currentColor"></circle>
-        </svg>
-      `;
-      actionKey.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleOpen();
+      document.querySelectorAll(".gf-key.is-active").forEach(k => {
+        if (k !== actionKey) k.classList.remove("is-active");
       });
-    }
+
+      const isOpen = popoverMenu.classList.toggle("is-open");
+      actionKey.classList.toggle("is-active", isOpen);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!popoverMenu.contains(e.target) && !actionKey.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    popoverMenu.querySelector(".gf-popover-add").addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeMenu();
+      if (typeof onAdd === "function") onAdd();
+    });
+
+    popoverMenu.querySelector(".gf-popover-rename").addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeMenu();
+      if (typeof onRename === "function") {
+        onRename(label);
+      }
+    });
+
+    popoverMenu.querySelectorAll(".gf-theme-dot").forEach(dot => {
+      dot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeMenu();
+        const newArt = dot.dataset.art;
+        if (typeof onChangeArt === "function") {
+          onChangeArt(label, newArt);
+        }
+      });
+    });
+
+    popoverMenu.querySelector(".gf-popover-delete").addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeMenu();
+      if (typeof onDelete === "function") {
+        onDelete(label);
+      }
+    });
   }
 
   const toggleOpen = () => {
@@ -606,7 +686,7 @@ export function createGlassFolderCard({
 
   // Clicking anywhere on the card toggles open/close (excluding interactive keys and sheets)
   root.addEventListener("click", (e) => {
-    if (e.target.closest('.gf-sheet') || e.target.closest('.gf-key') || e.target.closest('.gf-hit')) return;
+    if (e.target.closest('.gf-sheet') || e.target.closest('.gf-key') || e.target.closest('.gf-hit') || e.target.closest('.gf-folder-popover-menu')) return;
     toggleOpen();
   });
 
@@ -642,7 +722,10 @@ export function createGlassFolderCard({
   tilt.appendChild(backRim);
   tilt.appendChild(filesContainer);
   tilt.appendChild(front);
-  if (actionKey) tilt.appendChild(actionKey);
+  if (actionKey) {
+    tilt.appendChild(actionKey);
+    tilt.appendChild(popoverMenu);
+  }
 
   stage.appendChild(tilt);
   root.appendChild(stage);
@@ -912,6 +995,85 @@ let activeFormatFilter = 'all';
 /**
  * Custom Folder Storage & State Utilities
  */
+
+export function getFolderOverrides() {
+  try {
+    const raw = localStorage.getItem('nbl_folder_overrides');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+export function saveFolderOverride(key, data) {
+  const overrides = getFolderOverrides();
+  overrides[key] = { ...(overrides[key] || {}), ...data };
+  try {
+    localStorage.setItem('nbl_folder_overrides', JSON.stringify(overrides));
+  } catch (e) {}
+  return overrides;
+}
+
+export function getHiddenFormatFolders() {
+  try {
+    const raw = localStorage.getItem('nbl_hidden_format_folders');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function hideFormatFolder(format) {
+  const list = getHiddenFormatFolders();
+  if (!list.includes(format)) {
+    list.push(format);
+    try {
+      localStorage.setItem('nbl_hidden_format_folders', JSON.stringify(list));
+    } catch (e) {}
+  }
+  return list;
+}
+
+export function restoreHiddenFormatFolders() {
+  try {
+    localStorage.removeItem('nbl_hidden_format_folders');
+  } catch (e) {}
+}
+
+export function deleteCustomFolder(idOrLabel) {
+  const folders = getStoredCustomFolders().filter(f => f.id !== idOrLabel && f.label !== idOrLabel);
+  try {
+    localStorage.setItem('nbl_custom_folders', JSON.stringify(folders));
+  } catch (e) {}
+  return folders;
+}
+
+export function renameCustomFolder(idOrLabel, newLabel) {
+  const folders = getStoredCustomFolders();
+  folders.forEach(f => {
+    if (f.id === idOrLabel || f.label === idOrLabel) {
+      f.label = newLabel;
+    }
+  });
+  try {
+    localStorage.setItem('nbl_custom_folders', JSON.stringify(folders));
+  } catch (e) {}
+  return folders;
+}
+
+export function updateCustomFolderArt(idOrLabel, newArt) {
+  const folders = getStoredCustomFolders();
+  folders.forEach(f => {
+    if (f.id === idOrLabel || f.label === idOrLabel) {
+      f.art = newArt;
+    }
+  });
+  try {
+    localStorage.setItem('nbl_custom_folders', JSON.stringify(folders));
+  } catch (e) {}
+  return folders;
+}
+
 export function getStoredCustomFolders() {
   try {
     const raw = localStorage.getItem('nbl_custom_folders');
@@ -943,7 +1105,7 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
 
   // Check Drive connection status
   const isDriveConnected = typeof window.state !== 'undefined' && window.state.get('isDriveConnected');
-  const driveSources = sources.filter(s => s.source === "Google Drive" || !!s.driveFileId);
+  const driveSources = sources.filter(s => s.source === "Google Drive" || !s.driveFileId);
 
   // Group all incoming sources by format
   const sourcesByFormat = {
@@ -964,7 +1126,49 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     }
   });
 
-  // Calculate format counts (matching files or starter fallback files)
+  const overrides = getFolderOverrides();
+  const hiddenFormats = getHiddenFormatFolders();
+
+  const handleRefreshGallery = () => {
+    renderGlassFolderGallery(container, sources, onSelectDocument, onAddSource);
+  };
+
+  const handleRename = (key, currentLabel, isCustom = false) => {
+    const newName = prompt(`Enter new name for "${currentLabel}":`, currentLabel);
+    if (!newName || !newName.trim() || newName.trim() === currentLabel) return;
+    const clean = newName.trim();
+    if (isCustom) {
+      renameCustomFolder(key, clean);
+    } else {
+      saveFolderOverride(key, { label: clean });
+    }
+    showToast(`Folder renamed to "${clean}"`);
+    handleRefreshGallery();
+  };
+
+  const handleChangeArt = (key, currentLabel, newArt, isCustom = false) => {
+    if (isCustom) {
+      updateCustomFolderArt(key, newArt);
+    } else {
+      saveFolderOverride(key, { art: newArt });
+    }
+    showToast(`Liquid art set to ${newArt.charAt(0).toUpperCase() + newArt.slice(1)}`);
+    handleRefreshGallery();
+  };
+
+  const handleDelete = (key, currentLabel, isCustom = false) => {
+    const ok = confirm(`Delete folder "${currentLabel}"?\nDocuments will remain safe in your library.`);
+    if (!ok) return;
+    if (isCustom) {
+      deleteCustomFolder(key);
+    } else {
+      hideFormatFolder(key);
+    }
+    showToast(`Folder "${currentLabel}" deleted`);
+    handleRefreshGallery();
+  };
+
+  // Calculate format counts
   const formatCounts = {
     all: 0,
     pdf: sourcesByFormat.pdf.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'pdf')?.defaultFiles.length || 0),
@@ -976,116 +1180,104 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
   };
   formatCounts.all = formatCounts.pdf + formatCounts.doc + formatCounts.sheet + formatCounts.slide + formatCounts.note + formatCounts.other;
 
-  // Gallery Header with Integrated Auto-Sort Toolbar
+  // Gallery Header
   const header = document.createElement("div");
   header.className = "gf-gallery-header";
+
+  const restoreBtnHtml = hiddenFormats.length > 0 ? `
+    <button class="btn btn-ghost btn-sm" id="btn-restore-default-folders" style="font-size:11px; display:inline-flex; align-items:center; gap:5px; color:var(--text-tertiary);" title="Restore deleted format folders">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+      <span>Restore Deleted Folders (${hiddenFormats.length})</span>
+    </button>
+  ` : '';
+
   header.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:flex-end; width:100%; gap:var(--space-4); flex-wrap:wrap; text-align:left;">
       <div>
         <div class="gf-gallery-kicker">Auto-Sort Knowledge Library &middot; Format Collections</div>
         <h2 class="gf-gallery-title">Format-Organized Research Folders</h2>
-        <p class="gf-gallery-desc">Files are automatically partitioned by format (.pdf, .docx, .xlsx, .pptx, .md). Connecting your Google Drive auto-routes all cloud files into their dedicated format folders in real-time.</p>
+        <p class="gf-gallery-desc">Files are automatically partitioned by format (.pdf, .docx, .xlsx, .pptx, .md). Click the + button on any folder to add files, rename, change fluid art, or delete.</p>
       </div>
       <div style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
-        ${isDriveConnected ? `
-          <div class="gf-drive-status-badge">
-            <span class="drive-dot"></span>
-            <span>Drive Connected (${driveSources.length} files sorted)</span>
-          </div>
-          <button class="btn btn-secondary btn-sm" id="btn-gallery-sync-drive" title="Refresh Google Drive files" style="height:32px; padding:0 10px; gap:6px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-            <span>Sync Drive</span>
-          </button>
-        ` : `
-          <button class="btn btn-secondary btn-sm" id="btn-gallery-connect-drive" title="Connect Google Drive to auto-sort your cloud vault" style="height:32px; padding:0 12px; gap:6px;">
-            <svg width="13" height="13" viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z"/><path fill="#ea4335" d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.4-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.4 4.5-1.2z"/><path fill="#ffba00" d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.5c0-1.55-.4-3.1-1.2-4.5z"/></svg>
-            <span>Connect Drive to Auto-Sort</span>
-          </button>
-        `}
-        <button class="btn btn-primary btn-sm" id="btn-gallery-new-folder" style="height:32px; padding:0 12px; gap:6px; flex-shrink:0;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>+ Add Folder</span>
+        ${restoreBtnHtml}
+        <button class="btn btn-secondary btn-sm" id="btn-gallery-new-folder" style="display:inline-flex; align-items:center; gap:5px; font-weight:500;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>New Folder</span>
         </button>
       </div>
     </div>
-
-    <!-- Format Filter Pill Toolbar -->
-    <div class="gf-autosort-toolbar">
-      <div class="gf-format-filter-group">
-        <button class="gf-format-filter-pill ${activeFormatFilter === 'all' ? 'is-active' : ''}" data-fmt="all">
-          <span>All Formats</span>
-          <span class="gf-format-count">${formatCounts.all}</span>
-        </button>
-        <button class="gf-format-filter-pill ${activeFormatFilter === 'pdf' ? 'is-active' : ''}" data-fmt="pdf">
-          <span>PDF Documents</span>
-          <span class="gf-format-count">${formatCounts.pdf}</span>
-        </button>
-        <button class="gf-format-filter-pill ${activeFormatFilter === 'doc' ? 'is-active' : ''}" data-fmt="doc">
-          <span>Docs &amp; Manuscripts</span>
-          <span class="gf-format-count">${formatCounts.doc}</span>
-        </button>
-        <button class="gf-format-filter-pill ${activeFormatFilter === 'sheet' ? 'is-active' : ''}" data-fmt="sheet">
-          <span>Data &amp; Sheets</span>
-          <span class="gf-format-count">${formatCounts.sheet}</span>
-        </button>
-        <button class="gf-format-filter-pill ${activeFormatFilter === 'slide' ? 'is-active' : ''}" data-fmt="slide">
-          <span>Presentations</span>
-          <span class="gf-format-count">${formatCounts.slide}</span>
-        </button>
-        <button class="gf-format-filter-pill ${activeFormatFilter === 'note' ? 'is-active' : ''}" data-fmt="note">
-          <span>Lab Notes</span>
-          <span class="gf-format-count">${formatCounts.note}</span>
-        </button>
-        ${formatCounts.other > 0 ? `
-          <button class="gf-format-filter-pill ${activeFormatFilter === 'other' ? 'is-active' : ''}" data-fmt="other">
-            <span>Other Formats</span>
-            <span class="gf-format-count">${formatCounts.other}</span>
-          </button>
-        ` : ''}
-      </div>
+    <div class="gf-gallery-filter-bar" id="gf-format-filter-bar">
+      <button class="gf-filter-pill is-active" data-format="all">
+        <span>All Documents</span>
+        <span class="gf-filter-count">${formatCounts.all}</span>
+      </button>
+      <button class="gf-filter-pill" data-format="pdf">
+        <span class="gf-dot gf-dot--pdf"></span>
+        <span>PDFs</span>
+        <span class="gf-filter-count">${formatCounts.pdf}</span>
+      </button>
+      <button class="gf-filter-pill" data-format="doc">
+        <span class="gf-dot gf-dot--doc"></span>
+        <span>Google Docs</span>
+        <span class="gf-filter-count">${formatCounts.doc}</span>
+      </button>
+      <button class="gf-filter-pill" data-format="sheet">
+        <span class="gf-dot gf-dot--sheet"></span>
+        <span>Sheets</span>
+        <span class="gf-filter-count">${formatCounts.sheet}</span>
+      </button>
+      <button class="gf-filter-pill" data-format="slide">
+        <span class="gf-dot gf-dot--slide"></span>
+        <span>Slides</span>
+        <span class="gf-filter-count">${formatCounts.slide}</span>
+      </button>
+      <button class="gf-filter-pill" data-format="note">
+        <span class="gf-dot gf-dot--note"></span>
+        <span>Notes & MD</span>
+        <span class="gf-filter-count">${formatCounts.note}</span>
+      </button>
+      <button class="gf-filter-pill" data-format="other">
+        <span class="gf-dot gf-dot--other"></span>
+        <span>Other</span>
+        <span class="gf-filter-count">${formatCounts.other}</span>
+      </button>
     </div>
   `;
   wrapper.appendChild(header);
 
-  // Wire Header buttons
-  const galleryNewBtn = header.querySelector('#btn-gallery-new-folder');
-  if (galleryNewBtn) {
-    galleryNewBtn.onclick = () => {
+  // Restore button handler
+  const restoreBtn = header.querySelector("#btn-restore-default-folders");
+  if (restoreBtn) {
+    restoreBtn.onclick = () => {
+      restoreHiddenFormatFolders();
+      showToast("Default format folders restored");
+      handleRefreshGallery();
+    };
+  }
+
+  // Bind New Folder button
+  const newFolderBtn = header.querySelector("#btn-gallery-new-folder");
+  if (newFolderBtn) {
+    newFolderBtn.onclick = () => {
       openModal('add-folder-modal');
     };
   }
 
-  const galleryConnectDrive = header.querySelector('#btn-gallery-connect-drive');
-  if (galleryConnectDrive) {
-    galleryConnectDrive.onclick = () => {
-      if (typeof window.connectGoogleDrive === 'function') {
-        window.connectGoogleDrive();
-      }
-    };
-  }
-
-  const gallerySyncDrive = header.querySelector('#btn-gallery-sync-drive');
-  if (gallerySyncDrive) {
-    gallerySyncDrive.onclick = () => {
-      if (typeof window.loadGoogleDriveFiles === 'function') {
-        window.loadGoogleDriveFiles(true);
-      }
-    };
-  }
-
-  // Wire Format Filter Pills
-  header.querySelectorAll('.gf-format-filter-pill').forEach(pill => {
+  // Interactive Filter Toolbar
+  let activeFormatFilter = "all";
+  const filterPills = header.querySelectorAll(".gf-filter-pill");
+  filterPills.forEach(pill => {
     pill.onclick = () => {
-      activeFormatFilter = pill.getAttribute('data-fmt') || 'all';
-      renderGlassFolderGallery(container, sources, onSelectDocument, onAddSource);
+      filterPills.forEach(p => p.classList.remove("is-active"));
+      pill.classList.add("is-active");
+      activeFormatFilter = pill.dataset.format || "all";
+      handleRefreshGallery();
     };
   });
 
   // Gallery Grid
   const grid = document.createElement("div");
   grid.className = "gf-gallery-grid";
-
-  // Card geometry width
   const cardW = 345;
 
   // Render Default Format Collections
@@ -1093,10 +1285,14 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     if (activeFormatFilter !== 'all' && activeFormatFilter !== folderDef.format) {
       return;
     }
+    // Skip if hidden by user
+    if (hiddenFormats.includes(folderDef.format)) {
+      return;
+    }
 
     const matchingSources = sourcesByFormat[folderDef.format] || [];
     const filesToDisplay = matchingSources.length > 0 ? matchingSources : folderDef.defaultFiles;
-    const driveCount = matchingSources.filter(s => s.source === "Google Drive" || !!s.driveFileId).length;
+    const driveCount = matchingSources.filter(s => s.source === "Google Drive" || !s.driveFileId).length;
     const totalCount = matchingSources.length > 0 ? matchingSources.length : folderDef.defaultFiles.length;
 
     let metaText = `${totalCount} ${totalCount === 1 ? 'document' : 'documents'}`;
@@ -1104,39 +1300,53 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
       metaText = `${totalCount} documents · ${driveCount} from Drive`;
     }
 
+    const override = overrides[folderDef.format] || {};
+    const finalLabel = override.label || folderDef.label;
+    const finalArt = override.art || folderDef.art;
+
     const folderCard = createGlassFolderCard({
-      label: folderDef.label,
+      label: finalLabel,
       meta: metaText,
       tone: folderDef.tone,
-      art: folderDef.art,
+      art: finalArt,
       seed: folderDef.seed,
       files: filesToDisplay.slice(0, 5),
       action: "add",
       width: cardW,
       onFileSelect: onSelectDocument,
       onAdd: onAddSource,
+      onRename: () => handleRename(folderDef.format, finalLabel, false),
+      onChangeArt: (l, newArt) => handleChangeArt(folderDef.format, finalLabel, newArt, false),
+      onDelete: () => handleDelete(folderDef.format, finalLabel, false),
     });
 
     grid.appendChild(folderCard);
   });
 
-  // Render "Other Formats" if any exist
-  if ((activeFormatFilter === 'all' || activeFormatFilter === 'other') && sourcesByFormat.other.length > 0) {
-    const otherDriveCount = sourcesByFormat.other.filter(s => s.source === "Google Drive" || !!s.driveFileId).length;
+  // Render "Other Formats" if any exist and not hidden
+  if ((activeFormatFilter === 'all' || activeFormatFilter === 'other') && sourcesByFormat.other.length > 0 && !hiddenFormats.includes('other')) {
+    const otherDriveCount = sourcesByFormat.other.filter(s => s.source === "Google Drive" || !s.driveFileId).length;
     let otherMeta = `${sourcesByFormat.other.length} files`;
     if (otherDriveCount > 0) otherMeta += ` · ${otherDriveCount} from Drive`;
 
+    const otherOverride = overrides['other'] || {};
+    const otherLabel = otherOverride.label || "Other Formats & Media";
+    const otherArt = otherOverride.art || "aurora";
+
     const otherFolder = createGlassFolderCard({
-      label: "Other Formats & Media",
+      label: otherLabel,
       meta: otherMeta,
       tone: "light",
-      art: "aurora",
+      art: otherArt,
       seed: 41,
       files: sourcesByFormat.other.slice(0, 5),
       action: "add",
       width: cardW,
       onFileSelect: onSelectDocument,
       onAdd: onAddSource,
+      onRename: () => handleRename('other', otherLabel, false),
+      onChangeArt: (l, newArt) => handleChangeArt('other', otherLabel, newArt, false),
+      onDelete: () => handleDelete('other', otherLabel, false),
     });
     grid.appendChild(otherFolder);
   }
@@ -1144,6 +1354,7 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
   // Render Custom User-Added Folders
   const customFolders = getStoredCustomFolders();
   customFolders.forEach((cf, idx) => {
+    const customId = cf.id || cf.label;
     const customFiles = cf.files && cf.files.length ? cf.files : [
       {
         id: `custom-doc-${cf.id || idx}-1`,
@@ -1168,6 +1379,9 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
       width: cardW,
       onFileSelect: onSelectDocument,
       onAdd: onAddSource,
+      onRename: () => handleRename(customId, cf.label, true),
+      onChangeArt: (l, newArt) => handleChangeArt(customId, cf.label, newArt, true),
+      onDelete: () => handleDelete(customId, cf.label, true),
     });
     grid.appendChild(cFolder);
   });

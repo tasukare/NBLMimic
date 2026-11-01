@@ -708,34 +708,86 @@
   flex-shrink: 0;
 }
 
+/* ── Sliding Pill Tabs & Mode Switchers (Linear / Raycast / visionOS) ── */
 .canvas-mode-switcher {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   gap: 2px;
+  background-color: rgba(255, 255, 255, 0.04);
+  padding: 2px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .canvas-mode-switcher {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .canvas-mode-btn {
   height: 24px;
-  padding: 0 var(--space-2);
-  font-size: 12px;
+  padding: 0 10px;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--text-secondary);
-  border-radius: var(--radius-xs);
-  transition: all var(--transition-fast);
+  border-radius: 9999px;
+  transition: color 150ms ease;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: none;
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .canvas-mode-btn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-subtle);
 }
 
 .canvas-mode-btn.is-active {
   color: var(--text-primary);
-  background-color: var(--bg-subtle);
-  border-color: var(--border-subtle);
   font-weight: 600;
+  background: transparent;
+}
+
+/* Hardware-Accelerated Sliding Pill Indicator */
+.tab-sliding-indicator {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: calc(100% - 4px);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+  z-index: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), width 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 150ms ease;
+  will-change: transform, width;
+}
+
+[data-theme="light"] .tab-sliding-indicator {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff;
+}
+
+/* Tactile Physics Micro-Interactions */
+.motion-tap {
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  will-change: transform;
+}
+
+.motion-tap:hover {
+  transform: translateY(-1px);
+}
+
+.motion-tap:active {
+  transform: scale(0.96) translateY(0);
+}
+
+.btn-liquid-send-circle.motion-tap:active {
+  transform: scale(0.94);
 }
 
 /* Metadata Breadcrumb Bar at Canvas Footer */

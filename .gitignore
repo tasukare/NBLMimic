@@ -1,9 +1,16 @@
 # Environment variables & API keys (CRITICAL: NEVER COMMIT)
 .env
 .env.*
+*.env
+*.env.local
+*.env.production
 !.env.example
 *client_secret*.json
 google_client_secret.json
+*21st*.key
+*21st*token*
+.21st/credentials*
+.21st/auth*
 
 # Dependencies & Build artifacts
 node_modules/

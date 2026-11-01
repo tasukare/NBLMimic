@@ -11,14 +11,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Noto+Sans+Khmer:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/reader-chat.css">
-  <link rel="stylesheet" href="css/startup-screen.css">
-  <link rel="stylesheet" href="css/glass-folder-cards.css">
-  <link rel="stylesheet" href="css/liquid-glass.css">
-  <link rel="stylesheet" href="css/3d-card.css">
+  <link rel="stylesheet" href="css/tokens.css?v=5">
+  <link rel="stylesheet" href="css/layout.css?v=5">
+  <link rel="stylesheet" href="css/components.css?v=5">
+  <link rel="stylesheet" href="css/reader-chat.css?v=5">
+  <link rel="stylesheet" href="css/startup-screen.css?v=5">
+  <link rel="stylesheet" href="css/glass-folder-cards.css?v=5">
+  <link rel="stylesheet" href="css/liquid-glass.css?v=5">
+  <link rel="stylesheet" href="css/3d-card.css?v=5">
+  <link rel="stylesheet" href="css/background-beams.css?v=5">
   <script>
     window.initGoogleGSI = function() {
       if (typeof window._initGoogleGSIReady === 'function') {
@@ -29,7 +30,7 @@
     };
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleGSI()"></script>
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=5"></script>
 </head>
 <body>
 
@@ -164,6 +165,8 @@
   <div class="workspace-studio">
     <!-- Center Pane: Document & Reader Canvas -->
     <main class="pane-canvas" id="pane-canvas">
+      <!-- Aceternity UI Background Beams Ambient Backdrop -->
+      <div class="background-beams-container" id="background-beams-container" aria-hidden="true"></div>
       <div class="canvas-top-bar">
         <div style="display:flex; align-items:center; gap:8px;">
           <button class="btn btn-secondary btn-sm" id="btn-canvas-back-folders" title="Back to Folders View" style="display:none; align-items:center; gap:6px; font-weight:500;">
@@ -261,19 +264,36 @@
 
         <!-- Floating Liquid Glass Composer Dock (Aceternity UI) -->
         <div class="composer-dock liquid-glass-dock">
+          <!-- Inlined SVG Liquid Glass Displacement Filter (Zero External File Dependencies) -->
+          <svg class="pointer-events-none" style="position:absolute; width:0; height:0; overflow:hidden;" aria-hidden="true">
+            <defs>
+              <filter id="liquid-glass-dock-filter" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.04 0.04" numOctaves="2" result="dockNoise" />
+                <feDisplacementMap in="SourceGraphic" in2="dockNoise" scale="12" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+                <feGaussianBlur in="displaced" stdDeviation="0.3" result="blurred" />
+                <feBlend in="SourceGraphic" in2="blurred" mode="overlay" />
+              </filter>
+            </defs>
+          </svg>
+
+          <!-- 1. Floating Action Bar (Audio Overview, Summarize, Clear) -->
           <div class="composer-quick-chips">
-            <button class="quick-chip motion-tap" id="btn-chip-audio-overview">
+            <button class="quick-chip motion-tap" id="btn-chip-audio-overview" type="button">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
               <span>Audio Overview</span>
             </button>
-            <button class="quick-chip motion-tap" id="btn-chip-summarize">
+            <button class="quick-chip motion-tap" id="btn-chip-summarize" type="button">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
               <span>Summarize All</span>
             </button>
-            <button class="quick-chip motion-tap" id="btn-chip-clear">Clear</button>
+            <button class="quick-chip motion-tap" id="btn-chip-clear" type="button">Clear</button>
           </div>
 
-          <form class="composer-box composer-box-liquid liquid-glass" id="chat-composer-form" data-liquid-glass="true" data-liquid-radius="24" data-liquid-bevel="12" data-liquid-scale="32" data-liquid-tint="0.12">
+          <!-- 2. Liquid Glass Prompt Capsule (Refraction strictly on outer perimeter; text 100% sharp) -->
+          <form class="composer-box composer-box-liquid liquid-glass" id="chat-composer-form">
+            <!-- Specular Rim Sheen overlay (confined strictly to outer border) -->
+            <div class="composer-liquid-rim" aria-hidden="true"></div>
+
             <div class="composer-liquid-main-row">
               <!-- Aceternity Sparkles Icon -->
               <div class="composer-sparkle-icon" title="Gemini Multi-turn Reasoning">
@@ -282,7 +302,7 @@
                 </svg>
               </div>
 
-              <!-- Chat Input Textarea -->
+              <!-- Chat Input Textarea (100% Vector-Sharp Interior) -->
               <textarea class="composer-textarea composer-liquid-input" id="chat-textarea" placeholder="Ask anything about your sources..." rows="1"></textarea>
 
               <div class="composer-liquid-actions">
@@ -292,7 +312,7 @@
                   <span>Live</span>
                 </button>
 
-                <!-- Voice Dictation Mic Button (existing) -->
+                <!-- Voice Dictation Mic Button -->
                 <button type="button" class="btn-composer-mic motion-tap" id="btn-composer-mic" title="Dictate prompt with voice">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
                 </button>

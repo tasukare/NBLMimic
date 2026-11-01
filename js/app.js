@@ -7,13 +7,14 @@ import { state } from './state.js';
 import { initTheme, toggleTheme, openModal, closeModal, closeAllModals, togglePopover, closePopover, showToast } from './ui.js';
 import { CryptoVault } from './crypto-vault.js';
 import { initUserSession, initDriveSession, fetchServerAuthConfig, fetchServerDriveConfig, loadGoogleDriveFiles, signOutUser, loginDemoAccount, handleDirectAuthSubmit, connectGoogleDrive, saveDriveWebAppUrl, getTokenTimeRemainingSec, revokeTokenAndDisconnect } from './auth-drive.js';
-import { renderSources, updateCanvasView, viewDocument, loadDefaultWorkspaceSources, fetchWorldNews, navigateBackToFolders } from './sources-reader.js';
+import { renderSources, updateCanvasView, viewDocument, loadDefaultWorkspaceSources, fetchWorldNews, navigateBackToFolders, switchCanvasMode } from './sources-reader.js';
 import { saveCustomFolder } from './glass-folder-cards.js';
 import { initChat, sendQuickPrompt, clearChatStream, generateAudioOverview } from './chat.js';
 import { initLiveVoice } from './live-voice.js';
 import { initNotes } from './notes.js';
 import { startupScreen } from './startup-screen.js';
 import { initLiquidGlass } from './liquid-glass.js';
+import { initBackgroundBeams } from './background-beams.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // 0. Launch Liquid Glass Startup Screen immediately
@@ -37,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. Initialize UI Foundations
   initTheme();
   initLiquidGlass();
+  initBackgroundBeams();
   initSplitters();
   initGlobalShortcuts();
 
@@ -64,26 +66,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadDefaultWorkspaceSources();
   }
 
-  // Restore previously selected document if valid
-  let targetDocId = null;
+  // Default to main Folders view on startup
+  state.set('viewMode', 'folders');
+  state.set('selectedDocId', null);
   try {
-    const savedId = sessionStorage.getItem('nbl_selected_doc_id');
-    const sources = state.get('sources');
-    if (savedId && sources.some(s => s.id === savedId)) {
-      targetDocId = savedId;
-    }
+    sessionStorage.removeItem('nbl_selected_doc_id');
   } catch (e) {}
 
-  if (targetDocId) {
-    viewDocument(targetDocId);
-  } else {
-    const sources = state.get('sources');
-    if (sources && sources.length > 0) {
-      viewDocument(sources[0].id);
+  document.querySelectorAll('.canvas-mode-btn').forEach(b => {
+    if (b.getAttribute('data-mode') === 'folders') {
+      b.classList.add('is-active');
     } else {
-      updateCanvasView();
+      b.classList.remove('is-active');
     }
-  }
+  });
+
+  renderSources();
+  updateCanvasView();
 
   // Subscribe state changes to re-render
   state.subscribe('sources', () => {
@@ -339,21 +338,9 @@ function bindGlobalEvents() {
     btnHeaderLiveNews.onclick = () => {
       const currentMode = state.get('viewMode');
       if (currentMode === 'news') {
-        state.set('viewMode', 'reader');
-        btnHeaderLiveNews.classList.remove('is-active');
-        const readerTab = document.querySelector('.canvas-mode-btn[data-mode="reader"]');
-        if (readerTab) {
-          document.querySelectorAll('.canvas-mode-btn').forEach(b => b.classList.remove('is-active'));
-          readerTab.classList.add('is-active');
-        }
+        switchCanvasMode('folders');
       } else {
-        state.set('viewMode', 'news');
-        btnHeaderLiveNews.classList.add('is-active');
-        const newsTab = document.querySelector('.canvas-mode-btn[data-mode="news"]');
-        if (newsTab) {
-          document.querySelectorAll('.canvas-mode-btn').forEach(b => b.classList.remove('is-active'));
-          newsTab.classList.add('is-active');
-        }
+        switchCanvasMode('news');
       }
     };
   }
@@ -606,20 +593,14 @@ function bindGlobalEvents() {
     };
   }
 
-  // Canvas Mode Switcher: Reader vs Native Drive Preview vs Split vs News
+  // Canvas Mode Switcher: Folders vs Reader vs Split vs Preview vs News
   document.querySelectorAll('.canvas-mode-btn').forEach(btn => {
     btn.onclick = () => {
-      document.querySelectorAll('.canvas-mode-btn').forEach(b => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      const mode = btn.getAttribute('data-mode') || 'reader';
-      state.set('viewMode', mode);
-      const headerNewsBtn = document.getElementById('btn-header-live-news');
-      if (headerNewsBtn) {
-        if (mode === 'news') {
-          headerNewsBtn.classList.add('is-active');
-        } else {
-          headerNewsBtn.classList.remove('is-active');
-        }
+      const mode = btn.getAttribute('data-mode') || 'folders';
+      if (mode === 'folders' && state.get('viewMode') !== 'folders') {
+        navigateBackToFolders(true);
+      } else {
+        switchCanvasMode(mode);
       }
     };
   });
@@ -661,6 +642,10 @@ function bindGlobalEvents() {
       state.set('currentTab', 'notes');
     };
   }
+
+  // Aceternity / Linear-Style Animated Sliding Pill Tabs (Zero dependencies, pure GPU translate3d)
+  setupSlidingPillTabs('.canvas-mode-switcher', '.canvas-mode-btn');
+  setupSlidingPillTabs('.studio-segmented-tabs', '.studio-tab-btn');
 
   // Quick Action Suggestion Chips in Composer Dock
   const btnQuickOverview = document.getElementById('btn-chip-audio-overview');
@@ -992,3 +977,46 @@ window.toggleTheme = toggleTheme;
 window.refreshKeyTelemetry = refreshKeyTelemetry;
 window.navigateBackToFolders = navigateBackToFolders;
 window.CryptoVault = CryptoVault;
+
+
+/**
+ * Setup smooth animated sliding pill indicator for segmented tabs
+ * Uses translate3d + cubic-bezier(0.22, 1, 0.36, 1) for 220ms silky glide
+ */
+function setupSlidingPillTabs(containerSelector, btnSelector) {
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+
+  let indicator = container.querySelector('.tab-sliding-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.className = 'tab-sliding-indicator';
+    container.insertBefore(indicator, container.firstChild);
+  }
+
+  const update = () => {
+    const activeBtn = container.querySelector(`${btnSelector}.is-active`);
+    if (!activeBtn) {
+      indicator.style.opacity = '0';
+      return;
+    }
+    const left = activeBtn.offsetLeft;
+    const width = activeBtn.offsetWidth;
+    indicator.style.transform = `translate3d(${left}px, 0, 0)`;
+    indicator.style.width = `${width}px`;
+    indicator.style.opacity = '1';
+  };
+
+  const observer = new MutationObserver(() => update());
+  container.querySelectorAll(btnSelector).forEach(btn => {
+    observer.observe(btn, { attributes: true, attributeFilter: ['class'] });
+    btn.addEventListener('click', () => {
+      setTimeout(update, 10);
+    });
+  });
+
+  window.addEventListener('resize', update);
+  requestAnimationFrame(update);
+  setTimeout(update, 150);
+  setTimeout(update, 500);
+}

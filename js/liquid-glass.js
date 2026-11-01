@@ -188,7 +188,7 @@ function isSafariLike() {
  * @param {Object} options
  */
 export async function applyLiquidGlass(el, options = {}) {
-  if (!el) return;
+  if (!el || el.classList.contains('composer-box-liquid')) return;
 
   const defaults = {
     radius: el.dataset.liquidRadius ? parseFloat(el.dataset.liquidRadius) : 999,
@@ -217,69 +217,10 @@ export async function applyLiquidGlass(el, options = {}) {
   const width = Math.max(2, Math.round(rect.width));
   const height = Math.max(2, Math.round(rect.height));
 
-  // If URL backdrop-filter is not supported or Safari, use high-fidelity frosted glass fallback
-  if (!canRefract || width <= 2 || height <= 2) {
-    el.style.backdropFilter = 'blur(16px) saturate(1.8) brightness(1.04)';
-    el.style.webkitBackdropFilter = 'blur(16px) saturate(1.8) brightness(1.04)';
-    el.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
-    return;
-  }
-
-  try {
-    const mapUrl = await generateDisplacementBlobUrl({
-      width,
-      height,
-      radius: Math.min(opts.radius, width / 2, height / 2),
-      bevelDepth: Math.min(opts.bevelDepth, Math.min(width, height) / 2),
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
-    });
-
-    if (!mapUrl) return;
-
-    // Release old blob
-    if (instance.blobUrl) {
-      URL.revokeObjectURL(instance.blobUrl);
-    }
-    instance.blobUrl = mapUrl;
-
-    const filterId = `lg-${Math.random().toString(36).substring(2, 9)}-${width}x${height}`;
-    instance.filterId = filterId;
-
-    const svgMarkup = buildFilterSvg({
-      id: filterId,
-      mapUrl,
-      width,
-      height,
-      scale: opts.scale,
-      aberration: opts.aberration,
-      frost: opts.frost
-    });
-
-    if (!instance.filterContainer) {
-      instance.filterContainer = document.createElement('div');
-      instance.filterContainer.className = 'liquid-glass-filter-mount';
-      instance.filterContainer.setAttribute('aria-hidden', 'true');
-      instance.filterContainer.style.position = 'absolute';
-      instance.filterContainer.style.width = '0';
-      instance.filterContainer.style.height = '0';
-      instance.filterContainer.style.overflow = 'hidden';
-      instance.filterContainer.style.pointerEvents = 'none';
-      document.body.appendChild(instance.filterContainer);
-    }
-
-    instance.filterContainer.innerHTML = svgMarkup;
-
-    // Apply refraction backdrop
-    const backdrop = `url(#${filterId}) blur(0.5px) saturate(1.85) brightness(1.02)`;
-    el.style.backdropFilter = backdrop;
-    el.style.webkitBackdropFilter = backdrop;
-    el.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
-  } catch (err) {
-    console.warn('[LiquidGlass] Refraction fallback enabled:', err);
-    el.style.backdropFilter = 'blur(16px) saturate(1.8) brightness(1.04)';
-    el.style.webkitBackdropFilter = 'blur(16px) saturate(1.8) brightness(1.04)';
-    el.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
-  }
+  // Ultra-fast 60fps GPU-accelerated liquid glass (zero CPU / blob lag)
+  el.style.backdropFilter = 'blur(22px) saturate(1.85) brightness(1.04)';
+  el.style.webkitBackdropFilter = 'blur(22px) saturate(1.85) brightness(1.04)';
+  el.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
 
   // Setup ResizeObserver if not already attached
   if (!instance.observer && window.ResizeObserver) {

@@ -1,0 +1,90 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Aceternity UI — Background Beams Ambient Backdrop (Monochrome Linear Edition)
+   Hardware-Accelerated 60-144fps GPU Engine (Zero CPU Overhead)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.background-beams-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 300ms ease;
+  contain: strict;
+}
+
+/* Zero-cost GPU hardware vignette overlay (Linear dark vignette) */
+.background-beams-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, transparent 20%, var(--bg-canvas) 80%);
+  z-index: 1;
+}
+
+[data-theme="light"] .background-beams-container {
+  opacity: 0.35;
+  filter: contrast(1.05) brightness(0.95);
+}
+
+.background-beams-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  pointer-events: none;
+}
+
+@keyframes beamSweep {
+  0% {
+    stroke-dashoffset: 1400;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    stroke-dashoffset: -1400;
+    opacity: 0;
+  }
+}
+
+.beam-active {
+  stroke-dasharray: 280 1120;
+  animation: beamSweep 16s ease-in-out infinite;
+  will-change: stroke-dashoffset;
+}
+
+/* Ensure canvas content sits directly on top of the moving light beams */
+.pane-canvas > *:not(.background-beams-container) {
+  position: relative;
+  z-index: 1;
+}
+
+.canvas-top-bar {
+  position: relative;
+  z-index: 2;
+}
+
+.canvas-meta-bar {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam-active {
+    animation: none !important;
+  }
+}

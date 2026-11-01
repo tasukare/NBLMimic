@@ -335,6 +335,7 @@ export function fanSlot(index, count) {
  * Creates an interactive 3D Glassmorphism Folder Card DOM Element
  */
 export function createGlassFolderCard({
+  format = "",
   label = "My Files",
   meta = null,
   tone = "light",
@@ -542,7 +543,7 @@ export function createGlassFolderCard({
     sheet.addEventListener("click", (e) => {
       e.stopPropagation();
       if (typeof onFileSelect === "function") {
-        onFileSelect(file);
+        onFileSelect(file, sheet);
       }
     });
 
@@ -660,6 +661,10 @@ export function createGlassFolderCard({
   }
 
   const toggleOpen = () => {
+    if (format === 'news' && typeof window.switchCanvasMode === 'function') {
+      window.switchCanvasMode('news');
+      return;
+    }
     isOpen = !isOpen;
     if (isOpen) {
       root.setAttribute("data-open", "true");
@@ -672,6 +677,10 @@ export function createGlassFolderCard({
 
   hitBtn.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (format === 'news' && typeof window.switchCanvasMode === 'function') {
+      window.switchCanvasMode('news');
+      return;
+    }
     toggleOpen();
   });
 
@@ -733,6 +742,11 @@ export function classifyFileFormat(file) {
   const name = (file.title || file.name || '').toLowerCase();
   const mime = (file.mimeType || '').toLowerCase();
   const cat = (file.category || '').toLowerCase();
+
+  // 0. Live World News & Dispatches
+  if (cat === 'news' || file.type === 'news' || (file.id && String(file.id).startsWith('news-'))) {
+    return 'news';
+  }
 
   // 1. PDF Documents
   if (mime === 'application/pdf' || name.endsWith('.pdf') || cat === 'pdfs' || cat === 'pdf') {
@@ -978,6 +992,37 @@ export const DEFAULT_FORMAT_FOLDERS = [
         excerpt: 'Real-time bidirectional audio capture testing with 16kHz PCM input and speculative token streaming down to edge clients.'
       }
     ]
+  },
+  {
+    format: 'news',
+    label: 'World News · 72h Wire',
+    kicker: 'Live Global Dispatches',
+    tone: 'dark',
+    art: 'glacier',
+    seed: 77,
+    badge: 'LIVE 72H',
+    defaultFiles: [
+      {
+        id: 'news-global-briefing',
+        title: 'Global 72-Hour News Wire & Grounding',
+        source: 'Global Wire · Reuters, BBC, FT',
+        category: 'News',
+        topic: 'world',
+        sizeFormatted: 'Live Feed',
+        date: 'Updated Live',
+        excerpt: 'Real-time aggregated global headlines across Geopolitics, AI, Science, and Markets published in the last 72 hours.'
+      },
+      {
+        id: 'news-ai-tech-briefing',
+        title: 'Frontier AI & Silicon Architecture Dispatches',
+        source: 'AI Wire · TechCrunch, Ars Technica',
+        category: 'News',
+        topic: 'ai',
+        sizeFormatted: 'Live Feed',
+        date: 'Updated Live',
+        excerpt: 'Sparse MoE models, inference compute economics, sovereign data center treaties, and model safety benchmarks.'
+      }
+    ]
   }
 ];
 
@@ -1105,6 +1150,7 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     sheet: [],
     slide: [],
     note: [],
+    news: [],
     other: []
   };
 
@@ -1178,6 +1224,7 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     sheet: sourcesByFormat.sheet.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'sheet')?.defaultFiles.length || 0),
     slide: sourcesByFormat.slide.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'slide')?.defaultFiles.length || 0),
     note: sourcesByFormat.note.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'note')?.defaultFiles.length || 0),
+    news: sourcesByFormat.news?.length || 43,
     other: sourcesByFormat.other.length
   };
   formatCounts.all = formatCounts.pdf + formatCounts.doc + formatCounts.sheet + formatCounts.slide + formatCounts.note + formatCounts.other;
@@ -1243,6 +1290,11 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
         <span>Other</span>
         <span class="gf-filter-count">${formatCounts.other}</span>
       </button>
+      <button class="gf-filter-pill gf-filter-pill--news" data-format="news" title="Live 72-Hour World News">
+        <span class="live-dot-emerald" style="width:6px; height:6px; display:inline-block; border-radius:50%; background:#10b981; box-shadow:0 0 6px rgba(16,185,129,0.5);"></span>
+        <span>World News</span>
+        <span class="gf-filter-count">72h</span>
+      </button>
     </div>
   `;
   wrapper.appendChild(header);
@@ -1270,9 +1322,16 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
   const filterPills = header.querySelectorAll(".gf-filter-pill");
   filterPills.forEach(pill => {
     pill.onclick = () => {
+      const targetFmt = pill.dataset.format || "all";
+      if (targetFmt === 'news') {
+        if (typeof window.switchCanvasMode === 'function') {
+          window.switchCanvasMode('news');
+          return;
+        }
+      }
       filterPills.forEach(p => p.classList.remove("is-active"));
       pill.classList.add("is-active");
-      activeFormatFilter = pill.dataset.format || "all";
+      activeFormatFilter = targetFmt;
       handleRefreshGallery();
     };
   });
@@ -1307,6 +1366,7 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
     const finalArt = override.art || folderDef.art;
 
     const folderCard = createGlassFolderCard({
+      format: folderDef.format,
       label: finalLabel,
       meta: metaText,
       tone: folderDef.tone,

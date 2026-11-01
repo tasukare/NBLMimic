@@ -125,7 +125,7 @@
   50% { opacity: 0.45; transform: scale(0.85); }
 }
 
-/* ── Liquid Glass Composer Dock ── */
+/* ── ZERO-LAG 21ST.DEV LIQUID GLASS DOCK (Linear / visionOS Design) ── */
 .composer-dock.liquid-glass-dock {
   background: transparent;
   border-top: none;
@@ -134,32 +134,121 @@
   z-index: 25;
 }
 
+/* 1. Floating Action Bar Quick Chips (Monochrome Frosted Capsules) */
+.composer-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.composer-quick-chips .quick-chip,
+.quick-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary, #a1a1aa);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  user-select: none;
+}
+
+.composer-quick-chips .quick-chip:hover,
+.quick-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text-primary, #fafafa);
+  transform: translateY(-1px);
+}
+
+.composer-quick-chips .quick-chip:active,
+.quick-chip:active {
+  transform: scale(0.96);
+}
+
+[data-theme="light"] .composer-quick-chips .quick-chip,
+[data-theme="light"] .quick-chip {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  color: #52525b;
+}
+
+[data-theme="light"] .composer-quick-chips .quick-chip:hover,
+[data-theme="light"] .quick-chip:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.16);
+  color: #09090b;
+}
+
+/* 2. Core Glass Surface (Obsidian / Zinc Monochrome Dual-Border Capsule) */
 .composer-box-liquid {
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
-  background: rgba(22, 22, 28, 0.78);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(20px) saturate(1.85);
-  -webkit-backdrop-filter: blur(20px) saturate(1.85);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 6px 8px 6px 14px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(39, 39, 42, 0.55) 0%, rgba(24, 24, 27, 0.75) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 0 rgba(255, 255, 255, 0.04), 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  padding: 8px 10px 8px 14px;
+  transition: border-color 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1), background 200ms ease;
+  overflow: hidden;
 }
 
 [data-theme="light"] .composer-box-liquid {
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(244, 244, 246, 0.75) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 0 rgba(0, 0, 0, 0.04), 0 12px 32px -8px rgba(0, 0, 0, 0.08);
 }
 
 .composer-box-liquid:focus-within {
-  border-color: rgba(99, 102, 241, 0.6);
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 0 2px rgba(99, 102, 241, 0.25);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 0 rgba(255, 255, 255, 0.06), 0 16px 40px -8px rgba(0, 0, 0, 0.65);
 }
 
+[data-theme="light"] .composer-box-liquid:focus-within {
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 1), inset 0 -1px 0 0 rgba(0, 0, 0, 0.06), 0 16px 40px -8px rgba(0, 0, 0, 0.12);
+}
+
+/* 3. Rim-Only Specular Refraction (Perimeter-only displacement mask; center hollowed out) */
+.composer-liquid-rim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  padding: 4px;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  backdrop-filter: url(#liquid-glass-dock-filter) blur(0.5px);
+  -webkit-backdrop-filter: url(#liquid-glass-dock-filter) blur(0.5px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+[data-theme="light"] .composer-liquid-rim {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* 4. Isolated Controls inside Capsule (Z-Index 1 preserves 100% vector sharpness) */
 .composer-liquid-main-row {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -168,113 +257,165 @@
 
 .composer-sparkle-icon {
   flex-shrink: 0;
-  color: #fde68a;
+  color: var(--text-tertiary, #71717a);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 150ms ease;
 }
 
-[data-theme="light"] .composer-sparkle-icon {
-  color: #d97706;
+.composer-box-liquid:focus-within .composer-sparkle-icon {
+  color: var(--text-primary, #fafafa);
 }
 
 .composer-liquid-input {
   flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 13.5px;
-  line-height: 1.4;
-  color: var(--text-primary, #fff);
-  padding: 6px 0;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text-primary, #fafafa);
+  padding: 6px 4px;
   resize: none;
   min-height: 32px;
   max-height: 120px;
   font-family: var(--font-ui, sans-serif);
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.composer-liquid-input::-webkit-scrollbar {
+  display: none;
 }
 
 .composer-liquid-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="light"] .composer-liquid-input {
+  color: #09090b;
 }
 
 [data-theme="light"] .composer-liquid-input::placeholder {
-  color: rgba(0, 0, 0, 0.42);
+  color: rgba(0, 0, 0, 0.4);
 }
 
 .composer-liquid-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
 
-/* Gemini Live Voice Trigger Button in Aceternity Style */
+/* Gemini Live Voice Trigger Button — subtle dark glass pill with coral accent */
 .btn-liquid-live-trigger {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  font-size: 11px;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.09);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fafafa;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease, border-color 150ms ease;
   user-select: none;
 }
 
+.btn-liquid-live-trigger svg {
+  color: #f43f5e;
+  transition: transform 200ms ease;
+}
+
+.btn-liquid-live-trigger.is-active svg,
+.btn-liquid-live-trigger.is-live svg {
+  animation: liveMicPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes liveMicPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, 0.5)); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.8)); }
+}
+
 .btn-liquid-live-trigger:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.28);
-  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 .btn-liquid-live-trigger:active {
-  transform: scale(0.97);
-}
-
-.btn-liquid-live-trigger svg {
-  color: #fda4af;
+  transform: scale(0.96);
 }
 
 [data-theme="light"] .btn-liquid-live-trigger {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.1);
-  color: #1e293b;
+  color: #18181b;
 }
 
 [data-theme="light"] .btn-liquid-live-trigger:hover {
-  background: rgba(0, 0, 0, 0.09);
-  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.16);
 }
 
-[data-theme="light"] .btn-liquid-live-trigger svg {
-  color: #e11d48;
-}
-
-/* Elevated Circular Send Button matching Aceternity UI */
-.btn-liquid-send-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
+/* Voice Dictation Mic Button */
+.btn-composer-mic {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
-  color: #0f172a;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-tertiary, #71717a);
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn-composer-mic:hover {
+  color: var(--text-primary, #fafafa);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-composer-mic:active {
+  transform: scale(0.94);
+}
+
+[data-theme="light"] .btn-composer-mic:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #18181b;
+}
+
+/* High-Contrast Solid White Circle Send Button (Linear / Apple visionOS) */
+.btn-liquid-send-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  color: #09090b;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease, box-shadow 150ms ease;
   flex-shrink: 0;
 }
 
 .btn-liquid-send-circle:hover {
-  transform: scale(1.06);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-  background: #f8fafc;
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 .btn-liquid-send-circle:active {
@@ -282,12 +423,66 @@
 }
 
 [data-theme="light"] .btn-liquid-send-circle {
-  background: #0f172a;
-  color: #ffffff;
+  background: #09090b;
+  color: #fafafa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="light"] .btn-liquid-send-circle:hover {
-  background: #1e293b;
+  background: #18181b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+/* Compact Sub-Toolbar with Model Selector */
+.composer-liquid-sub-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .composer-liquid-sub-bar {
+  border-top-color: rgba(0, 0, 0, 0.05);
+}
+
+.model-selector-pill {
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary, #a1a1aa);
+  padding: 2px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
+  font-family: inherit;
+}
+
+.model-selector-pill:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--text-primary, #fafafa);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.model-selector-pill option {
+  background: #18181b;
+  color: #fafafa;
+}
+
+[data-theme="light"] .model-selector-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #52525b;
+}
+
+[data-theme="light"] .model-selector-pill option {
+  background: #ffffff;
+  color: #09090b;
 }
 
 /* Sub-toolbar inside the liquid dock for model selection & voice mic */

@@ -444,13 +444,15 @@ export function initDriveOAuth() {
           await loadGoogleDriveFiles(true);
 
           // 8. Update center canvas out of sign-in screen
-          const sources = state.get('sources');
-          if (sources && sources.length > 0) {
-            if (typeof window.viewDocument === 'function') {
-              window.viewDocument(sources[0].id);
+          if (state.get('viewMode') === 'folders') {
+            if (typeof window.updateCanvasView === 'function') {
+              window.updateCanvasView();
             }
           } else {
-            if (typeof window.updateCanvasView === 'function') {
+            const sources = state.get('sources');
+            if (sources && sources.length > 0 && typeof window.viewDocument === 'function') {
+              window.viewDocument(sources[0].id);
+            } else if (typeof window.updateCanvasView === 'function') {
               window.updateCanvasView();
             }
           }

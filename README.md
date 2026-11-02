@@ -135,4 +135,8 @@ Double-click `start.bat` in the project root. It launches the local server and o
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE) — see the [`LICENSE`](LICENSE) file for details.
+This project is open-source and licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)** — see the [`LICENSE`](LICENSE) file for details.
+
+- **Non-Commercial:** Anyone can inspect, fork, customize, and add features to the code, but they are strictly prohibited from selling the software, paid distribution on app stores (e.g. Google Play Store), or monetizing derivatives.
+- **ShareAlike:** Any modified versions or forks must remain free under the exact same license terms.
+- **Attribution:** Original credit to `Hanzo023 & tasukare` must be preserved.

@@ -129,3 +129,10 @@ Double-click `start.bat` in the project root. It launches the local server and o
 - [x] Dynamic source ingestion (file uploads, notes, active source toggles)
 - [x] Live search, category filtering, and notes auto-saving
 - [x] 1-Click Windows launcher (`start.bat`)
+
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE) — see the [`LICENSE`](LICENSE) file for details.

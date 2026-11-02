@@ -1,0 +1,384 @@
+/* ==========================================================================
+   Nimbus UI · Liquid Navbar — "Waterline"
+   Fluid water pill navigation, WebGL water shader layer, and meniscus waves
+   Tailored for NBLMimic Design System (Zero Emojis, 1.5px Lucide SVGs)
+   ========================================================================== */
+
+:root {
+  --n-tint: rgba(255, 255, 255, 0.08);
+  --n-fg: #F1F7FF;
+  --n-fg-soft: rgba(241, 247, 255, 0.64);
+  --n-rim: rgba(255, 255, 255, 0.28);
+  --n-pad: 14px;
+}
+
+[data-theme="light"] {
+  --n-tint: rgba(0, 0, 0, 0.05);
+  --n-fg: #0B132B;
+  --n-fg-soft: rgba(11, 19, 43, 0.65);
+  --n-rim: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Refraction SVG Filter Container (Hidden) ── */
+.nimbus-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── Liquid Pill Container ── */
+.nimbus-nav {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  border-radius: 9999px;
+  isolation: isolate;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color var(--transition-tactile, 150ms ease), box-shadow var(--transition-tactile, 150ms ease);
+}
+
+/* Glass backing of the pill */
+.nimbus-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -2;
+  overflow: hidden;
+  background: var(--n-tint);
+  -webkit-backdrop-filter: blur(12px) saturate(1.25) brightness(1.04);
+  backdrop-filter: blur(12px) saturate(1.25) brightness(1.04);
+  box-shadow:
+    inset 0 1px 1px var(--n-rim),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 4px 16px -6px rgba(0, 0, 0, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+[data-theme="light"] .nimbus-glass {
+  box-shadow:
+    inset 0 1px 1.5px var(--n-rim),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 4px 14px -6px rgba(0, 30, 80, 0.12),
+    0 1px 3px rgba(0, 20, 60, 0.06);
+}
+
+.nimbus-nav[data-refract="on"] .nimbus-glass {
+  -webkit-backdrop-filter: url(#nimbus-refract) blur(3px) saturate(1.2) brightness(1.06);
+  backdrop-filter: url(#nimbus-refract) blur(3px) saturate(1.2) brightness(1.06);
+}
+
+/* WebGL Water Shader Canvas (Bleeds outside by --n-pad to render ripple waves) */
+.nimbus-water {
+  position: absolute;
+  left: calc(-1 * var(--n-pad));
+  top: calc(-1 * var(--n-pad));
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.nimbus-nav[data-gl="off"] .nimbus-water {
+  display: none;
+}
+
+/* CSS Drop Fallback (When WebGL is unavailable) */
+.nimbus-drop {
+  display: none;
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  border-radius: 9999px;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform, width;
+  background: radial-gradient(120% 140% at 30% 0%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 55%), rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.75),
+    inset 0 -1.5px 4px rgba(56, 189, 248, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 3px 10px -3px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .nimbus-drop {
+  background: radial-gradient(120% 140% at 30% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 55%), rgba(255, 255, 255, 0.65);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 1),
+    inset 0 -1.5px 4px rgba(0, 140, 255, 0.18),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 3px 10px -3px rgba(0, 50, 120, 0.18);
+}
+
+.nimbus-nav[data-gl="off"] .nimbus-drop {
+  display: block;
+}
+
+/* ── Interactive Item / Tab Button ── */
+.nimbus-item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 9999px;
+  background: none;
+  color: var(--n-fg-soft);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Inter", sans-serif);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 180ms ease, opacity 180ms ease;
+  white-space: nowrap;
+}
+
+.nimbus-item:hover {
+  color: var(--n-fg);
+}
+
+.nimbus-item.is-active,
+.nimbus-item[aria-current="page"] {
+  color: var(--n-fg);
+  font-weight: 600;
+}
+
+.nimbus-item:focus-visible {
+  outline: 2px solid var(--accent-primary, #38bdf8);
+  outline-offset: 2px;
+}
+
+/* ── Icon Micro-Scenes ── */
+.nv-ico {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.nv-ico svg {
+  display: block;
+  transition: transform 380ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.nimbus-item.is-active .nv-ico svg,
+.nimbus-item[aria-current="page"] .nv-ico svg {
+  transform: translateY(-0.5px) scale(1.08);
+}
+
+/* Micro-animation 1: Pop */
+.nv-ico[data-fx="pop"] svg {
+  animation: nvPop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+@keyframes nvPop {
+  0% { transform: scale(0.75); }
+  60% { transform: scale(1.22); }
+  100% { transform: translateY(-0.5px) scale(1.08); }
+}
+
+/* Micro-animation 2: Glow / Hop */
+.nv-ico[data-fx="glow"] svg {
+  animation: nvHop 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  transform-origin: 50% 100%;
+}
+
+@keyframes nvHop {
+  0% { transform: none; }
+  30% { transform: translateY(-4px) scale(1.04, 0.96); }
+  55% { transform: translateY(0) scale(1.12, 0.88); }
+  75% { transform: translateY(-1.5px) scale(0.98, 1.04); }
+  100% { transform: translateY(-0.5px) scale(1.08); }
+}
+
+/* Micro-animation 3: Spin (3D perspective flip) */
+.nv-ico[data-fx="spin"] svg {
+  animation: nvSpin 0.75s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+@keyframes nvSpin {
+  0% { transform: perspective(80px) rotateY(0); }
+  100% { transform: perspective(80px) rotateY(360deg) translateY(-0.5px) scale(1.08); }
+}
+
+/* Micro-animation 4: Wave (Harmonic fluid rocking) */
+.nv-ico[data-fx="wave"] svg {
+  animation: nvWave 0.75s ease-in-out both;
+  transform-origin: 50% 90%;
+}
+
+@keyframes nvWave {
+  0% { transform: none; }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(3deg); }
+  100% { transform: translateY(-0.5px) scale(1.08); }
+}
+
+/* Micro-animation 5: Drop (Droplet plunge and splash) */
+.nv-ico[data-fx="drop"] svg {
+  animation: nvDrop 0.8s cubic-bezier(0.4, 0, 0.3, 1) both;
+  transform-origin: 50% 100%;
+}
+
+@keyframes nvDrop {
+  0% { transform: translateY(-0.5px); }
+  26% { transform: translateY(-8px) scale(0.9, 1.1); }
+  46% { transform: translateY(2px) scale(1.2, 0.75); }
+  62% { transform: translateY(-2px) scale(0.94, 1.06); }
+  80% { transform: translateY(0) scale(1.03, 0.98); }
+  100% { transform: translateY(-0.5px) scale(1.08); }
+}
+
+/* ── Compact mode (Icon-only on narrow views) ── */
+.nimbus-nav[data-compact="true"] .nimbus-item {
+  padding: 0 9px;
+}
+
+.nimbus-nav[data-compact="true"] .nimbus-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .canvas-mode-switcher.nimbus-nav .nimbus-item {
+    padding: 0 9px;
+  }
+  .canvas-mode-switcher.nimbus-nav .nimbus-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* ── Accessibility & Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .nv-ico svg,
+  .nimbus-item {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   Liquid Search Bar Waterline Variation
+   Applied to #spotlight-search-trigger
+   ========================================================================== */
+.spotlight-trigger.nimbus-search {
+  position: relative;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--n-tint);
+  color: var(--text-tertiary);
+  font-size: var(--text-xs, 12px);
+  cursor: text;
+  isolation: isolate;
+  overflow: visible;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+[data-theme="light"] .spotlight-trigger.nimbus-search {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.035);
+}
+
+.spotlight-trigger.nimbus-search:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .spotlight-trigger.nimbus-search:hover {
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: 0 2px 8px -2px rgba(0, 40, 100, 0.08);
+}
+
+.spotlight-trigger.nimbus-search:focus-within {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow:
+    0 0 0 2px rgba(56, 189, 248, 0.2),
+    0 4px 16px -4px rgba(0, 0, 0, 0.4);
+}
+
+.spotlight-trigger.nimbus-search .spotlight-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.spotlight-trigger.nimbus-search .spotlight-text {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
+
+.spotlight-trigger.nimbus-search .spotlight-text::placeholder {
+  color: var(--text-tertiary);
+  transition: color 150ms ease;
+}
+
+.spotlight-trigger.nimbus-search:hover .spotlight-text::placeholder {
+  color: var(--text-secondary);
+}
+
+.spotlight-trigger.nimbus-search .spotlight-kbd {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono, monospace);
+  font-weight: 500;
+  transition: all 150ms ease;
+}
+
+[data-theme="light"] .spotlight-trigger.nimbus-search .spotlight-kbd {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Water canvas under search bar */
+.spotlight-trigger.nimbus-search .nimbus-water {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  z-index: 0;
+  pointer-events: none;
+}

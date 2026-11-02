@@ -38,6 +38,11 @@ function loadEnv() {
 loadEnv();
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
+const HOST = process.env.HOST || '127.0.0.1';
+const ALLOWED_ORIGINS = new Set([
+  `http://localhost:${PORT}`,
+  `http://127.0.0.1:${PORT}`
+]);
 
 // ════════════════════════════════════════════════
 // Multi-Key Gemini API Rotation & Cooldown Engine
@@ -149,20 +154,217 @@ function extractServerKeys() {
 }
 
 const serverKeyRotator = new KeyRotator(extractServerKeys());
+// ════════════════════════════════════════════════
+// LRU Rotator Cache with TTL (Fixes VULN-05 Memory Leak)
+// ════════════════════════════════════════════════
+class LRURotatorCache {
+  constructor(maxEntries = 50, ttlMs = 30 * 60 * 1000) {
+    this.maxEntries = maxEntries;
+    this.ttlMs = ttlMs;
+    this.cache = new Map(); // hash -> { rotator, lastAccessed }
+  }
+
+  get(hash) {
+    const entry = this.cache.get(hash);
+    if (!entry) return null;
+    if (Date.now() - entry.lastAccessed > this.ttlMs) {
+      this.cache.delete(hash);
+      return null;
+    }
+    entry.lastAccessed = Date.now();
+    this.cache.delete(hash);
+    this.cache.set(hash, entry);
+    return entry.rotator;
+  }
+
+  set(hash, rotator) {
+    if (this.cache.has(hash)) {
+      this.cache.delete(hash);
+    } else if (this.cache.size >= this.maxEntries) {
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
+    }
+    this.cache.set(hash, { rotator, lastAccessed: Date.now() });
+  }
+
+  has(hash) {
+    return this.get(hash) !== null;
+  }
+}
+
+const clientRotatorCache = new LRURotatorCache(50, 30 * 60 * 1000);
+
+function getOrCreateClientRotator(clientKeys = []) {
+  if (!Array.isArray(clientKeys) || clientKeys.length === 0) return null;
+  const normalized = clientKeys.map(k => String(k).trim()).filter(Boolean);
+  if (normalized.length === 0) return null;
+  const hash = crypto.createHash('sha256').update(normalized.join(':::')).digest('hex');
+  const existing = clientRotatorCache.get(hash);
+  if (existing) {
+    return existing;
+  }
+  const rotator = new KeyRotator(normalized);
+  clientRotatorCache.set(hash, rotator);
+  return rotator;
+}
+
 const GEMINI_API_KEY = serverKeyRotator.getActiveKey()?.key || '';
 
-const MIME_TYPES = {
+const CHAT_BODY_LIMIT_BYTES = 2 * 1024 * 1024; // 2 MB max request body limit (Fixes VULN-04)
+
+function readJsonBody(req, res, maxBytes = CHAT_BODY_LIMIT_BYTES) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    let bytesReceived = 0;
+
+    req.on('data', chunk => {
+      bytesReceived += chunk.length;
+      if (bytesReceived > maxBytes) {
+        req.destroy();
+        res.writeHead(413, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: { message: 'Payload Too Large: Request exceeds 2MB limit.' } }));
+        reject(new Error('PAYLOAD_TOO_LARGE'));
+        return;
+      }
+      body += chunk;
+    });
+
+    req.on('end', () => {
+      try {
+        const parsed = JSON.parse(body || '{}');
+        resolve(parsed);
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: { message: 'Malformed JSON payload.' } }));
+        reject(err);
+      }
+    });
+
+    req.on('error', err => reject(err));
+  });
+}
+
+// Security Configuration for Static Delivery (Fixes VULN-03, VULN-10)
+const SAFE_MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css':  'text/css; charset=utf-8',
   '.js':   'application/javascript; charset=utf-8',
+  '.mjs':  'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.svg':  'image/svg+xml',
   '.png':  'image/png',
   '.jpg':  'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.gif':  'image/gif',
   '.webp': 'image/webp',
-  '.svg':  'image/svg+xml',
-  '.ico':  'image/x-icon'
+  '.ico':  'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf':  'font/ttf'
 };
+
+const FORBIDDEN_FILES = new Set([
+  '.env',
+  'server.js',
+  'drive_butler_v2.js',
+  'package.json',
+  'package-lock.json',
+  'security_report.md',
+  'styleguide.md',
+  'agents.md'
+]);
+
+function applySecurityHeaders(res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(self), geolocation=()');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://accounts.google.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https:",
+      "connect-src 'self' https://generativelanguage.googleapis.com https://www.googleapis.com https://accounts.google.com wss://generativelanguage.googleapis.com",
+      "frame-src 'self' https://accounts.google.com https://drive.google.com",
+      "object-src 'none'",
+      "base-uri 'self'"
+    ].join('; ')
+  );
+}
+
+function serveStaticFile(req, res, pathname) {
+  applySecurityHeaders(res);
+
+  let cleanPath = pathname;
+  if (cleanPath === '/' || cleanPath === '/index.dhtml') {
+    cleanPath = '/index.html';
+  }
+
+  try {
+    cleanPath = decodeURIComponent(cleanPath);
+  } catch (e) {
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Bad Request');
+    return;
+  }
+
+  // 1. Path Canonicalization & Root Boundary Validation
+  const rootDirWithSep = __dirname.endsWith(path.sep) ? __dirname : __dirname + path.sep;
+  const resolvedPath = path.resolve(__dirname, '.' + path.normalize(cleanPath));
+
+  if (!resolvedPath.startsWith(rootDirWithSep) && resolvedPath !== __dirname) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('404 Not Found');
+    return;
+  }
+
+  // 2. Dotfile and Hidden Directory Defense
+  const relativeSegments = path.relative(__dirname, resolvedPath).split(path.sep);
+  const containsDotSegment = relativeSegments.some(seg => seg.startsWith('.'));
+  if (containsDotSegment) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('404 Not Found');
+    return;
+  }
+
+  // 3. Sensitive File Blacklist Check
+  const baseNameLower = path.basename(resolvedPath).toLowerCase();
+  if (FORBIDDEN_FILES.has(baseNameLower)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('404 Not Found');
+    return;
+  }
+
+  // 4. Strict Extension Whitelist Check
+  const ext = path.extname(resolvedPath).toLowerCase();
+  const contentType = SAFE_MIME_TYPES[ext];
+  if (!contentType) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('404 Not Found');
+    return;
+  }
+
+  // 5. File Stat & Stream
+  fs.stat(resolvedPath, (err, stats) => {
+    if (err || !stats.isFile()) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('404 Not Found');
+      return;
+    }
+
+    res.writeHead(200, {
+      'Content-Type': contentType,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Content-Length': stats.size
+    });
+    fs.createReadStream(resolvedPath).pipe(res);
+  });
+}
 
 // ════════════════════════════════════════════════
 // Real-time Live World News Aggregator (Last 72 Hours)
@@ -516,11 +718,41 @@ async function fetchLiveNewsFeed(force = false) {
 }
 
 const server = http.createServer(async (req, res) => {
-  // Enable CORS for local development
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  const origin = req.headers.origin;
+  const host = req.headers.host;
 
+  // 1. Host Header Validation (Anti-DNS Rebinding - VULN-02 / Domain A)
+  const validHostPatterns = [
+    `localhost:${PORT}`,
+    `127.0.0.1:${PORT}`,
+    'localhost',
+    '127.0.0.1'
+  ];
+  if (host && !validHostPatterns.includes(host)) {
+    res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ error: { message: 'Invalid Host header. Access denied.' } }));
+    return;
+  }
+
+  // 2. Strict Origin Matching (No Wildcard CORS - VULN-07)
+  if (origin) {
+    if (ALLOWED_ORIGINS.has(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Vary', 'Origin');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-NBL-Session, X-Api-Keys');
+    } else {
+      // Untrusted Cross-Origin Request -> Block preflight
+      if (req.method === 'OPTIONS') {
+        res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: { message: 'Cross-origin preflight rejected.' } }));
+        return;
+      }
+    }
+  }
+
+  // 3. Preflight Handling for authorized origins
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
@@ -544,37 +776,47 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 1b. Live API Config Endpoint
+  // 1b. Live API Config Endpoint (Shielded - Fixes VULN-01)
   if (pathname === '/api/live-config' && req.method === 'GET') {
     const activeKey = serverKeyRotator.getActiveKey()?.key || '';
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
       hasServerKey: Boolean(activeKey),
-      apiKey: activeKey,
       liveModel: 'gemini-3.8-live'
     }));
     return;
   }
 
-  // 1c. Gemini Key Pool Telemetry Status Endpoint
+  // 1c. Gemini Key Pool Telemetry Status Endpoint (LRU Bounded)
   if (pathname === '/api/keys/status' && req.method === 'GET') {
+    const rawKeys = parsedUrl.searchParams.get('keys') || req.headers['x-api-keys'] || '';
+    const clientKeys = rawKeys.split(/[,;\s]+/).map(k => k.trim()).filter(Boolean);
+    const targetRotator = clientKeys.length > 0 ? getOrCreateClientRotator(clientKeys) : serverKeyRotator;
+
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
       ok: true,
       hasServerKeys: serverKeyRotator.getKeyCount() > 0,
-      ...serverKeyRotator.getTelemetry()
+      isClientPool: clientKeys.length > 0,
+      ...targetRotator.getTelemetry()
     }));
     return;
   }
 
-  // 1d. Manual Gemini Key Rotation Trigger Endpoint
+  // 1d. Manual Gemini Key Rotation Trigger Endpoint (LRU Bounded)
   if (pathname === '/api/keys/rotate' && req.method === 'POST') {
-    serverKeyRotator.rotateNext();
+    const rawKeys = parsedUrl.searchParams.get('keys') || req.headers['x-api-keys'] || '';
+    const clientKeys = rawKeys.split(/[,;\s]+/).map(k => k.trim()).filter(Boolean);
+    const targetRotator = clientKeys.length > 0 ? getOrCreateClientRotator(clientKeys) : serverKeyRotator;
+
+    targetRotator.rotateNext();
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
       ok: true,
       message: 'Rotated to next key slot',
-      ...serverKeyRotator.getTelemetry()
+      hasServerKeys: serverKeyRotator.getKeyCount() > 0,
+      isClientPool: clientKeys.length > 0,
+      ...targetRotator.getTelemetry()
     }));
     return;
   }
@@ -618,15 +860,23 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Google Drive Secure Document Stream Proxy (eliminates 3rd-party cookie blocks & popup windows in Brave/Chrome)
+  // Google Drive Secure Document Stream Proxy (Fixes VULN-06: Header-only OAuth & Safe Redirects)
   if (pathname === '/api/drive/file' && req.method === 'GET') {
+    // Prohibit query string tokens explicitly for credential hygiene
+    if (parsedUrl.searchParams.has('token')) {
+      res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ error: { message: 'OAuth token must be passed via Authorization: Bearer header, not URL parameters.' } }));
+      return;
+    }
+
     const fileId = parsedUrl.searchParams.get('id');
-    const token = parsedUrl.searchParams.get('token') || (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, '') : '');
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
     const mime = (parsedUrl.searchParams.get('mime') || '').toLowerCase();
 
     if (!fileId || !token) {
       res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ error: 'Missing file id or OAuth token' }));
+      res.end(JSON.stringify({ error: { message: 'Missing file id or Authorization Bearer header.' } }));
       return;
     }
 
@@ -643,22 +893,40 @@ const server = http.createServer(async (req, res) => {
         'User-Agent': 'Mozilla/5.0 NBLMimic-Secure-Proxy/1.0'
       }
     }, (driveRes) => {
-      // If Google returned a redirect (302/303/307), follow it
+      // Validate redirect host before following (whitelist Google domains)
       if (driveRes.statusCode >= 300 && driveRes.statusCode < 400 && driveRes.headers.location) {
-        https.get(driveRes.headers.location, (redirRes) => {
-          const contentType = redirRes.headers['content-type'] || 'application/pdf';
-          res.writeHead(redirRes.statusCode || 200, {
-            'Content-Type': contentType,
-            'Content-Disposition': 'inline',
-            'X-Content-Type-Options': 'nosniff',
-            'Cache-Control': 'private, max-age=1800'
+        try {
+          const redirUrl = new URL(driveRes.headers.location);
+          const isAllowedDomain = redirUrl.protocol === 'https:' &&
+            (redirUrl.hostname.endsWith('.google.com') ||
+             redirUrl.hostname.endsWith('.googleapis.com') ||
+             redirUrl.hostname.endsWith('.googleusercontent.com'));
+
+          if (!isAllowedDomain) {
+            res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ error: { message: 'Untrusted redirect destination rejected.' } }));
+            return;
+          }
+
+          https.get(redirUrl.href, (redirRes) => {
+            const contentType = redirRes.headers['content-type'] || 'application/pdf';
+            res.writeHead(redirRes.statusCode || 200, {
+              'Content-Type': contentType,
+              'Content-Disposition': 'inline',
+              'X-Content-Type-Options': 'nosniff',
+              'Cache-Control': 'private, max-age=1800'
+            });
+            redirRes.pipe(res);
+          }).on('error', (err) => {
+            res.writeHead(502, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: { message: err.message } }));
           });
-          redirRes.pipe(res);
-        }).on('error', (err) => {
+          return;
+        } catch (e) {
           res.writeHead(502, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: err.message }));
-        });
-        return;
+          res.end(JSON.stringify({ error: { message: 'Invalid redirect URL.' } }));
+          return;
+        }
       }
 
       if (driveRes.statusCode !== 200) {
@@ -686,21 +954,24 @@ const server = http.createServer(async (req, res) => {
 
   // 2. Secure Multi-Key Gemini Chat Proxy Endpoint with Automatic Failover & Cooldown
   if (pathname === '/api/chat' && req.method === 'POST') {
-    let body = '';
-    req.on('data', chunk => { body += chunk; });
-    req.on('end', async () => {
-      try {
-        const payload = JSON.parse(body || '{}');
+    let payload;
+    try {
+      payload = await readJsonBody(req, res, CHAT_BODY_LIMIT_BYTES);
+    } catch (err) {
+      // 413 or 400 response already sent in readJsonBody
+      return;
+    }
 
-        // Extract client BYOK keys if provided (supports single key or array)
-        let clientKeys = [];
-        if (Array.isArray(payload.apiKeys) && payload.apiKeys.length > 0) {
-          clientKeys = payload.apiKeys.map(k => String(k).trim()).filter(Boolean);
-        } else if (payload.apiKey && String(payload.apiKey).trim()) {
-          clientKeys = String(payload.apiKey).split(/[\n,]+/).map(k => k.trim()).filter(Boolean);
-        }
+    try {
+      // Extract client BYOK keys if provided (supports single key or array)
+      let clientKeys = [];
+      if (Array.isArray(payload.apiKeys) && payload.apiKeys.length > 0) {
+        clientKeys = payload.apiKeys.map(k => String(k).trim()).filter(Boolean);
+      } else if (payload.apiKey && String(payload.apiKey).trim()) {
+        clientKeys = String(payload.apiKey).split(/[\n,]+/).map(k => k.trim()).filter(Boolean);
+      }
 
-        const activeRotator = clientKeys.length > 0 ? new KeyRotator(clientKeys) : serverKeyRotator;
+      const activeRotator = clientKeys.length > 0 ? getOrCreateClientRotator(clientKeys) : serverKeyRotator;
 
         if (activeRotator.getKeyCount() === 0) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -815,39 +1086,11 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ error: { message: `Server error: ${err.message}` } }));
       }
-    });
     return;
   }
 
-  // 3. Static File Server (supports root '/' and '/index.dhtml' mapping)
-  const normalizedPath = (pathname === '/' || pathname === '/index.dhtml') ? 'index.html' : pathname;
-  let filePath = path.join(__dirname, normalizedPath);
-
-  // Security: Prevent directory traversal outside folder
-  if (!filePath.startsWith(__dirname)) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
-    res.end('403 Forbidden');
-    return;
-  }
-
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('404 Not Found');
-      return;
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    });
-    fs.createReadStream(filePath).pipe(res);
-  });
+  // 3. Static File Server (Hardened against Traversal, Dotfiles, and Sensitive Source Leaks)
+  serveStaticFile(req, res, pathname);
 });
 
 server.on('error', (err) => {
@@ -859,12 +1102,13 @@ server.on('error', (err) => {
   process.exit(1);
 });
 
-server.listen(PORT, '127.0.0.1', () => {
+server.listen(PORT, HOST, () => {
   const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
   console.log('====================================================');
   console.log('NBLMimic (Research Lab) Server running');
-  console.log(`URL: http://127.0.0.1:${PORT}`);
-  console.log('Security: Loopback only (127.0.0.1) - Zero External Leakage');
+  console.log(`Primary URL: http://localhost:${PORT}`);
+  console.log(`Loopback IP: http://${HOST}:${PORT}`);
+  console.log(`Security: Explicit Loopback (${HOST}) - Zero External Exposure`);
   console.log(`Gemini API Key: ${hasKey ? 'LOADED from .env' : 'NOT SET in .env (add to .env)'}`);
   console.log('====================================================');
 });

@@ -6,8 +6,66 @@
  * Zero plaintext leakage to localStorage, disk inspection, or extensions.
  */
 
+const PREFIX_V4 = 'enc:v4:';
 const PREFIX_V3 = 'enc:v3:';
 const PREFIX_V2 = 'enc:v2:';
+
+const DB_NAME = 'NBLMimic_Security_Vault';
+const STORE_NAME = 'vault_keys';
+let cachedCryptoKey = null;
+
+async function getOrGenerateVaultKey() {
+  if (cachedCryptoKey) return cachedCryptoKey;
+
+  if (typeof indexedDB === 'undefined') {
+    return null;
+  }
+
+  try {
+    const db = await new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+
+    const existingKey = await new Promise(res => {
+      const getReq = store.get('master_vault_key');
+      getReq.onsuccess = () => res(getReq.result);
+      getReq.onerror = () => res(null);
+    });
+
+    if (existingKey) {
+      cachedCryptoKey = existingKey;
+      return existingKey;
+    }
+
+    const cryptoObj = getCrypto();
+    if (!cryptoObj || !cryptoObj.subtle) return null;
+
+    // Generate non-extractable AES-GCM 256-bit key
+    const newKey = await cryptoObj.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      false, // extractable: FALSE — Prevents key export via JavaScript!
+      ['encrypt', 'decrypt']
+    );
+
+    await new Promise((res, rej) => {
+      const putReq = store.put(newKey, 'master_vault_key');
+      putReq.onsuccess = () => res();
+      putReq.onerror = () => rej(putReq.error);
+    });
+
+    cachedCryptoKey = newKey;
+    return newKey;
+  } catch (err) {
+    console.warn('[CryptoVault] IndexedDB key derivation fallback:', err);
+    return null;
+  }
+}
 
 const keyCache = new Map(); // saltHex -> CryptoKey
 
@@ -84,34 +142,44 @@ export async function encrypt(plaintext, ttlMs = 0) {
     const cryptoObj = getCrypto();
     if (!cryptoObj || !cryptoObj.subtle) return plaintext;
 
-    // Generate fresh 16-byte salt per encryption for forward secrecy
-    const salt = new Uint8Array(16);
-    cryptoObj.getRandomValues(salt);
-    const key = await deriveKeyForSalt(salt);
-
-    const iv = new Uint8Array(12);
-    cryptoObj.getRandomValues(iv);
-
     let payloadToEncrypt = plaintext;
     if (ttlMs > 0) {
       payloadToEncrypt = JSON.stringify({
-        __v: 3,
+        __v: 4,
         p: plaintext,
         exp: Date.now() + ttlMs
       });
     }
 
     const encoded = new TextEncoder().encode(payloadToEncrypt);
+    const iv = new Uint8Array(12);
+    cryptoObj.getRandomValues(iv);
+
+    // Prefer non-extractable hardware-bound key (v4)
+    const vaultKey = await getOrGenerateVaultKey();
+    if (vaultKey) {
+      const ciphertext = await cryptoObj.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        vaultKey,
+        encoded
+      );
+      const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
+      const ctHex = Array.from(new Uint8Array(ciphertext)).map(b => b.toString(16).padStart(2, '0')).join('');
+      return `${PREFIX_V4}${ivHex}:${ctHex}`;
+    }
+
+    // Fallback to v3 with PBKDF2 salt
+    const salt = new Uint8Array(16);
+    cryptoObj.getRandomValues(salt);
+    const key = await deriveKeyForSalt(salt);
     const ciphertext = await cryptoObj.subtle.encrypt(
       { name: 'AES-GCM', iv },
       key,
       encoded
     );
-
     const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
     const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
     const ctHex = Array.from(new Uint8Array(ciphertext)).map(b => b.toString(16).padStart(2, '0')).join('');
-
     return `${PREFIX_V3}${saltHex}:${ivHex}:${ctHex}`;
   } catch (err) {
     console.warn('[CryptoVault] Encryption fallback:', err);
@@ -125,6 +193,39 @@ export async function decrypt(data) {
 
   const cryptoObj = getCrypto();
   if (!cryptoObj || !cryptoObj.subtle) return data;
+
+  // 0. Handle enc:v4: format (<ivHex>:<ctHex>) with non-extractable master key
+  if (data.startsWith(PREFIX_V4)) {
+    try {
+      const parts = data.slice(PREFIX_V4.length).split(':');
+      if (parts.length !== 2) return '';
+      const [ivHex, ctHex] = parts;
+      const iv = new Uint8Array(ivHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+      const ciphertext = new Uint8Array(ctHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+
+      const vaultKey = await getOrGenerateVaultKey();
+      if (!vaultKey) return '';
+      const decrypted = await cryptoObj.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        vaultKey,
+        ciphertext
+      );
+      const text = new TextDecoder().decode(decrypted);
+      try {
+        if (text.startsWith('{"__v":4')) {
+          const envelope = JSON.parse(text);
+          if (envelope.exp && Date.now() > envelope.exp) {
+            return null; // Expired
+          }
+          return envelope.p;
+        }
+      } catch (e) {}
+      return text;
+    } catch (err) {
+      console.warn('[CryptoVault] Decryption failed for v4 entry:', err);
+      return '';
+    }
+  }
 
   // 1. Handle enc:v3: format (<saltHex>:<ivHex>:<ctHex>)
   if (data.startsWith(PREFIX_V3)) {

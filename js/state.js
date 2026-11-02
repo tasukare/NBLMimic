@@ -84,6 +84,3 @@ class StateStore {
 }
 
 export const state = new StateStore();
-if (typeof window !== 'undefined') {
-  window.state = state;
-}

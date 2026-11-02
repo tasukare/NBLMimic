@@ -1,13 +1,26 @@
 {
-  "name": "nblmimic",
+  "name": "nblmimic-workspace",
   "version": "1.0.0",
-  "description": "A private, distraction-free knowledge management and research notebook inspired by Google NotebookLM",
+  "description": "NBLMimic project workspace with Aceternity UI and 21st component library",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "keywords": ["notebooklm", "gemini-api", "research", "ai-agent"],
+  "dependencies": {
+    "@tabler/icons-react": "^3.31.0",
+    "@types/three": "^0.187.0",
+    "clsx": "^2.1.1",
+    "motion": "^12.43.0",
+    "tailwind-merge": "^3.7.0",
+    "three": "^0.187.0"
+  },
+  "keywords": [
+    "notebooklm",
+    "gemini-api",
+    "research",
+    "aceternity-ui"
+  ],
   "author": "Hanzo023 & tasukare",
   "license": "MIT"
 }

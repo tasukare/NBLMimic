@@ -50,7 +50,7 @@ export function getIcon(name, size = 15, className = '') {
 
 // ── Theme Switcher ──
 export function initTheme() {
-  const saved = localStorage.getItem('nbl_theme') || 'light';
+  const saved = localStorage.getItem('nbl_theme') || 'dark';
   setTheme(saved);
 }
 
@@ -67,7 +67,7 @@ export function setTheme(theme) {
 }
 
 export function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
   const next = current === 'dark' ? 'light' : 'dark';
   setTheme(next);
 }
@@ -130,6 +130,18 @@ export function showToast(message, duration = 2800) {
     pill.style.transition = 'all 140ms ease';
     setTimeout(() => pill.remove(), 160);
   }, duration);
+}
+
+export function sanitizeUrl(url) {
+  if (!url || typeof url !== 'string') return '#';
+  const trimmed = url.trim();
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
+  } catch (e) {}
+  return '#';
 }
 
 export function escapeHtml(str) {

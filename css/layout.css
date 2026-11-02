@@ -236,9 +236,10 @@ svg {
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  
 }
 
-/* Right Pane — Synthesis Studio */
+/* Right Pane — Synthesis Studio (GPU Composited Drawer — Zero Layout Reflow) */
 .pane-studio {
   width: var(--sidepanel-width);
   min-width: 320px;
@@ -250,14 +251,23 @@ svg {
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
-  transition: width var(--transition-tactile), margin-right var(--transition-tactile);
+  position: relative;
+  z-index: 35;
+  
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.35);
 }
 
 .sidepanel-collapsed .pane-studio {
-  margin-right: calc(-1 * var(--sidepanel-width));
-  width: 0;
-  min-width: 0;
-  border-left: none;
+  display: none !important;
+  transform: translate3d(100%, 0, 0);
+  pointer-events: none;
+}
+
+.sidepanel-collapsed .pane-canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 1 1 100% !important;
+  margin-right: 0 !important;
 }
 
 /* ── Resizable Splitters (Tactile Hairlines) ── */
@@ -268,6 +278,7 @@ svg {
   cursor: col-resize;
   position: relative;
   z-index: 20;
+  
   flex-shrink: 0;
   user-select: none;
   background: transparent;
@@ -330,4 +341,204 @@ svg {
     z-index: 45;
     box-shadow: var(--shadow-lg);
   }
+}
+
+
+/* ── Auxiliary Pane Toggle & Studio Chat Header ── */
+.icon-aux-pane {
+  display: block;
+}
+
+.icon-aux-pane .aux-pane-fill {
+  transition: opacity 180ms ease;
+  opacity: 1;
+}
+
+.sidepanel-collapsed .icon-aux-pane .aux-pane-fill,
+#btn-toggle-studio.is-collapsed .icon-aux-pane .aux-pane-fill {
+  opacity: 0 !important;
+}
+
+.studio-chat-header {
+  height: 44px;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.studio-chat-title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.studio-chat-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.studio-chat-badge svg {
+  color: var(--color-brand, #3b82f6);
+}
+
+/* ── Widescreen Canvas Scaling when Auxiliary Pane is Closed ── */
+.sidepanel-collapsed #splitter-right {
+  display: none !important;
+}
+
+.sidepanel-collapsed .gf-gallery-container {
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+.sidepanel-collapsed .gf-gallery-header {
+  max-width: 1540px;
+}
+
+.sidepanel-collapsed .gf-gallery-grid {
+  max-width: 1540px;
+  gap: 52px 38px;
+}
+
+.sidepanel-collapsed .gf-root {
+  transform: scale(1.18);
+  margin: 18px 22px;
+}
+
+.gf-gallery-grid,
+.gf-gallery-header {
+  /* Zero frame-by-frame layout reflow transitions on width or gap */
+}
+
+.gf-root {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* ── Floating Reopen Research Chat Tab (Draggable & Aceternity Expandable) ── */
+.btn-dock-open-chat {
+  position: fixed !important;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) translateX(105%);
+  z-index: 75;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(28, 28, 34, 0.96) 0%, rgba(16, 16, 20, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  padding: 10px 14px 10px 12px;
+  color: var(--text-primary);
+  cursor: grab;
+  box-shadow: -6px 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, background 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+  touch-action: none;
+}
+
+[data-theme="light"] .btn-dock-open-chat {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 244, 240, 0.98) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-right: none;
+  box-shadow: -4px 10px 24px rgba(20, 20, 24, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+  color: #18181b;
+}
+
+.sidepanel-collapsed .btn-dock-open-chat {
+  transform: translateY(-50%) translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidepanel-collapsed .btn-dock-open-chat.is-custom-pos {
+  transform: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 9999px !important;
+}
+
+[data-theme="light"] .sidepanel-collapsed .btn-dock-open-chat.is-custom-pos {
+  border-right: 1px solid rgba(0, 0, 0, 0.14) !important;
+}
+
+.btn-dock-open-chat:hover:not(.is-dragging):not(.is-custom-pos) {
+  transform: translateY(-50%) translateX(-6px);
+  background: linear-gradient(135deg, rgba(38, 38, 46, 0.98) 0%, rgba(22, 22, 28, 0.98) 100%);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: -8px 16px 36px rgba(0, 0, 0, 0.55);
+}
+
+.btn-dock-open-chat:hover:not(.is-dragging).is-custom-pos {
+  transform: scale(1.03) !important;
+  background: linear-gradient(135deg, rgba(38, 38, 46, 0.98) 0%, rgba(22, 22, 28, 0.98) 100%);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(56, 189, 248, 0.3);
+}
+
+.btn-dock-open-chat.is-dragging {
+  cursor: grabbing !important;
+  transition: none !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 0 2px var(--accent) !important;
+  transform: scale(1.06) !important;
+}
+
+.dock-chat-pill-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.dock-chat-grip {
+  display: none;
+  opacity: 0.45;
+  margin-right: -2px;
+}
+
+.btn-dock-open-chat.is-custom-pos .dock-chat-grip {
+  display: inline-block;
+}
+
+.dock-chat-pill-inner svg {
+  color: var(--color-brand, #3b82f6);
+}
+
+.dock-chat-kbd {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+[data-theme="light"] .dock-chat-kbd {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.sidepanel-collapsed #btn-toggle-studio {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
 }

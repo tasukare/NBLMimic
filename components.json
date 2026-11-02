@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.js",
-    "css": "css/tokens.css",
+    "css": "NBLMimic/css/tokens.css",
     "baseColor": "neutral",
     "cssVariables": true
   },

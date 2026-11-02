@@ -1,0 +1,608 @@
+/**
+ * Research Lab (NBLMimic) — Dedicated Login Screen Stylesheet
+ * Aceternity Liquid Glass aesthetic with Background Cubes Grid perspective framing.
+ * Zero Emojis · Strict Typography · Light & Dark mode support.
+ */
+
+.login-viewport {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4, 16px);
+  overflow-x: hidden;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  user-select: none;
+}
+
+/* ── 3D Cubes Grid Background Canvas Container ── */
+.login-cubes-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.login-cubes-backdrop canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Subtle Vignette & Contrast Radial Mask */
+.login-cubes-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(9, 9, 11, 0.42) 0%, rgba(9, 9, 11, 0.88) 100%);
+  transition: background var(--transition-normal, 200ms ease);
+}
+
+[data-theme="light"] .login-cubes-mask {
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(248, 250, 252, 0.45) 0%, rgba(241, 245, 249, 0.85) 100%);
+}
+
+/* ── Minimalist Floating Header ── */
+.login-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-5, 20px);
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.login-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: opacity 150ms ease;
+}
+
+.login-brand-link:hover {
+  opacity: 0.85;
+}
+
+.login-brand-pill {
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  margin-left: 2px;
+}
+
+/* ── Aceternity Liquid Glass Auth Card ── */
+.login-card-wrapper {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+  perspective: 1000px;
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  background: rgba(24, 24, 27, 0.75);
+  backdrop-filter: blur(28px) saturate(1.8);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 36px 32px 28px 32px;
+  box-shadow:
+    0 24px 64px -12px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] .login-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 20px 50px -10px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* Specular Rim Light Sheen Overlay */
+.login-card-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6) 50%, transparent);
+  pointer-events: none;
+}
+
+[data-theme="light"] .login-card-sheen {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95) 50%, transparent);
+}
+
+/* Card Header */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-brand-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  position: relative;
+}
+
+[data-theme="light"] .login-brand-icon-box {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.login-brand-icon-box .pulse-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #10b981;
+  border: 2px solid var(--bg-canvas);
+  box-shadow: 0 0 8px #10b981;
+}
+
+.login-title {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px 0;
+  color: var(--text-primary);
+}
+
+.login-subtitle {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 320px;
+  margin: 0;
+}
+
+/* ── Primary Action: Google OAuth Button ── */
+.btn-google-login {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-google-login:hover {
+  background: #f8fafc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.btn-google-login:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-google-login:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.google-g-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.google-scope-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 2px;
+}
+
+/* ── Divider ── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* ── Email Form ── */
+.login-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-email-form .form-input {
+  height: 42px;
+  font-size: 13.5px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 0 14px;
+  transition: all 150ms ease;
+}
+
+.login-email-form .form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  outline: none;
+}
+
+.btn-email-submit {
+  height: 42px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+/* ── Demo / Offline Option ── */
+.login-offline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.login-offline-text {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+.btn-demo-mode {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.btn-demo-mode:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border-color: var(--border-strong);
+}
+
+/* ── Security Trust Footer ── */
+.login-trust-footer {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.login-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  letter-spacing: 0.01em;
+}
+
+.login-trust-badge svg {
+  color: #10b981;
+}
+
+/* ── Status Overlay during Authentication Handshake ── */
+.login-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 18, 22, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  z-index: 20;
+  border-radius: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+[data-theme="light"] .login-loading-overlay {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.login-loading-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.login-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: login-spin 0.75s linear infinite;
+}
+
+[data-theme="light"] .login-spinner {
+  border: 2.5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #4f46e5;
+}
+
+@keyframes login-spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-status-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ── Responsive Refinements ── */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 20px 22px 20px;
+    border-radius: 20px;
+  }
+  .login-top-bar {
+    padding: 0 16px;
+  }
+}
+
+
+/* ── Unified Stage 1 Login Card on Startup Screen ── */
+.startup-login-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4, 16px);
+  pointer-events: auto;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.startup-login-stage.stage-hiding {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+.app-shell.app-shell-preauth {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* ── Deep Obsidian (#0b0b0d) Dark Smoked Glass Styling ── */
+.cubes-grid-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
+  pointer-events: none;
+  display: block;
+}
+
+#startup-login-card.login-card {
+  background: rgba(15, 15, 20, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow:
+    0 24px 64px -12px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  color: #f1f5f9 !important;
+}
+
+#startup-login-card .login-title {
+  color: #f1f5f9 !important;
+}
+
+#startup-login-card .login-subtitle {
+  color: #94a3b8 !important;
+}
+
+#startup-login-card .login-brand-icon-box {
+  background: #18181b !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+#startup-login-card .btn-google-login {
+  background: #18181b !important;
+  color: #f4f4f5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+#startup-login-card .btn-google-login:hover {
+  background: #27272a !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+#startup-login-card .google-scope-badge {
+  background: #27272a !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+#startup-login-card .login-divider {
+  color: #64748b !important;
+}
+
+#startup-login-card .login-divider::before,
+#startup-login-card .login-divider::after {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+#startup-login-card .login-email-form .form-input {
+  background: rgba(11, 11, 13, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+}
+
+#startup-login-card .login-email-form .form-input:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+
+#startup-login-card .btn-email-submit {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+
+#startup-login-card .btn-email-submit:hover {
+  background: #1d4ed8 !important;
+}
+
+#startup-login-card .login-offline-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+#startup-login-card .login-offline-text {
+  color: #64748b !important;
+}
+
+#startup-login-card .btn-demo-mode {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+}
+
+#startup-login-card .btn-demo-mode:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* 1-Click Origin Banner */
+.login-origin-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #fef3c7;
+}
+
+.origin-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.origin-banner-content svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.btn-origin-switch {
+  background: #d97706;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 150ms ease;
+}
+
+.btn-origin-switch:hover {
+  background: #b45309;
+}

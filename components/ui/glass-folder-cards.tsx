@@ -71,6 +71,7 @@ export type GlassFolderProps = {
   label?: string
   /** The second line. Defaults to the number of files, which rolls as you add. */
   meta?: string
+  kicker?: string
   /** `light` is milk glass, `dark` is smoked glass. */
   tone?: "light" | "dark"
   /** What the back panel holds. A preset, your own recipe, or `none` for a plain frosted back. */
@@ -103,6 +104,8 @@ export type GlassFolderProps = {
   appearDelay?: number
   className?: string
   style?: React.CSSProperties
+  /** Pop up Aceternity Expandable Card modal when opened. Defaults to true. */
+  expandable?: boolean
 }
 
 // #region art
@@ -530,6 +533,7 @@ const SAMPLE_FILES: FolderFile[] = [
 export function GlassFolder({
   label = "My Files",
   meta,
+  kicker,
   tone = "light",
   art = "aurora",
   seed = 3,
@@ -549,6 +553,7 @@ export function GlassFolder({
   appearDelay = 0,
   className,
   style,
+  expandable = true,
 }: GlassFolderProps) {
   const uid = React.useId().replace(/:/g, "")
   const rootRef = React.useRef<HTMLDivElement>(null)
@@ -558,6 +563,7 @@ export function GlassFolder({
   const menuRef = React.useRef<HTMLDivElement>(null)
 
   const [files, setFiles] = React.useState<FolderFile[]>(initialFiles)
+  const [searchQuery, setSearchQuery] = React.useState("")
   // ids survive re-renders so a newly added file is the only one that animates in
   const ids = React.useRef<number[]>(initialFiles.map((_, i) => i))
   const nextId = React.useRef(initialFiles.length)
@@ -895,6 +901,112 @@ export function GlassFolder({
           ) : null}
         </div>
       </div>
+
+      {open && expandable && (
+        <div
+          className="gf-expandable-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false)
+          }}
+        >
+          <div className="gf-expandable-modal" data-tone={tone}>
+            <div className="gf-expandable-banner">
+              {image ? (
+                <img className="gf-expandable-banner-canvas" src={image} alt="" />
+              ) : art !== "none" ? (
+                <ArtCanvas
+                  className="gf-expandable-banner-canvas"
+                  art={art}
+                  seed={seed}
+                  w={680}
+                  h={180}
+                  density={density}
+                  priority={0}
+                />
+              ) : null}
+              <div className="gf-expandable-banner-sheen" />
+              <div className="gf-expandable-banner-top">
+                <div className="gf-expandable-badge-wrap">
+                  <span className="gf-expandable-badge">COLLECTION</span>
+                </div>
+                <button
+                  type="button"
+                  className="gf-expandable-close"
+                  aria-label="Close folder"
+                  onClick={() => setOpen(false)}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className="gf-expandable-banner-bottom">
+                <h2 className="gf-expandable-title">{label}</h2>
+                <div className="gf-expandable-kicker">{kicker || metaLine}</div>
+              </div>
+            </div>
+
+            <div className="gf-expandable-toolbar">
+              <div className="gf-expandable-search-wrap">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  className="gf-expandable-search-input"
+                  placeholder={"Search files in " + label + "..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="gf-expandable-actions">
+                <button type="button" className="gf-expandable-action-btn" onClick={addFile}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  <span>Add File</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="gf-expandable-body">
+              {files.filter(f => !searchQuery.trim() || f.name.toLowerCase().includes(searchQuery.toLowerCase()) || (f.meta && f.meta.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 ? (
+                <div className="gf-expandable-empty">
+                  <p>No matching documents in this folder.</p>
+                </div>
+              ) : (
+                files
+                  .filter(f => !searchQuery.trim() || f.name.toLowerCase().includes(searchQuery.toLowerCase()) || (f.meta && f.meta.toLowerCase().includes(searchQuery.toLowerCase())))
+                  .map((file, i) => (
+                    <div
+                      key={file.name + i}
+                      className="gf-expandable-item"
+                      onClick={() => {
+                        setOpen(false)
+                        onFileSelect?.(file, i)
+                      }}
+                    >
+                      <div className="gf-expandable-item-header">
+                        <span className="gf-sheet-badge">{file.meta ? file.meta.split("·")[0].trim() : "DOC"}</span>
+                        <span className="gf-sheet-meta">{file.meta || "Ready"}</span>
+                      </div>
+                      <div className="gf-expandable-item-title">{file.name}</div>
+                      <div className="gf-expandable-item-footer">
+                        <span>Click to preview</span>
+                        <span className="gf-expandable-item-action">Open &rarr;</span>
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1022,24 +1134,20 @@ canvas.gf-art[data-ready] { opacity: 1; filter: none; }
     0 0 0 .5px rgba(0, 0, 0, .1),
     0 10px 26px -8px rgba(10, 12, 20, .28);
   transform-origin: 50% 100%;
+  will-change: transform, opacity;
   transform:
-    translate(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)), calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1))
+    translate3d(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)), calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1), 0)
     rotate(calc(var(--gf-jr) + var(--gf-slot) * var(--gf-fan)));
-  transition:
-    transform .75s var(--gf-spring) calc(var(--gf-depth) * 40ms),
-    box-shadow .4s var(--gf-ease),
-    translate .9s var(--gf-ease),
-    opacity .9s var(--gf-ease);
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
 }
 .gf-root[data-tone="dark"] .gf-sheet { background: linear-gradient(180deg, #2c2c30 0%, #1c1c1f 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 0 0 .5px rgba(255, 255, 255, .08), 0 12px 28px -8px rgba(0, 0, 0, .7); }
 .gf-sheet--art { background: #1a1a1d; }
 .gf-root[data-open] .gf-sheet:hover,
 .gf-root[data-open] .gf-sheet:focus-visible {
   transform:
-    translate(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)), calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1 - 18px))
-    rotate(calc(var(--gf-slot) * var(--gf-fan) * .6));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 0 0 .5px rgba(0, 0, 0, .1), 0 22px 40px -12px rgba(10, 12, 20, .42);
-  transition-delay: 0s;
+    translate3d(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)), calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1 - 18px), 0)
+    rotate(calc(var(--gf-slot) * var(--gf-fan) * .6)) scale(1.02);
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
 }
 .gf-sheet:focus-visible { outline: 2px solid #4c8dff; outline-offset: 2px; }
 .gf-sheet-art {
@@ -1323,6 +1431,254 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
   }
   .gf-tilt { transform: none; }
 }
+
+/* ── Aceternity Expandable Card Pop-up ── */
+.gf-expandable-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(10, 11, 15, 0.64);
+  backdrop-filter: blur(20px) saturate(1.8) brightness(0.92);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(0.92);
+  animation: gfOverlayFadeIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.gf-root[data-tone="light"] ~ .gf-expandable-overlay,
+.gf-expandable-modal[data-tone="light"] {
+  --gf-ink: #141416;
+}
+.gf-expandable-modal {
+  position: relative;
+  width: 100%;
+  max-width: 660px;
+  max-height: min(88vh, 780px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(26, 26, 32, 0.92) 0%, rgba(18, 18, 22, 0.98) 100%);
+  border-radius: 22px;
+  overflow: hidden;
+  backdrop-filter: blur(36px) saturate(1.9);
+  -webkit-backdrop-filter: blur(36px) saturate(1.9);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 28px 75px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: gfCardPopIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  color: #fff;
+}
+.gf-expandable-modal[data-tone="light"] {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(246, 244, 239, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 24px 60px -10px rgba(20, 20, 24, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
+  color: #18181b;
+}
+.gf-expandable-banner {
+  position: relative;
+  height: 175px;
+  width: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #111216;
+}
+.gf-expandable-banner-canvas {
+  position: absolute;
+  inset: -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  object-fit: cover;
+}
+.gf-expandable-banner-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(12, 13, 18, 0.85) 100%);
+}
+.gf-expandable-banner-top {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+.gf-expandable-badge {
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+.gf-expandable-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(14px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gf-expandable-close:hover {
+  transform: scale(1.1) rotate(90deg);
+  background: rgba(0, 0, 0, 0.65);
+}
+.gf-expandable-banner-bottom {
+  position: absolute;
+  bottom: 14px;
+  left: 18px;
+  right: 18px;
+  z-index: 2;
+  text-align: left;
+}
+.gf-expandable-title {
+  font-size: 25px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0 0 3px 0;
+  letter-spacing: -0.01em;
+}
+.gf-expandable-kicker {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.88);
+}
+.gf-expandable-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gf-expandable-modal[data-tone="light"] .gf-expandable-toolbar {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+.gf-expandable-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 170px;
+}
+.gf-expandable-search-wrap svg {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+}
+.gf-expandable-modal[data-tone="light"] .gf-expandable-search-wrap svg {
+  color: rgba(0, 0, 0, 0.4);
+}
+.gf-expandable-search-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px 0 28px;
+  font-size: 11.5px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  outline: none;
+}
+.gf-expandable-modal[data-tone="light"] .gf-expandable-search-input {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+}
+.gf-expandable-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 9px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  cursor: pointer;
+}
+.gf-expandable-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+}
+.gf-expandable-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+.gf-expandable-modal[data-tone="light"] .gf-expandable-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+.gf-expandable-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.2);
+}
+.gf-expandable-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.gf-expandable-item-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.gf-expandable-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+.gf-expandable-modal[data-tone="light"] .gf-expandable-item-footer {
+  color: rgba(0, 0, 0, 0.5);
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+.gf-expandable-item-action {
+  color: #3b82f6;
+  font-weight: 600;
+}
+.gf-expandable-empty {
+  text-align: center;
+  padding: 36px 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+@keyframes gfOverlayFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes gfCardPopIn {
+  0% { opacity: 0; transform: scale(0.88) translateY(24px); }
+  65% { transform: scale(1.015) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 `
 
 export default GlassFolder

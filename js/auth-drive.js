@@ -1,3 +1,110 @@
+
+export function purgeLegacyCleartextTokens() {
+  try {
+    localStorage.removeItem('nbl_drive_token_raw');
+    localStorage.removeItem('nbl_drive_token_expires_raw');
+    localStorage.removeItem('nbl_user_session_raw');
+    localStorage.removeItem('nbl_lab_notes');
+    localStorage.removeItem('gemini_api_key');
+    localStorage.removeItem('nbl_gemini_api_key');
+  } catch (e) {}
+}
+
+// ── Startup Stage 1 Overlay Helpers ──
+export function showStartupLoginLoading(message = 'Signing in...') {
+  const overlay = document.getElementById('startup-login-loading-overlay');
+  const label = document.getElementById('startup-login-status-label');
+  if (label) label.textContent = message;
+  if (overlay) overlay.classList.add('is-active');
+}
+
+export function hideStartupLoginLoading() {
+  const overlay = document.getElementById('startup-login-loading-overlay');
+  if (overlay) overlay.classList.remove('is-active');
+}
+
+export function triggerGoogleSignIn() {
+  if (window.location.hostname === '127.0.0.1') {
+    showToast('Redirecting to http://localhost:3000 for Google OAuth origin policy...');
+    setTimeout(() => {
+      window.location.href = window.location.href.replace('127.0.0.1', 'localhost');
+    }, 600);
+    return;
+  }
+
+  showStartupLoginLoading('Connecting to Google...');
+
+  if (!driveTokenClient) {
+    initDriveOAuth();
+  }
+
+  if (driveTokenClient) {
+    try {
+      const user = state.get('user');
+      driveTokenClient.requestAccessToken({ prompt: user?.email ? '' : 'select_account' });
+    } catch (e) {
+      console.error('[Google OAuth Request]', e);
+      hideStartupLoginLoading();
+      showToast('Google Sign-in failed to open popup. Please check popup permissions.');
+    }
+  } else {
+    hideStartupLoginLoading();
+    showToast('Google Sign-in service loading. Please click again in a moment.');
+  }
+}
+
+export async function handleStartupEmailLogin(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const input = document.getElementById('startup-input-email');
+  const email = (input ? input.value : '').trim();
+  if (!email) return;
+
+  showStartupLoginLoading('Creating encrypted local session...');
+
+  const displayName = email.includes('@') ? email.split('@')[0] : email;
+  const user = {
+    name: displayName,
+    email: email.includes('@') ? email : `${email}@workspace.local`,
+    picture: ''
+  };
+
+  state.set('user', user);
+  try {
+    await CryptoVault.setSecureItem('nbl_user_session', user);
+  } catch (err) {}
+  try {
+    localStorage.setItem('nbl_user_session_raw', JSON.stringify(user));
+    localStorage.setItem('nbl_auth_connected', 'true');
+  } catch (err) {}
+
+  // Butler ping if configured
+  const butlerUrl = state.get('driveWebAppUrl') || localStorage.getItem('nbl_drive_webapp_url');
+  if (butlerUrl) {
+    try {
+      const cleanUsername = String(user.name).trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+      fetch(butlerUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: cleanUsername, action: 'signIn', email: user.email, displayName: user.name })
+      }).catch(() => {});
+    } catch (err) {}
+  }
+
+  renderAuthUI();
+  hideStartupLoginLoading();
+  startupScreen.hideLoginStage();
+  await startupScreen.markReadyAndDismiss(`Welcome, ${user.name} · Launching workspace...`);
+}
+
+export async function handleStartupDemoLogin() {
+  showStartupLoginLoading('Activating Dr. Jane Vance demo profile...');
+  await loginDemoAccount();
+  hideStartupLoginLoading();
+  startupScreen.hideLoginStage();
+  await startupScreen.markReadyAndDismiss('Authenticated as Dr. Jane Vance · Loading vault...');
+}
+
 /**
  * Research Lab (NBLMimic) — Google Identity & Drive Cloud Vault
  * Unified 1-Click OAuth2 Token Client (Drive + UserProfile Scopes),
@@ -7,6 +114,7 @@
 import { state } from './state.js';
 import { CryptoVault } from './crypto-vault.js';
 import { showToast, formatBytes, escapeHtml, closeModal } from './ui.js';
+import { startupScreen } from './startup-screen.js';
 
 let driveTokenClient = null;
 let isSyncingNotes = false;
@@ -61,6 +169,14 @@ export async function onGoogleCredentialResponse(response) {
 
 // ── User Session Management ──
 export async function initUserSession() {
+  try {
+    const raw = localStorage.getItem('nbl_user_session_raw');
+    if (raw) {
+      const user = JSON.parse(raw);
+      state.set('user', user);
+      renderAuthUI();
+    }
+  } catch (e) {}
   try {
     let saved = await CryptoVault.getSecureItem('nbl_user_session');
     if (!saved) {
@@ -121,9 +237,38 @@ export function signOutUser() {
     localStorage.removeItem('nbl_user_session');
     localStorage.removeItem('nbl_user_session_raw');
     localStorage.removeItem('nbl_auth_connected');
+    localStorage.removeItem('nbl_drive_token');
+    localStorage.removeItem('nbl_drive_token_raw');
+    localStorage.removeItem('nbl_drive_token_expires');
+    localStorage.removeItem('nbl_drive_token_expires_raw');
   } catch (e) {}
   renderAuthUI();
   showToast('Signed out of session');
+
+  const appShell = document.getElementById('app-shell');
+  if (appShell) {
+    appShell.classList.add('app-shell-preauth');
+    appShell.style.opacity = '0';
+    appShell.style.pointerEvents = 'none';
+  }
+
+  startupScreen.resetToLoginStage();
+}
+
+export function switchAccount() {
+  state.set('user', null);
+  disconnectGoogleDrive();
+  CryptoVault.removeSecureItem('nbl_user_session');
+  try {
+    localStorage.removeItem('nbl_user_session');
+    localStorage.removeItem('nbl_user_session_raw');
+    localStorage.removeItem('nbl_auth_connected');
+    localStorage.removeItem('nbl_drive_token');
+    localStorage.removeItem('nbl_drive_token_raw');
+    localStorage.removeItem('nbl_drive_token_expires');
+    localStorage.removeItem('nbl_drive_token_expires_raw');
+  } catch (e) {}
+  signOutUser();
 }
 
 export async function loginDemoAccount() {
@@ -412,19 +557,19 @@ export function initDriveOAuth() {
             console.warn('[Drive Auth] Error fetching about info:', err);
           }
 
-          // 3. Persist both to CryptoVault and localStorage with TTL envelope
+          // 3. Persist securely to CryptoVault & sessionStorage (Zero plaintext token in localStorage - Fixes VULN-17)
           if (userObj) {
             await CryptoVault.setSecureItem('nbl_user_session', userObj);
             try {
-              localStorage.setItem('nbl_user_session_raw', JSON.stringify(userObj));
+              sessionStorage.setItem('nbl_user_session', JSON.stringify(userObj));
             } catch (e) {}
           }
           await CryptoVault.setSecureItem('nbl_drive_token', driveToken, expiresIn * 1000);
           await CryptoVault.setSecureItem('nbl_drive_token_expires', driveTokenExpires, expiresIn * 1000);
           try {
-            localStorage.setItem('nbl_auth_connected', 'true');
-            localStorage.setItem('nbl_drive_token_raw', driveToken);
-            localStorage.setItem('nbl_drive_token_expires_raw', String(driveTokenExpires));
+            sessionStorage.setItem('nbl_drive_token_session', driveToken);
+            sessionStorage.setItem('nbl_drive_token_expires_session', String(driveTokenExpires));
+            purgeLegacyCleartextTokens();
           } catch (e) {}
 
           // 4. Close modals immediately
@@ -435,6 +580,16 @@ export function initDriveOAuth() {
           renderAuthUI();
           updateDriveUI();
           showToast(userObj?.name ? `Signed in as ${userObj.name}` : 'Google Drive connected');
+
+          // If startup screen is still active (Stage 1 login), bloom logo reveal and advance through portal
+          const startupEl = document.getElementById('startup-screen');
+          if (startupEl && startupEl.style.display !== 'none' && !startupScreen.isDismissed) {
+            hideStartupLoginLoading();
+            startupScreen.hideLoginStage();
+            await startupScreen.markReadyAndDismiss(
+              userObj?.name ? `Authenticated as ${userObj.name} · Loading Drive vault...` : 'Drive Vault Connected · Loading...'
+            );
+          }
 
           // 6. Ensure app folder and sync notes
           await ensureDriveAppFolder();
@@ -470,16 +625,18 @@ export function initDriveOAuth() {
 
 export async function initDriveSession() {
   try {
+    purgeLegacyCleartextTokens();
+
     let savedToken = await CryptoVault.getSecureItem('nbl_drive_token');
     let expiresRaw = await CryptoVault.getSecureItem('nbl_drive_token_expires');
 
     if (!savedToken) {
-      savedToken = localStorage.getItem('nbl_drive_token_raw');
-      expiresRaw = localStorage.getItem('nbl_drive_token_expires_raw');
+      savedToken = sessionStorage.getItem('nbl_drive_token_session');
+      expiresRaw = sessionStorage.getItem('nbl_drive_token_expires_session');
     }
 
     const expires = parseInt(expiresRaw || '0', 10);
-    const isConn = localStorage.getItem('nbl_auth_connected') === 'true';
+    const isConn = Boolean(savedToken && expires > Date.now());
     const folderId = localStorage.getItem('nbl_drive_folder_id');
     const webAppUrl = localStorage.getItem('nbl_drive_webapp_url');
 
@@ -1086,13 +1243,17 @@ export async function fetchDriveDocumentBlob(doc) {
   try {
     res = await driveFetch(fetchUrl);
   } catch (err) {
-    // If browser CORS on googleapis alt=media redirects, fallback to local server proxy
-    res = await fetch(`/api/drive/file?id=${fileId}&mime=${encodeURIComponent(mime)}&token=${encodeURIComponent(token)}`);
+    // If browser CORS on googleapis alt=media redirects, fallback to local server proxy with Bearer header
+    res = await fetch(`/api/drive/file?id=${fileId}&mime=${encodeURIComponent(mime)}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
   }
 
   if (!res || !res.ok) {
-    // Fallback to local server proxy
-    res = await fetch(`/api/drive/file?id=${fileId}&mime=${encodeURIComponent(mime)}&token=${encodeURIComponent(token)}`);
+    // Fallback to local server proxy with Bearer header
+    res = await fetch(`/api/drive/file?id=${fileId}&mime=${encodeURIComponent(mime)}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
   }
 
   if (!res || !res.ok) {
@@ -1143,6 +1304,7 @@ export function renderModalDriveFileList(sources) {
 // Window scope exposures for resilient click handlers and external calls
 window.connectGoogleDrive = connectGoogleDrive;
 window.disconnectGoogleDrive = disconnectGoogleDrive;
+window.switchAccount = switchAccount;
 window.loginDemoAccount = loginDemoAccount;
 window.syncCurrentNotesToDrive = syncCurrentNotesToDrive;
 window.fetchDriveDocumentContent = fetchDriveDocumentContent;

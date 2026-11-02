@@ -5,7 +5,7 @@
  */
 
 import { state } from './state.js';
-import { getIcon, escapeHtml, showToast, openModal } from './ui.js';
+import { getIcon, escapeHtml, showToast, openModal, sanitizeUrl } from './ui.js';
 import { connectGoogleDrive, fetchDriveDocumentContent, isBinaryContent, generateDocumentExcerpt, fetchDriveDocumentBlob } from './auth-drive.js';
 import { renderGlassFolderGallery, classifyFileFormat } from './glass-folder-cards.js';
 import { attach3DCardTilt } from './3d-card.js';
@@ -298,108 +298,220 @@ export function getFileIconName(mimeType = '', fileName = '') {
 // ── Live World News Aggregator & Cache (Last 72 Hours) ──
 export const CLIENT_FALLBACK_WORLD_NEWS = [
   {
-    id: 'news-fallback-1',
-    type: 'news',
-    title: 'Global Semiconductor Alliance Outlines Joint Sovereign AI Infrastructure Framework',
-    publisher: 'Reuters',
-    source: 'Reuters / World',
-    category: 'World',
-    timestamp: Date.now() - 3600000 * 2,
-    snippet: 'Representatives from thirty nations concluded negotiations establishing common hardware provenance protocols and energy efficiency standards for sovereign data centers across North America, Europe, and East Asia.',
-    excerpt: 'Representatives from thirty nations concluded negotiations establishing common hardware provenance protocols and energy efficiency standards for sovereign data centers.',
-    content: '# Global Semiconductor Alliance Outlines Joint Sovereign AI Infrastructure Framework\n\n**Source**: Reuters / World\n**Published**: 2h ago\n\n## Overview\nRepresentatives from thirty nations concluded negotiations establishing common hardware provenance protocols and energy efficiency standards for sovereign data centers across North America, Europe, and East Asia.\n\n## Synthesis Context\nImported from verified global wire for research grounding and policy synthesis.',
-    url: 'https://www.reuters.com'
+    "id": 1,
+    "type": "news",
+    "icon": "globe",
+    "title": "Global Semiconductor Alliance Outlines Joint Sovereign AI Infrastructure Framework",
+    "source": "Reuters / World Desk",
+    "category": "World",
+    "categoryColor": "#0284C7",
+    "excerpt": "Representatives from thirty nations concluded negotiations establishing common hardware provenance protocols and energy efficiency standards for sovereign data centers across North America, Europe, and East Asia.",
+    "content": "Global Semiconductor Alliance Outlines Joint Sovereign AI Infrastructure Framework\n\nPublished by Reuters.\n\nRepresentatives from thirty nations concluded negotiations establishing common hardware provenance protocols and energy efficiency standards for sovereign data centers across North America, Europe, and East Asia.",
+    "url": "https://news.google.com/",
+    "date": "2h ago",
+    "timestamp": 1793539833738,
+    "tags": [
+      "#worldnews",
+      "#world"
+    ]
   },
   {
-    id: 'news-fallback-2',
-    type: 'news',
-    title: 'Next-Generation Sparse Mixture-of-Experts Models Cut Inference Compute by 65%',
-    publisher: 'Ars Technica',
-    source: 'Ars Technica',
-    category: 'AI & Tech',
-    timestamp: Date.now() - 3600000 * 4,
-    snippet: 'New research demonstrates dynamic token routing that maintains reasoning benchmarks on mathematics and code synthesis while activating only 8% of total parameters per forward pass.',
-    excerpt: 'New research demonstrates dynamic token routing that maintains reasoning benchmarks on mathematics and code synthesis while activating only 8% of total parameters per forward pass.',
-    content: '# Next-Generation Sparse Mixture-of-Experts Models Cut Inference Compute by 65%\n\n**Source**: Ars Technica\n**Published**: 4h ago\n\n## Overview\nNew research demonstrates dynamic token routing that maintains reasoning benchmarks on mathematics and code synthesis while activating only 8% of total parameters per forward pass.\n\n## Synthesis Context\nImported for frontier machine learning architecture and compute benchmarking.',
-    url: 'https://arstechnica.com'
+    "id": 2,
+    "type": "news",
+    "icon": "cpu",
+    "title": "Next-Generation Sparse Mixture-of-Experts Models Cut Inference Compute by 65%",
+    "source": "Ars Technica",
+    "category": "AI & Tech",
+    "categoryColor": "#8B5CF6",
+    "excerpt": "New research demonstrates dynamic token routing that maintains reasoning benchmarks on mathematics and code synthesis while activating only 8% of total parameters per forward pass.",
+    "content": "Next-Generation Sparse Mixture-of-Experts Models Cut Inference Compute by 65%\n\nPublished by Ars Technica.\n\nNew research demonstrates dynamic token routing that maintains reasoning benchmarks on mathematics and code synthesis while activating only 8% of total parameters per forward pass.",
+    "url": "https://arstechnica.com",
+    "date": "4h ago",
+    "timestamp": 1793532633738,
+    "tags": [
+      "#worldnews",
+      "#aitech"
+    ]
   },
   {
-    id: 'news-fallback-3',
-    type: 'news',
-    title: 'James Webb Space Telescope Identifies Potential Biosignature Gases in Nearby Sub-Neptune',
-    publisher: 'ScienceDaily',
-    source: 'ScienceDaily',
-    category: 'Science',
-    timestamp: Date.now() - 3600000 * 7,
-    snippet: 'Transmission spectroscopy reveals atmospheric methane and carbon dioxide alongside tentatively detected dimethyl sulfide in habitable zone exoplanet observations.',
-    excerpt: 'Transmission spectroscopy reveals atmospheric methane and carbon dioxide alongside tentatively detected dimethyl sulfide in habitable zone exoplanet observations.',
-    content: '# James Webb Space Telescope Identifies Potential Biosignature Gases in Nearby Sub-Neptune\n\n**Source**: ScienceDaily\n**Published**: 7h ago\n\n## Overview\nTransmission spectroscopy reveals atmospheric methane and carbon dioxide alongside tentatively detected dimethyl sulfide in habitable zone exoplanet observations.',
-    url: 'https://www.sciencedaily.com'
+    "id": 3,
+    "type": "news",
+    "icon": "flask",
+    "title": "James Webb Space Telescope Identifies Potential Biosignature Gases in Nearby Sub-Neptune",
+    "source": "ScienceDaily",
+    "category": "Science",
+    "categoryColor": "#059669",
+    "excerpt": "Transmission spectroscopy reveals atmospheric methane and carbon dioxide alongside tentatively detected dimethyl sulfide in habitable zone exoplanet observations.",
+    "content": "James Webb Space Telescope Identifies Potential Biosignature Gases in Nearby Sub-Neptune\n\nPublished by ScienceDaily.\n\nTransmission spectroscopy reveals atmospheric methane and carbon dioxide alongside tentatively detected dimethyl sulfide in habitable zone exoplanet observations.",
+    "url": "https://www.sciencedaily.com",
+    "date": "7h ago",
+    "timestamp": 1793521833738,
+    "tags": [
+      "#worldnews",
+      "#science"
+    ]
   },
   {
-    id: 'news-fallback-4',
-    type: 'news',
-    title: 'Central Banks Harmonize Cross-Border Digital Settlement Pilot Across Asian Financial Hubs',
-    publisher: 'Financial Times',
-    source: 'Financial Times / BBC',
-    category: 'Markets',
-    timestamp: Date.now() - 3600000 * 14,
-    snippet: 'Project mBridge completes multi-billion dollar real-time wholesale trial, settling foreign exchange transactions with atomic delivery versus payment mechanisms.',
-    excerpt: 'Project mBridge completes multi-billion dollar real-time wholesale trial, settling foreign exchange transactions with atomic delivery versus payment mechanisms.',
-    content: '# Central Banks Harmonize Cross-Border Digital Settlement Pilot Across Asian Financial Hubs\n\n**Source**: Financial Times\n**Published**: 14h ago\n\n## Overview\nProject mBridge completes multi-billion dollar real-time wholesale trial, settling foreign exchange transactions with atomic delivery versus payment mechanisms.',
-    url: 'https://www.ft.com'
+    "id": 4,
+    "type": "news",
+    "icon": "briefcase",
+    "title": "Central Banks Harmonize Cross-Border Digital Settlement Pilot Across Asian Financial Hubs",
+    "source": "Financial Times / BBC",
+    "category": "Markets",
+    "categoryColor": "#D97706",
+    "excerpt": "Project mBridge completes multi-billion dollar real-time wholesale trial, settling foreign exchange transactions with atomic delivery versus payment mechanisms.",
+    "content": "Central Banks Harmonize Cross-Border Digital Settlement Pilot Across Asian Financial Hubs\n\nPublished by Financial Times.\n\nProject mBridge completes multi-billion dollar real-time wholesale trial, settling foreign exchange transactions with atomic delivery versus payment mechanisms.",
+    "url": "https://www.bbc.com/news/business",
+    "date": "14h ago",
+    "timestamp": 1793496633738,
+    "tags": [
+      "#worldnews",
+      "#markets"
+    ]
   },
   {
-    id: 'news-fallback-5',
-    type: 'news',
-    title: 'International AI Safety Institute Releases First Harmonized Evaluation Suite for Frontier Models',
-    publisher: 'BBC News',
-    source: 'BBC News',
-    category: 'World',
-    timestamp: Date.now() - 3600000 * 20,
-    snippet: 'The standardized benchmark suite tests autonomous replication, cyber offensive capabilities, and biosecurity boundary enforcement across top commercial foundation models.',
-    excerpt: 'The standardized benchmark suite tests autonomous replication, cyber offensive capabilities, and biosecurity boundary enforcement across top commercial foundation models.',
-    content: '# International AI Safety Institute Releases First Harmonized Evaluation Suite for Frontier Models\n\n**Source**: BBC News\n**Published**: 20h ago\n\n## Overview\nThe standardized benchmark suite tests autonomous replication, cyber offensive capabilities, and biosecurity boundary enforcement across top commercial foundation models.',
-    url: 'https://www.bbc.com'
+    "id": 5,
+    "type": "news",
+    "icon": "file-text",
+    "title": "International AI Safety Institute Releases First Harmonized Evaluation Suite for Frontier Models",
+    "source": "BBC News",
+    "category": "Policy",
+    "categoryColor": "#64748B",
+    "excerpt": "The standardized benchmark suite tests autonomous replication, cyber offensive capabilities, and biosecurity boundary enforcement across top commercial foundation models.",
+    "content": "International AI Safety Institute Releases First Harmonized Evaluation Suite for Frontier Models\n\nPublished by BBC News.\n\nThe standardized benchmark suite tests autonomous replication, cyber offensive capabilities, and biosecurity boundary enforcement across top commercial foundation models.",
+    "url": "https://www.bbc.co.uk/news",
+    "date": "1d ago",
+    "timestamp": 1793460633738,
+    "tags": [
+      "#worldnews",
+      "#policy"
+    ]
   },
   {
-    id: 'news-fallback-6',
-    type: 'news',
-    title: 'Quantum Error Correction Threshold Achieved on 100-Logical-Qubit Superconducting Array',
-    publisher: 'MIT Technology Review',
-    source: 'MIT Technology Review',
-    category: 'Science',
-    timestamp: Date.now() - 3600000 * 28,
-    snippet: 'Researchers demonstrate surface code lattice scaling where physical qubit fidelity exceeds fault-tolerant thresholds, suppressing logical error rates by two orders of magnitude.',
-    excerpt: 'Researchers demonstrate surface code lattice scaling where physical qubit fidelity exceeds fault-tolerant thresholds.',
-    content: '# Quantum Error Correction Threshold Achieved on 100-Logical-Qubit Superconducting Array\n\n**Source**: MIT Technology Review\n**Published**: 1d ago\n\n## Overview\nResearchers demonstrate surface code lattice scaling where physical qubit fidelity exceeds fault-tolerant thresholds.',
-    url: 'https://www.technologyreview.com'
+    "id": 6,
+    "type": "news",
+    "icon": "cpu",
+    "title": "Linear Attention and Mamba Hybrids Surpass Transformers in Long-Context Retrieval Benchmarks",
+    "source": "MIT Technology Review",
+    "category": "AI & Tech",
+    "categoryColor": "#8B5CF6",
+    "excerpt": "State-space recurrent models achieve 1M token context evaluation with sub-quadratic memory complexity and zero degradation in needle-in-a-haystack verification.",
+    "content": "Linear Attention and Mamba Hybrids Surpass Transformers in Long-Context Retrieval Benchmarks\n\nPublished by MIT Technology Review.\n\nState-space recurrent models achieve 1M token context evaluation with sub-quadratic memory complexity.",
+    "url": "https://technologyreview.com",
+    "date": "6h ago",
+    "timestamp": 1793525433738,
+    "tags": [
+      "#worldnews",
+      "#aitech"
+    ]
   },
   {
-    id: 'news-fallback-7',
-    type: 'news',
-    title: 'Global Energy Council Reports 42% Surge in Grid-Scale Battery Deployment in 2025-2026',
-    publisher: 'Bloomberg Green',
-    source: 'Bloomberg Green',
-    category: 'Markets',
-    timestamp: Date.now() - 3600000 * 36,
-    snippet: 'Plummeting LFP cell costs and capacity market incentives propel unprecedented installations of multi-hour storage systems across key regional transmission operators.',
-    excerpt: 'Plummeting LFP cell costs and capacity market incentives propel unprecedented installations of multi-hour storage systems.',
-    content: '# Global Energy Council Reports 42% Surge in Grid-Scale Battery Deployment\n\n**Source**: Bloomberg Green\n**Published**: 1.5d ago\n\n## Overview\nPlummeting LFP cell costs and capacity market incentives propel unprecedented installations of multi-hour storage systems.',
-    url: 'https://www.bloomberg.com'
+    "id": 7,
+    "type": "news",
+    "icon": "flask",
+    "title": "Solid-State Electrolyte Breakthrough Achieves 95% Capacity Retention Over 3,000 Rapid Cycles",
+    "source": "Nature Materials",
+    "category": "Science",
+    "categoryColor": "#059669",
+    "excerpt": "Novel composite sulfide matrix suppresses lithium dendrite proliferation during 15-minute ultra-fast charging under ambient operating pressures.",
+    "content": "Solid-State Electrolyte Breakthrough Achieves 95% Capacity Retention Over 3,000 Rapid Cycles\n\nPublished by Nature Materials.\n\nNovel composite sulfide matrix suppresses lithium dendrite proliferation during 15-minute ultra-fast charging.",
+    "url": "https://nature.com",
+    "date": "12h ago",
+    "timestamp": 1793503833738,
+    "tags": [
+      "#worldnews",
+      "#science"
+    ]
   },
   {
-    id: 'news-fallback-8',
-    type: 'news',
-    title: 'Open-Source Foundation Releases Verifiable Synthetic Data Pipeline for Medical Diagnostics',
-    publisher: 'Hacker News / BioRxiv',
-    source: 'Hacker News / BioRxiv',
-    category: 'AI & Tech',
-    timestamp: Date.now() - 3600000 * 48,
-    snippet: 'High-fidelity multimodal EHR synthesis framework guarantees differential privacy epsilon boundaries while preserving clinical predictive utility for rare pathology modeling.',
-    excerpt: 'High-fidelity multimodal EHR synthesis framework guarantees differential privacy epsilon boundaries while preserving clinical predictive utility.',
-    content: '# Open-Source Foundation Releases Verifiable Synthetic Data Pipeline for Medical Diagnostics\n\n**Source**: Hacker News / BioRxiv\n**Published**: 2d ago\n\n## Overview\nHigh-fidelity multimodal EHR synthesis framework guarantees differential privacy epsilon boundaries while preserving clinical predictive utility.',
-    url: 'https://news.ycombinator.com'
+    "id": 8,
+    "type": "news",
+    "icon": "briefcase",
+    "title": "Global Tech Capital Flows Pivot Towards High-Density Energy and Grid Interconnect Projects",
+    "source": "Bloomberg Markets",
+    "category": "Markets",
+    "categoryColor": "#D97706",
+    "excerpt": "Venture and infrastructure consortiums allocate $45B towards small modular nuclear reactors and geothermal power purchase agreements dedicated to next-decade computing.",
+    "content": "Global Tech Capital Flows Pivot Towards High-Density Energy and Grid Interconnect Projects\n\nPublished by Bloomberg Markets.\n\nVenture and infrastructure consortiums allocate $45B towards clean energy projects.",
+    "url": "https://bloomberg.com",
+    "date": "16h ago",
+    "timestamp": 1793489433738,
+    "tags": [
+      "#worldnews",
+      "#markets"
+    ]
+  },
+  {
+    "id": 9,
+    "type": "news",
+    "icon": "globe",
+    "title": "United Nations High-Level Advisory Body Delivers Final Multilateral Framework on AI Governance",
+    "source": "UN News / World Wire",
+    "category": "World",
+    "categoryColor": "#0284C7",
+    "excerpt": "Proposals include international scientific consensus panels, capacity development funds for developing nations, and open benchmark standards for societal impact evaluations.",
+    "content": "United Nations High-Level Advisory Body Delivers Final Multilateral Framework on AI Governance\n\nPublished by UN News.\n\nProposals include international scientific consensus panels and open benchmark standards.",
+    "url": "https://news.un.org",
+    "date": "18h ago",
+    "timestamp": 1793482233738,
+    "tags": [
+      "#worldnews",
+      "#world"
+    ]
+  },
+  {
+    "id": 10,
+    "type": "news",
+    "icon": "cpu",
+    "title": "Researchers Unveil Post-Quantum Cryptographic Key Encapsulation with Zero Latency Penalty",
+    "source": "IEEE Spectrum",
+    "category": "AI & Tech",
+    "categoryColor": "#8B5CF6",
+    "excerpt": "Lattice-based hardware accelerator integration into consumer silicon ensures seamless transition to NIST-standardized FIPS-203 protocols across public networks.",
+    "content": "Researchers Unveil Post-Quantum Cryptographic Key Encapsulation with Zero Latency Penalty\n\nPublished by IEEE Spectrum.\n\nLattice-based hardware accelerator integration into consumer silicon ensures seamless transition to NIST-standardized protocols.",
+    "url": "https://spectrum.ieee.org",
+    "date": "20h ago",
+    "timestamp": 1793475033738,
+    "tags": [
+      "#worldnews",
+      "#aitech"
+    ]
+  },
+  {
+    "id": 11,
+    "type": "news",
+    "icon": "flask",
+    "title": "CRISPR Epigenetic Editing Silences Target PCSK9 Gene Without Inducing DNA Double-Strand Breaks",
+    "source": "Science Translational Medicine",
+    "category": "Science",
+    "categoryColor": "#059669",
+    "excerpt": "Zinc-finger histone methylation maintains therapeutic cholesterol reduction in non-human primates for over eleven months following a single lipid nanoparticle dose.",
+    "content": "CRISPR Epigenetic Editing Silences Target PCSK9 Gene Without Inducing DNA Double-Strand Breaks\n\nPublished by Science Translational Medicine.\n\nZinc-finger histone methylation maintains therapeutic cholesterol reduction.",
+    "url": "https://science.org",
+    "date": "1d ago",
+    "timestamp": 1793460633738,
+    "tags": [
+      "#worldnews",
+      "#science"
+    ]
+  },
+  {
+    "id": 12,
+    "type": "news",
+    "icon": "briefcase",
+    "title": "Semiconductor Foundry CapEx Guidance Surges on Advanced Packaging and High-Bandwidth Memory Demand",
+    "source": "Nikkei Asia",
+    "category": "Markets",
+    "categoryColor": "#D97706",
+    "excerpt": "Leading chipmakers boost full-year capital expenditure forecast by 18% to expand 2.5D substrate capacity and next-generation HBM4 production lines.",
+    "content": "Semiconductor Foundry CapEx Guidance Surges on Advanced Packaging and High-Bandwidth Memory Demand\n\nPublished by Nikkei Asia.\n\nLeading chipmakers boost full-year capital expenditure forecast.",
+    "url": "https://asia.nikkei.com",
+    "date": "1d ago",
+    "timestamp": 1793453433738,
+    "tags": [
+      "#worldnews",
+      "#markets"
+    ]
   }
 ];
 
@@ -590,6 +702,9 @@ export async function viewDocument(docId) {
       if (b.dataset.mode === 'reader') b.classList.add('is-active');
       else b.classList.remove('is-active');
     });
+    if (window.canvasModeLiquidNav) {
+      window.canvasModeLiquidNav.setActiveMode('reader');
+    }
   }
 
   // Update selected class in DOM
@@ -654,10 +769,22 @@ window.addEventListener('beforeunload', cleanupActiveBlob);
 
 export function getSafeDocumentStreamUrl(doc) {
   if (!doc) return null;
+  const name = (doc.title || '').toLowerCase();
+  const mime = (doc.mimeType || '').toLowerCase();
+  const isSpreadsheetOrOffice = mime.includes('sheet') || mime.includes('excel') || mime.includes('spreadsheet') ||
+                               mime.includes('word') || mime.includes('presentation') ||
+                               name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.docx') ||
+                               name.endsWith('.doc') || name.endsWith('.pptx') || name.endsWith('.ppt');
+
+  // Use Google Drive official preview embed for spreadsheets and Office docs so raw binary zip ('PK\x03\x04') never streams into iframe
+  if (doc.driveFileId && isSpreadsheetOrOffice) {
+    return `https://drive.google.com/file/d/${encodeURIComponent(doc.driveFileId)}/preview`;
+  }
+
   if (doc.blobUrl) return doc.blobUrl;
-  const token = state.get('driveToken');
-  if (doc.driveFileId && token) {
-    return `/api/drive/file?id=${encodeURIComponent(doc.driveFileId)}&mime=${encodeURIComponent(doc.mimeType || '')}&token=${encodeURIComponent(token)}`;
+  // If local blob is still fetching, display official Google Drive preview without leaking OAuth token in URL
+  if (doc.driveFileId) {
+    return `https://drive.google.com/file/d/${encodeURIComponent(doc.driveFileId)}/preview`;
   }
   return null;
 }
@@ -678,6 +805,9 @@ export function switchCanvasMode(mode) {
       b.classList.remove('is-active');
     }
   });
+  if (window.canvasModeLiquidNav) {
+    window.canvasModeLiquidNav.setActiveMode(mode);
+  }
   const headerNewsBtn = document.getElementById('btn-header-live-news');
   if (headerNewsBtn) {
     if (mode === 'news') headerNewsBtn.classList.add('is-active');
@@ -722,6 +852,9 @@ export async function navigateBackToFolders(animated = true) {
     document.querySelectorAll('.canvas-mode-btn').forEach(b => b.classList.remove('is-active'));
     const foldersTab = document.getElementById('tab-canvas-folders');
     if (foldersTab) foldersTab.classList.add('is-active');
+    if (window.canvasModeLiquidNav) {
+      window.canvasModeLiquidNav.setActiveMode('folders');
+    }
     const headerNewsBtn = document.getElementById('btn-header-live-news');
     if (headerNewsBtn) headerNewsBtn.classList.remove('is-active');
     
@@ -1206,7 +1339,7 @@ export function renderNewsCardsGrid(articles, mountEl, category = 'all') {
         </div>
 
         <h3 class="card-3d-item card-3d-title" data-translate-z="50">
-          <a href="${escapeHtml(art.url || '#')}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(cleanTitle)}">${escapeHtml(cleanTitle)}</a>
+          <a href="${escapeHtml(sanitizeUrl(art.url))}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(cleanTitle)}">${escapeHtml(cleanTitle)}</a>
         </h3>
 
         <div class="card-3d-item card-3d-visual-banner ${bannerTheme}" data-translate-z="80">
@@ -1225,7 +1358,7 @@ export function renderNewsCardsGrid(articles, mountEl, category = 'all') {
         </p>
 
         <div class="card-3d-item card-3d-footer" data-translate-z="60">
-          <a href="${escapeHtml(art.url || '#')}" target="_blank" rel="noopener noreferrer" class="card-3d-link-btn" title="Open source dispatch in new tab">
+          <a href="${escapeHtml(sanitizeUrl(art.url))}" target="_blank" rel="noopener noreferrer" class="card-3d-link-btn" title="Open source dispatch in new tab">
             <span>Read Story</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </a>
@@ -1412,7 +1545,7 @@ export function renderProseReader(doc, mountId = 'reader-prose-mount') {
             <span>Split View</span>
           </button>
           ${doc.webViewLink ? `
-            <a href="${escapeHtml(doc.webViewLink)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open directly in Google Drive">
+            <a href="${escapeHtml(sanitizeUrl(doc.webViewLink))}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open directly in Google Drive">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               <span>Drive &nearr;</span>
             </a>
@@ -1450,7 +1583,7 @@ export function renderProseReader(doc, mountId = 'reader-prose-mount') {
           <div class="reader-embed-toolbar-right">
             <button type="button" class="btn btn-secondary btn-sm" onclick="window.switchCanvasMode('preview')">Full Screen</button>
             ${doc.webViewLink ? `
-              <a href="${escapeHtml(doc.webViewLink)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in Google Drive tab">
+              <a href="${escapeHtml(sanitizeUrl(doc.webViewLink))}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in Google Drive tab">
                 <span>Drive &nearr;</span>
               </a>
             ` : ''}
@@ -1475,7 +1608,7 @@ export function renderProseReader(doc, mountId = 'reader-prose-mount') {
             <span>Connect Drive Session</span>
           </button>
           ${doc.webViewLink ? `
-            <a href="${escapeHtml(doc.webViewLink)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+            <a href="${escapeHtml(sanitizeUrl(doc.webViewLink))}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
               <span>Open in Google Drive &nearr;</span>
             </a>
           ` : ''}

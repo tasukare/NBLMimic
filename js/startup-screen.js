@@ -1,9 +1,10 @@
+import { BackgroundCubesGrid } from './background-cubes-grid.js';
 /**
  * NBLMimic — Liquid Glass Startup Screen Controller
  * Orchestrates WebGL2 glass reveal animation with live backend health & system verification.
  */
 
-const MARK_NBLMIMIC = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#1E40AF"/><path d="M22 34 Q28 31 32 34 T42 34 L47.2 44.2 C48.3 46.4 46.8 49 44.5 49 L19.5 49 C17.2 49 15.7 46.4 16.8 44.2 Z" fill="#67E8F9"/><circle cx="26" cy="42" r="2.2" fill="#FFFFFF"/><circle cx="36" cy="38" r="1.8" fill="#FFFFFF"/><circle cx="32" cy="45" r="1.4" fill="#FFFFFF"/><path d="M25 14 H39 M28 14 V23 L16.2 44.3 C14.9 46.6 16.5 49.5 19.2 49.5 H44.8 C47.5 49.5 49.1 46.6 47.8 44.3 L36 23 V14" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 11 C47 15.5 49 17.5 53.5 17.5 C49 17.5 47 19.5 47 24 C47 19.5 45 17.5 40.5 17.5 C45 17.5 47 15.5 47 11 Z" fill="#FDE047"/></svg>`;
+const MARK_NBLMIMIC = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="M22 34 Q28 31 32 34 T42 34 L47.2 44.2 C48.3 46.4 46.8 49 44.5 49 L19.5 49 C17.2 49 15.7 46.4 16.8 44.2 Z" fill="#38bdf8"/><circle cx="26" cy="42" r="2.2" fill="#FFFFFF"/><circle cx="36" cy="38" r="1.8" fill="#FFFFFF"/><circle cx="32" cy="45" r="1.4" fill="#FFFFFF"/><path d="M25 14 H39 M28 14 V23 L16.2 44.3 C14.9 46.6 16.5 49.5 19.2 49.5 H44.8 C47.5 49.5 49.1 46.6 47.8 44.3 L36 23 V14" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 11 C47 15.5 49 17.5 53.5 17.5 C49 17.5 47 19.5 47 24 C47 19.5 45 17.5 40.5 17.5 C45 17.5 47 15.5 47 11 Z" fill="#38bdf8"/></svg>`;
 
 const NBL_SETTINGS = {
   tileSize: 260,
@@ -42,7 +43,7 @@ const NBL_SETTINGS = {
   sheen: 1,
   lightTurn: 0.9,
   hold: 1.2,
-  background: "#09090b",
+  background: "#0b0b0d",
   plateColor: "#111827",
   logoColor: "#38bdf8"
 };
@@ -363,7 +364,7 @@ void main() {
 }`;
 
 function createRenderer(canvas) {
-  const gl = canvas.getContext("webgl2", { antialias: false, premultipliedAlpha: false });
+  const gl = canvas.getContext("webgl2", { antialias: true, alpha: true, premultipliedAlpha: false });
   if (!gl) return null;
 
   const compile = (type, src) => {
@@ -450,6 +451,8 @@ class StartupScreenController {
   constructor() {
     this.screenEl = document.getElementById('startup-screen');
     this.canvas = document.getElementById('startup-canvas');
+    this.canvasContainer = document.getElementById('startup-canvas-container');
+    this.statusContainer = document.getElementById('startup-status-container');
     this.statusDot = document.getElementById('startup-status-dot');
     this.statusText = document.getElementById('startup-status-text');
     this.actionsContainer = document.getElementById('startup-actions');
@@ -457,6 +460,7 @@ class StartupScreenController {
     this.btnSkip = document.getElementById('btn-startup-skip');
     this.hintEl = document.getElementById('startup-skip-hint');
 
+    this.cubesGrid = null;
     this.renderer = null;
     this.logoData = null;
     this.startTime = performance.now();
@@ -469,9 +473,20 @@ class StartupScreenController {
 
   init(onRetry) {
     if (!this.screenEl || !this.canvas) return;
+    this.canvasContainer = document.getElementById('startup-canvas-container');
+    this.statusContainer = document.getElementById('startup-status-container');
     this.onRetryCallback = onRetry;
     this.startTime = performance.now();
     this._bindControls();
+
+    // Mount and start Aceternity Background Cubes Grid
+    const cubesCanvas = document.getElementById('cubes-grid-canvas');
+    if (cubesCanvas && !this.cubesGrid) {
+      this.cubesGrid = new BackgroundCubesGrid(cubesCanvas, {
+        backgroundColor: '#0b0b0d'
+      });
+      this.cubesGrid.init();
+    }
 
     // Initialize WebGL in parallel without blocking app initialization
     this._initWebGL().catch(err => {
@@ -502,8 +517,8 @@ class StartupScreenController {
       if (!this.renderer || !this.logoData) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = Math.round(this.canvas.clientWidth * dpr);
-      const h = Math.round(this.canvas.clientHeight * dpr);
+      const w = Math.round(260 * dpr);
+      const h = Math.round(260 * dpr);
       if (this.canvas.width !== w || this.canvas.height !== h) {
         this.canvas.width = w;
         this.canvas.height = h;
@@ -521,30 +536,6 @@ class StartupScreenController {
   }
 
   _bindControls() {
-    // Click on startup screen or spacebar dismisses immediately if checks are completed
-    const handleQuickDismiss = (e) => {
-      if (this.readyToDismiss && !this.isDismissed) {
-        this.dismiss();
-      }
-    };
-
-    if (this.screenEl) {
-      this.screenEl.addEventListener('click', (e) => {
-        // Don't trigger if clicking explicit buttons
-        if (e.target.closest('.startup-btn')) return;
-        handleQuickDismiss(e);
-      });
-    }
-
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'Escape' || e.code === 'Enter') {
-        if (this.readyToDismiss && !this.isDismissed) {
-          e.preventDefault();
-          this.dismiss();
-        }
-      }
-    });
-
     if (this.btnRetry) {
       this.btnRetry.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -557,7 +548,7 @@ class StartupScreenController {
     if (this.btnSkip) {
       this.btnSkip.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.dismiss();
+        this.dismiss(true);
       });
     }
   }
@@ -600,21 +591,129 @@ class StartupScreenController {
       await new Promise(r => setTimeout(r, remaining));
     }
 
-    // Dismiss smoothly
-    this.dismiss();
+    // Launch Memory Corridor Scroll Mini-Game & Aceternity Vortex Portal Transition
+    try {
+      const { startPortalMiniGame } = await import('./portal-minigame.js');
+      this.dismiss(true);
+      startPortalMiniGame({
+        autoAdvance: true,
+        onComplete: () => {
+          this.dismiss(true);
+        }
+      });
+    } catch (e) {
+      console.warn('[Startup] Fallback to direct dismiss:', e);
+      this.dismiss(true);
+    }
   }
 
-  dismiss() {
+  showLoginStage() {
+    const loginStage = document.getElementById('startup-login-stage');
+    const statusContainer = this.statusContainer || document.getElementById('startup-status-container');
+    const canvasContainer = this.canvasContainer || document.getElementById('startup-canvas-container');
+
+    if (canvasContainer) {
+      canvasContainer.classList.add('is-hidden');
+      canvasContainer.style.display = 'none';
+    }
+    if (statusContainer) {
+      statusContainer.style.display = 'none';
+    }
+    if (loginStage) {
+      loginStage.style.display = 'flex';
+      loginStage.classList.remove('stage-hiding');
+    }
+    this.readyToDismiss = false;
+    this.isDismissed = false;
+  }
+
+  hideLoginStage() {
+    const loginStage = document.getElementById('startup-login-stage');
+    if (loginStage) {
+      loginStage.classList.add('stage-hiding');
+      setTimeout(() => {
+        loginStage.style.display = 'none';
+      }, 350);
+    }
+
+    // Restore the Liquid Glass Logo Reveal & Status Pill for the loading screen before portal!
+    const canvasContainer = this.canvasContainer || document.getElementById('startup-canvas-container');
+    const statusContainer = this.statusContainer || document.getElementById('startup-status-container');
+
+    if (canvasContainer) {
+      canvasContainer.style.display = 'flex';
+      requestAnimationFrame(() => {
+        canvasContainer.classList.remove('is-hidden');
+      });
+    }
+    if (statusContainer) {
+      statusContainer.style.display = 'flex';
+    }
+
+    // Reset startup timer so the liquid glass logo bloom has full time to reveal
+    this.startTime = performance.now();
+    this.minDurationMs = 1800;
+
+    // Ensure render loop is active
+    if (!this.animId && this.renderer) {
+      this._startRenderLoop();
+    }
+  }
+
+  resetToLoginStage() {
+    if (this.dismissTimeout) {
+      clearTimeout(this.dismissTimeout);
+      this.dismissTimeout = null;
+    }
+    this.isDismissed = false;
+    this.readyToDismiss = false;
+    if (this.screenEl) {
+      this.screenEl.style.display = 'flex';
+      this.screenEl.style.opacity = '1';
+      this.screenEl.style.pointerEvents = 'auto';
+      this.screenEl.style.visibility = 'visible';
+      this.screenEl.classList.remove('loaded', 'dismissed');
+    }
+    this.showLoginStage();
+    if (this.cubesGrid) {
+      this.cubesGrid.resize();
+      this.cubesGrid.start();
+    }
+    if (!this.animId) {
+      this.startTime = performance.now();
+      if (!this.renderer) {
+        this._initWebGL().catch(() => {});
+      } else {
+        this._startRenderLoop();
+      }
+    }
+  }
+
+  dismiss(immediate = false) {
     if (this.isDismissed) return;
     this.isDismissed = true;
 
+    if (this.cubesGrid) {
+      this.cubesGrid.stop();
+    }
+    if (this.animId) {
+      cancelAnimationFrame(this.animId);
+      this.animId = null;
+    }
     if (this.screenEl) {
-      this.screenEl.classList.add('loaded');
-      setTimeout(() => {
-        if (this.animId) cancelAnimationFrame(this.animId);
-        if (this.renderer) this.renderer.destroy();
+      if (immediate) {
         this.screenEl.style.display = 'none';
-      }, 600);
+        this.screenEl.style.opacity = '0';
+        this.screenEl.style.pointerEvents = 'none';
+        this.screenEl.classList.add('loaded', 'dismissed');
+      } else {
+        this.screenEl.classList.add('loaded');
+        if (this.dismissTimeout) clearTimeout(this.dismissTimeout);
+        this.dismissTimeout = setTimeout(() => {
+          if (!this.isDismissed) return;
+          this.screenEl.style.display = 'none';
+        }, 450);
+      }
     }
   }
 }

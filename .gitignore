@@ -11,6 +11,7 @@ google_client_secret.json
 *21st*token*
 .21st/credentials*
 .21st/auth*
+.agents/mcp_config.json
 
 # Dependencies & Build artifacts
 node_modules/
@@ -21,3 +22,4 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+scripts/*.png

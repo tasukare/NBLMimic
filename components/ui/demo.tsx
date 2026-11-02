@@ -2,6 +2,7 @@
 
 import { GlassReveal21st, GlassRevealNBLMimic } from "@/components/ui/liquid-glass-logo-reveal"
 import GlassFolderCardsDemo from "@/components/ui/glass-folder-cards-demo"
+import LiquidNavbarDemo from "@/components/liquid-navbar-demo"
 
 export function GlassReveal21stDemo() {
   return <GlassReveal21st className="h-svh min-h-[420px] w-full" />
@@ -12,6 +13,6 @@ export function GlassRevealNBLMimicDemo() {
   return <GlassRevealNBLMimic className="h-svh min-h-[420px] w-full" />
 }
 
-export { GlassFolderCardsDemo }
+export { GlassFolderCardsDemo, LiquidNavbarDemo }
 
-export default GlassFolderCardsDemo
+export default LiquidNavbarDemo

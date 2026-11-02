@@ -110,7 +110,7 @@
 
 /* ── Dark Mode Palette (Obsidian Carbon) ── */
 [data-theme="dark"] {
-  --bg-canvas:        #0A0A0B; /* Deep obsidian background */
+  --bg-canvas:        #0B0B0D; /* Deep obsidian background */
   --bg-surface:       #111113; /* Dark carbon surface */
   --bg-elevated:      #18181B; /* Elevated surface / modals / cards */
   --bg-subtle:        #1A1A1E; /* Subtly raised elements */

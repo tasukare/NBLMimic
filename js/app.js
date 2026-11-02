@@ -6,7 +6,7 @@
 import { state } from './state.js';
 import { initTheme, toggleTheme, openModal, closeModal, closeAllModals, togglePopover, closePopover, showToast } from './ui.js';
 import { CryptoVault } from './crypto-vault.js';
-import { initUserSession, initDriveSession, fetchServerAuthConfig, fetchServerDriveConfig, loadGoogleDriveFiles, signOutUser, loginDemoAccount, handleDirectAuthSubmit, connectGoogleDrive, saveDriveWebAppUrl, getTokenTimeRemainingSec, revokeTokenAndDisconnect } from './auth-drive.js';
+import { initUserSession, initDriveSession, triggerGoogleSignIn, handleStartupEmailLogin, handleStartupDemoLogin, fetchServerAuthConfig, fetchServerDriveConfig, loadGoogleDriveFiles, signOutUser, switchAccount, loginDemoAccount, handleDirectAuthSubmit, connectGoogleDrive, saveDriveWebAppUrl, getTokenTimeRemainingSec, revokeTokenAndDisconnect } from './auth-drive.js';
 import { renderSources, updateCanvasView, viewDocument, loadDefaultWorkspaceSources, fetchWorldNews, navigateBackToFolders, switchCanvasMode } from './sources-reader.js';
 import { saveCustomFolder } from './glass-folder-cards.js';
 import { initChat, sendQuickPrompt, clearChatStream, generateAudioOverview } from './chat.js';
@@ -15,6 +15,7 @@ import { initNotes } from './notes.js';
 import { startupScreen } from './startup-screen.js';
 import { initLiquidGlass } from './liquid-glass.js';
 import { initBackgroundBeams } from './background-beams.js';
+import { initLiquidNavbar, initLiquidSearchBar } from './liquid-navbar.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // 0. Launch Liquid Glass Startup Screen immediately
@@ -61,7 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (state.get('isDriveConnected')) {
     startupScreen.setStatus('Loading connected Google Drive files...', 'loading');
-    await loadGoogleDriveFiles();
+    await Promise.race([
+      loadGoogleDriveFiles(),
+      new Promise(r => setTimeout(r, 2000))
+    ]).catch(() => {});
   } else {
     loadDefaultWorkspaceSources();
   }
@@ -94,8 +98,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   state.subscribe('searchQuery', () => renderSources());
   state.subscribe('viewMode', () => updateCanvasView());
 
-  // 5. Complete Startup Check & Transition
-  if (health.ok) {
+  // 5. Complete Startup Check & Transition (Fixes VULN-18: Authenticated verification via CryptoVault & Session)
+  const secureUser = await CryptoVault.getSecureItem('nbl_user_session');
+  const secureToken = await CryptoVault.getSecureItem('nbl_drive_token');
+  const sessionUser = sessionStorage.getItem('nbl_user_session');
+  const sessionToken = sessionStorage.getItem('nbl_drive_token_session');
+  const isAuthenticated = Boolean(secureUser || secureToken || sessionUser || sessionToken);
+
+  if (!isAuthenticated) {
+    // User is NOT authenticated -> Let the Liquid Glass Logo Reveal bloom for initial health check before showing Login Stage
+    const elapsed = performance.now() - startupScreen.startTime;
+    const initialBloomDelay = Math.max(0, 1600 - elapsed);
+    setTimeout(() => {
+      startupScreen.showLoginStage();
+    }, initialBloomDelay);
+  } else if (health.ok) {
     const msg = health.hasServerKey
       ? `Backend online · Gemini key pool active (${health.keyPoolSize || 1} keys)`
       : 'Backend online · Ready for client BYOK key';
@@ -180,22 +197,23 @@ async function refreshKeyTelemetry() {
 
   // 2. Server Key Pool Status
   try {
-    const res = await fetch('/api/keys/status');
+    const byokKey = state.get('geminiApiKey');
+    const url = byokKey ? `/api/keys/status?keys=${encodeURIComponent(byokKey)}` : '/api/keys/status';
+    const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
       if (poolEl) {
-        if (!data.hasServerKeys || data.poolSize === 0) {
-          poolEl.textContent = '0 Server Keys (BYOK)';
+        if (!data.poolSize || data.poolSize === 0) {
+          poolEl.textContent = '0 Keys (BYOK)';
           poolEl.style.color = 'var(--text-tertiary)';
         } else {
-          const cooldownCount = data.keys?.filter(k => k.cooldownRemainingSec > 0).length || 0;
-          if (cooldownCount > 0) {
-            poolEl.textContent = `Slot #${data.activeSlot} (${cooldownCount} Cooling)`;
-            poolEl.style.color = 'var(--warning)';
-          } else {
-            poolEl.textContent = `Pool: ${data.poolSize} Active · Slot #${data.activeSlot}`;
-            poolEl.style.color = 'var(--success)';
-          }
+          const currentKey = data.keys?.find(k => k.isActive) || data.keys?.[0];
+          const isCooling = currentKey?.status === 'cooling_down' || data.activeStatus === 'cooling_down';
+          const statusText = isCooling 
+            ? `Cooling Down (${currentKey?.cooldownRemainingSec || 60}s)` 
+            : 'Healthy';
+          poolEl.textContent = `Slot ${data.activeSlot}/${data.poolSize} · ${statusText}`;
+          poolEl.style.color = isCooling ? 'var(--warning)' : 'var(--success)';
         }
       }
     }
@@ -313,13 +331,253 @@ function bindGlobalEvents() {
     };
   }
 
-  // Toggle Right Studio Panel
+  // ── Research Chat Panel State, Draggable Pill & Aceternity Expandable Card Morph ──
+  const paneStudio = document.getElementById('pane-studio');
   const btnToggleStudio = document.getElementById('btn-toggle-studio');
-  if (btnToggleStudio) {
-    btnToggleStudio.onclick = () => {
-      shell.classList.toggle('sidepanel-collapsed');
-    };
+  const btnCloseStudio = document.getElementById('btn-close-studio');
+  const btnReopenStudio = document.getElementById('btn-reopen-studio');
+
+  // Restore saved position of the draggable chat pill
+  const restoreChatPillPos = () => {
+    if (!btnReopenStudio) return;
+    const savedPos = localStorage.getItem('nbl_chat_pill_pos');
+    if (savedPos) {
+      try {
+        const { top, left } = JSON.parse(savedPos);
+        const maxX = window.innerWidth - 180;
+        const maxY = window.innerHeight - 56;
+        const clampedTop = Math.max(12, Math.min(maxY, top));
+        const clampedLeft = Math.max(12, Math.min(maxX, left));
+        btnReopenStudio.style.top = `${clampedTop}px`;
+        btnReopenStudio.style.left = `${clampedLeft}px`;
+        btnReopenStudio.style.right = 'auto';
+        btnReopenStudio.style.bottom = 'auto';
+        btnReopenStudio.classList.add('is-custom-pos');
+      } catch (e) {}
+    }
+  };
+  restoreChatPillPos();
+
+  // Restore saved open/collapsed state (Remember where user left off)
+  const savedPanelState = localStorage.getItem('nbl_chat_panel_state');
+  if (savedPanelState === 'collapsed') {
+    shell.classList.add('sidepanel-collapsed');
+    if (btnToggleStudio) {
+      btnToggleStudio.classList.add('is-collapsed');
+      btnToggleStudio.title = 'Toggle Auxiliary Pane (Ctrl+Shift+B)';
+      btnToggleStudio.setAttribute('aria-label', 'Open Auxiliary Pane (Ctrl+Shift+B)');
+    }
+  } else {
+    shell.classList.remove('sidepanel-collapsed');
+    if (btnToggleStudio) {
+      btnToggleStudio.classList.remove('is-collapsed');
+      btnToggleStudio.title = 'Toggle Auxiliary Pane (Ctrl+Shift+B)';
+      btnToggleStudio.setAttribute('aria-label', 'Close Auxiliary Pane (Ctrl+Shift+B)');
+    }
   }
+
+  let isStudioAnimating = false;
+
+  const toggleStudio = (forceState) => {
+    if (isStudioAnimating) return;
+    const isCurrentlyCollapsed = shell.classList.contains('sidepanel-collapsed');
+    const willBeCollapsed = typeof forceState === 'boolean' ? !forceState : !isCurrentlyCollapsed;
+
+    if (willBeCollapsed === isCurrentlyCollapsed) return;
+
+    const paneCanvas = document.getElementById('pane-canvas');
+    if (paneCanvas) paneCanvas.style.width = '';
+
+    if (!willBeCollapsed) {
+      // ── Expand into Chat Space (Aceternity Expandable Card Shared-Element Morph) ──
+      const originRect = btnReopenStudio ? btnReopenStudio.getBoundingClientRect() : null;
+
+      shell.classList.remove('sidepanel-collapsed');
+      localStorage.setItem('nbl_chat_panel_state', 'open');
+
+      if (btnToggleStudio) {
+        btnToggleStudio.classList.remove('is-collapsed');
+        btnToggleStudio.title = 'Toggle Auxiliary Pane (Ctrl+Shift+B)';
+        btnToggleStudio.setAttribute('aria-label', 'Close Auxiliary Pane (Ctrl+Shift+B)');
+      }
+
+      if (paneStudio && originRect && originRect.width > 0 && window.innerWidth > 640) {
+        isStudioAnimating = true;
+        const targetRect = paneStudio.getBoundingClientRect();
+        const scaleX = originRect.width / Math.max(targetRect.width, 1);
+        const scaleY = originRect.height / Math.max(targetRect.height, 1);
+        const deltaX = (originRect.left + originRect.width / 2) - (targetRect.left + targetRect.width / 2);
+        const deltaY = (originRect.top + originRect.height / 2) - (targetRect.top + targetRect.height / 2);
+
+        paneStudio.style.willChange = 'transform, opacity, border-radius';
+
+        const openMorph = paneStudio.animate([
+          {
+            transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`,
+            borderRadius: '24px',
+            opacity: 0.85
+          },
+          {
+            transform: 'translate3d(0, 0, 0) scale(1, 1)',
+            borderRadius: '0px',
+            opacity: 1
+          }
+        ], {
+          duration: 250,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'forwards'
+        });
+
+        openMorph.onfinish = () => {
+          openMorph.cancel();
+          paneStudio.style.willChange = '';
+          isStudioAnimating = false;
+          const composerInput = document.getElementById('composer-textarea');
+          if (composerInput) composerInput.focus();
+        };
+      } else {
+        const composerInput = document.getElementById('composer-textarea');
+        if (composerInput) composerInput.focus();
+      }
+    } else {
+      // ── Minimize back to the Pill (Aceternity Expandable Card Collapse) ──
+      const targetRect = btnReopenStudio ? btnReopenStudio.getBoundingClientRect() : null;
+      const originRect = paneStudio ? paneStudio.getBoundingClientRect() : null;
+
+      if (btnToggleStudio) {
+        btnToggleStudio.classList.add('is-collapsed');
+        btnToggleStudio.title = 'Toggle Auxiliary Pane (Ctrl+Shift+B)';
+        btnToggleStudio.setAttribute('aria-label', 'Open Auxiliary Pane (Ctrl+Shift+B)');
+      }
+
+      if (paneStudio && targetRect && originRect && targetRect.width > 0 && window.innerWidth > 640) {
+        isStudioAnimating = true;
+        const scaleX = targetRect.width / Math.max(originRect.width, 1);
+        const scaleY = targetRect.height / Math.max(originRect.height, 1);
+        const deltaX = (targetRect.left + targetRect.width / 2) - (originRect.left + originRect.width / 2);
+        const deltaY = (targetRect.top + targetRect.height / 2) - (originRect.top + originRect.height / 2);
+
+        paneStudio.style.willChange = 'transform, opacity, border-radius';
+
+        const closeMorph = paneStudio.animate([
+          {
+            transform: 'translate3d(0, 0, 0) scale(1, 1)',
+            borderRadius: '0px',
+            opacity: 1
+          },
+          {
+            transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`,
+            borderRadius: '24px',
+            opacity: 0.8
+          }
+        ], {
+          duration: 220,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'forwards'
+        });
+
+        closeMorph.onfinish = () => {
+          closeMorph.cancel();
+          paneStudio.style.willChange = '';
+          shell.classList.add('sidepanel-collapsed');
+          localStorage.setItem('nbl_chat_panel_state', 'collapsed');
+          isStudioAnimating = false;
+        };
+      } else {
+        shell.classList.add('sidepanel-collapsed');
+        localStorage.setItem('nbl_chat_panel_state', 'collapsed');
+      }
+    }
+  };
+
+  if (btnToggleStudio) {
+    btnToggleStudio.onclick = () => toggleStudio();
+  }
+
+  if (btnCloseStudio) {
+    btnCloseStudio.onclick = () => toggleStudio(false);
+  }
+
+  // ── Drag & Reposition Handler for the Research Chat Pill ──
+  if (btnReopenStudio) {
+    let isPointerDown = false;
+    let isDragging = false;
+    let hasMoved = false;
+    let startX = 0, startY = 0;
+    let initialRect = null;
+
+    btnReopenStudio.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      isPointerDown = true;
+      hasMoved = false;
+      isDragging = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      initialRect = btnReopenStudio.getBoundingClientRect();
+      btnReopenStudio.setPointerCapture(e.pointerId);
+    });
+
+    btnReopenStudio.addEventListener('pointermove', (e) => {
+      if (!isPointerDown) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (!hasMoved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        hasMoved = true;
+        isDragging = true;
+        btnReopenStudio.classList.add('is-dragging');
+        btnReopenStudio.classList.add('is-custom-pos');
+      }
+
+      if (isDragging && initialRect) {
+        let newLeft = initialRect.left + dx;
+        let newTop = initialRect.top + dy;
+        const maxX = window.innerWidth - btnReopenStudio.offsetWidth - 12;
+        const maxY = window.innerHeight - btnReopenStudio.offsetHeight - 12;
+        newLeft = Math.max(12, Math.min(maxX, newLeft));
+        newTop = Math.max(12, Math.min(maxY, newTop));
+
+        btnReopenStudio.style.left = `${newLeft}px`;
+        btnReopenStudio.style.top = `${newTop}px`;
+        btnReopenStudio.style.right = 'auto';
+        btnReopenStudio.style.bottom = 'auto';
+      }
+    });
+
+    const onPointerUp = (e) => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      try { btnReopenStudio.releasePointerCapture(e.pointerId); } catch(err) {}
+
+      if (isDragging) {
+        isDragging = false;
+        btnReopenStudio.classList.remove('is-dragging');
+        const rect = btnReopenStudio.getBoundingClientRect();
+        localStorage.setItem('nbl_chat_pill_pos', JSON.stringify({ top: rect.top, left: rect.left }));
+        setTimeout(() => { hasMoved = false; }, 80);
+      }
+    };
+
+    btnReopenStudio.addEventListener('pointerup', onPointerUp);
+    btnReopenStudio.addEventListener('pointercancel', onPointerUp);
+
+    btnReopenStudio.addEventListener('click', (e) => {
+      if (hasMoved) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      toggleStudio(true);
+    });
+  }
+
+  // Global Keyboard Shortcut: Ctrl+Shift+B (Toggle Auxiliary Pane)
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === 'KeyB' || e.key === 'B' || e.key === 'b')) {
+      e.preventDefault();
+      toggleStudio();
+    }
+  });
 
   // Theme Switcher
   const btnTheme = document.getElementById('btn-theme-toggle');
@@ -347,7 +605,7 @@ function bindGlobalEvents() {
 
   // Header Sign-in Button (Direct 1-Click Connect)
   const btnHeaderSignin = document.getElementById('btn-header-signin');
-  if (btnHeaderSignin) btnHeaderSignin.onclick = () => connectGoogleDrive();
+  if (btnHeaderSignin) btnHeaderSignin.onclick = () => { const appShell = document.getElementById('app-shell'); if (appShell) { appShell.classList.add('app-shell-preauth'); appShell.style.opacity = '0'; appShell.style.pointerEvents = 'none'; } startupScreen.resetToLoginStage(); };
 
   // Header Dedicated Drive Connect Button
   const btnHeaderDrive = document.getElementById('btn-header-connect-drive');
@@ -491,7 +749,7 @@ function bindGlobalEvents() {
   const btnPopoverSwitch = document.getElementById('btn-popover-switch-account');
   if (btnPopoverSwitch) btnPopoverSwitch.onclick = () => {
     closePopover();
-    openModal('auth-modal');
+    switchAccount();
   };
 
   const btnPopoverSignout = document.getElementById('btn-popover-signout');
@@ -647,6 +905,27 @@ function bindGlobalEvents() {
   setupSlidingPillTabs('.canvas-mode-switcher', '.canvas-mode-btn');
   setupSlidingPillTabs('.studio-segmented-tabs', '.studio-tab-btn');
 
+  // Nimbus UI · Liquid Waterline for Canvas Mode Switcher & Search Bar
+  const canvasModeSwitcher = document.querySelector('.canvas-mode-switcher');
+  if (canvasModeSwitcher) {
+    const liquidNav = initLiquidNavbar(canvasModeSwitcher, {
+      itemSelector: '.canvas-mode-btn',
+      onSelect: (idx, el, mode) => {
+        if (mode === 'folders' && state.get('viewMode') !== 'folders') {
+          navigateBackToFolders(true);
+        } else if (mode) {
+          switchCanvasMode(mode);
+        }
+      }
+    });
+    window.canvasModeLiquidNav = liquidNav;
+  }
+
+  const searchTrigger = document.getElementById('spotlight-search-trigger');
+  if (searchTrigger) {
+    initLiquidSearchBar(searchTrigger);
+  }
+
   // Quick Action Suggestion Chips in Composer Dock
   const btnQuickOverview = document.getElementById('btn-chip-audio-overview');
   if (btnQuickOverview) btnQuickOverview.onclick = generateAudioOverview;
@@ -714,15 +993,22 @@ function bindGlobalEvents() {
     btnRotateKey.onclick = async () => {
       btnRotateKey.disabled = true;
       try {
-        const res = await fetch('/api/keys/rotate', { method: 'POST' });
+        const byokKey = state.get('geminiApiKey');
+        const url = byokKey ? `/api/keys/rotate?keys=${encodeURIComponent(byokKey)}` : '/api/keys/rotate';
+        const res = await fetch(url, { method: 'POST' });
         const data = await res.json();
         if (data.ok) {
-          showToast(`Rotated to Server Key Slot #${data.activeSlot} (${data.keyPreview || ''})`);
+          const currentKey = data.keys?.find(k => k.isActive) || data.keys?.[0];
+          const isCooling = currentKey?.status === 'cooling_down' || data.activeStatus === 'cooling_down';
+          const statusText = isCooling 
+            ? `Cooling Down (${currentKey?.cooldownRemainingSec || 60}s)` 
+            : 'Healthy';
+          showToast(`Rotated to Slot #${data.activeSlot}/${data.poolSize} (${data.keyPreview || ''}) · ${statusText}`);
         } else {
           showToast(`Rotation: ${data.message || data.error || 'Pool unchanged'}`);
         }
       } catch (e) {
-        showToast('Failed to rotate server key');
+        showToast('Failed to rotate API key');
       } finally {
         btnRotateKey.disabled = false;
         refreshKeyTelemetry();
@@ -855,11 +1141,47 @@ function bindGlobalEvents() {
     };
   }
 
+  // Origin check for Google OAuth requirement (http://localhost:3000)
+  const isLoopbackIp = window.location.hostname === '127.0.0.1';
+  const isFileProto = window.location.protocol === 'file:';
+  const originBanner = document.getElementById('login-origin-banner');
+  const btnOriginSwitch = document.getElementById('btn-origin-switch');
+
+  if (originBanner && (isLoopbackIp || isFileProto)) {
+    originBanner.style.display = 'flex';
+    if (btnOriginSwitch) {
+      btnOriginSwitch.onclick = () => {
+        const port = window.location.port || '3000';
+        window.location.href = `http://localhost:${port}/index.html`;
+      };
+    }
+  }
+
+  // Stage 1 Startup Login Handlers
+  const btnStartupGoogle = document.getElementById('btn-startup-google-login');
+  if (btnStartupGoogle) {
+    btnStartupGoogle.onclick = () => {
+      triggerGoogleSignIn();
+    };
+  }
+
+  const formStartupEmail = document.getElementById('form-startup-email-login');
+  if (formStartupEmail) {
+    formStartupEmail.onsubmit = handleStartupEmailLogin;
+  }
+
+  const btnStartupDemo = document.getElementById('btn-startup-demo-login');
+  if (btnStartupDemo) {
+    btnStartupDemo.onclick = () => {
+      handleStartupDemoLogin();
+    };
+  }
+
   const btnModalGoogle = document.getElementById('btn-auth-google');
   if (btnModalGoogle) {
     btnModalGoogle.onclick = () => {
       closeModal('auth-modal');
-      connectGoogleDrive();
+      triggerGoogleSignIn();
     };
   }
 

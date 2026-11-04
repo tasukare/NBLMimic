@@ -8,7 +8,6 @@
     "dev": "node server.js"
   },
   "dependencies": {
-    "@tabler/icons-react": "^3.31.0",
     "@types/three": "^0.187.0",
     "clsx": "^2.1.1",
     "motion": "^12.43.0",

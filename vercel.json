@@ -2,17 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "server.js": {
-      "includeFiles": [
-        "css/**",
-        "js/**",
-        "avatars/**",
-        "components/**",
-        "*.html",
-        "*.svg",
-        "*.png",
-        "*.ico",
-        "*.json"
-      ]
+      "includeFiles": "{css/**,js/**,avatars/**,components/**,*.html,*.svg,*.png,*.ico,*.json}"
     }
   },
   "rewrites": [

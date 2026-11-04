@@ -318,17 +318,18 @@ function serveStaticFile(req, res, pathname) {
   }
 
   // 1. Path Canonicalization & Root Boundary Validation
-  const rootDirWithSep = __dirname.endsWith(path.sep) ? __dirname : __dirname + path.sep;
-  const resolvedPath = path.resolve(__dirname, '.' + path.normalize(cleanPath));
+  const baseDir = fs.existsSync(path.join(process.cwd(), 'index.html')) ? process.cwd() : __dirname;
+  const rootDirWithSep = baseDir.endsWith(path.sep) ? baseDir : baseDir + path.sep;
+  const resolvedPath = path.resolve(baseDir, '.' + path.normalize(cleanPath));
 
-  if (!resolvedPath.startsWith(rootDirWithSep) && resolvedPath !== __dirname) {
+  if (!resolvedPath.startsWith(rootDirWithSep) && resolvedPath !== baseDir) {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('404 Not Found');
     return;
   }
 
   // 2. Dotfile and Hidden Directory Defense
-  const relativeSegments = path.relative(__dirname, resolvedPath).split(path.sep);
+  const relativeSegments = path.relative(baseDir, resolvedPath).split(path.sep);
   const containsDotSegment = relativeSegments.some(seg => seg.startsWith('.'));
   if (containsDotSegment) {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });

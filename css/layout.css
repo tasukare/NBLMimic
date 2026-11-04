@@ -341,32 +341,6 @@ svg {
     margin: 0 var(--space-3);
     min-width: 160px;
   }
-  /* Dock chat pill at bottom-right instead of middle of screen */
-  .btn-dock-open-chat,
-  .sidepanel-collapsed .btn-dock-open-chat {
-    top: auto !important;
-    bottom: 24px !important;
-    right: 24px !important;
-    transform: none !important;
-    border-radius: 9999px !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.22) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
-    padding: 8px 14px 8px 12px !important;
-  }
-  [data-theme="light"] .btn-dock-open-chat,
-  [data-theme="light"] .sidepanel-collapsed .btn-dock-open-chat {
-    border-right: 1px solid rgba(0, 0, 0, 0.14) !important;
-  }
-  .dock-chat-kbd {
-    display: none !important;
-  }
-  .btn-dock-open-chat:hover:not(.is-dragging) {
-    transform: translateY(-2px) !important;
-  }
-  .liquid-notes-bubble {
-    bottom: 80px !important;
-    right: 24px !important;
-  }
 }
 
 @media (max-width: 900px) {
@@ -770,4 +744,48 @@ body.is-scrolling .mobile-bottom-nav {
 .sidepanel-collapsed #btn-toggle-studio {
   background: var(--bg-elevated);
   border-color: var(--border-strong);
+}
+
+/* ── Responsive Tablet & Mobile Dock Overrides (Definitive cascade at end of file) ── */
+@media (max-width: 1366px) {
+  .btn-dock-open-chat,
+  .sidepanel-collapsed .btn-dock-open-chat {
+    top: auto !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    transform: none !important;
+    border-radius: 9999px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    padding: 8px 14px 8px 12px !important;
+  }
+
+  [data-theme="light"] .btn-dock-open-chat,
+  [data-theme="light"] .sidepanel-collapsed .btn-dock-open-chat {
+    border-right: 1px solid rgba(0, 0, 0, 0.14) !important;
+  }
+
+  .dock-chat-kbd {
+    display: none !important;
+  }
+
+  .btn-dock-open-chat:hover:not(.is-dragging) {
+    transform: translateY(-2px) !important;
+  }
+
+  .liquid-notes-bubble {
+    bottom: 76px !important;
+    right: 24px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .btn-dock-open-chat,
+  .sidepanel-collapsed .btn-dock-open-chat {
+    display: none !important;
+  }
+  .liquid-notes-bubble {
+    right: 16px !important;
+    bottom: calc(var(--mobile-nav-height, 56px) + 14px + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }

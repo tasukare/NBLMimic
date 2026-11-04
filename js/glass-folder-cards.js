@@ -1905,7 +1905,9 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
   // Gallery Grid
   const grid = document.createElement("div");
   grid.className = "gf-gallery-grid";
-  const cardW = 345;
+  const cardW = (typeof window !== 'undefined' && window.innerWidth <= 640)
+    ? Math.min(335, Math.max(280, window.innerWidth - 32))
+    : 335;
 
   // Render Default Format Collections
   DEFAULT_FORMAT_FOLDERS.forEach((folderDef) => {

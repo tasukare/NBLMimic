@@ -126,11 +126,11 @@
 
 .gf-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  justify-items: center;
+  grid-template-columns: repeat(auto-fit, 335px);
+  justify-content: center;
   align-items: end;
   gap: 28px 24px;
-  max-width: 1060px;
+  max-width: 1120px;
   width: 100%;
   margin: 0 auto;
   perspective: 1400px;
@@ -138,6 +138,8 @@
 }
 
 .gf-root {
+  max-width: 100%;
+  box-sizing: border-box;
   --gf-px: 0;
   --gf-py: 0;
   --gf-ease: cubic-bezier(.2, .8, .2, 1);
@@ -751,9 +753,9 @@ canvas.gf-art[data-ready] {
 
 /* ── Interactive + Add Folder Card in Grid ── */
 .gf-add-folder-card {
-  width: 300px;
+  width: 335px;
   max-width: 100%;
-  height: 272px;
+  height: 320px;
   border-radius: 20px;
   border: 1.5px dashed var(--border-strong);
   background: var(--bg-surface);
@@ -1676,13 +1678,14 @@ body.is-scrolling .gf-front {
   transform: none !important;
 }
 
-/* ── 2-Column Breakpoint for Medium Tablets & iPads (max-width: 1140px) ── */
+/* ── 2-Column Responsive Layout for Tablets & iPads (max-width: 1140px) ── */
 @media (max-width: 1140px) {
   .gf-gallery-grid,
   .sidepanel-collapsed .gf-gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 335px)) !important;
+    justify-content: center !important;
     gap: 28px 24px !important;
-    max-width: 720px !important;
+    max-width: 740px !important;
     margin: 0 auto !important;
   }
 }

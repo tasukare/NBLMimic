@@ -1343,3 +1343,165 @@
 .swatch-verdant {
   background: linear-gradient(135deg, #059669, #10b981, #6ee7b7);
 }
+
+/* ==========================================================================
+   Responsive Adaptations for Components (Smartphones & Tablets)
+   ========================================================================== */
+
+/* ── Tablet Refinements (max-width: 1024px) ── */
+@media (max-width: 1024px) {
+  /* Hide verbose text labels in header buttons */
+  .btn-live-voice span:not(.indicator-pulse-dot),
+  .btn-live-news span:not(.indicator-pulse-dot),
+  .btn-header-add-source span,
+  .btn-drive-connect-pill #label-header-drive {
+    display: none;
+  }
+
+  .btn-live-voice,
+  .btn-live-news,
+  .btn-header-add-source,
+  .btn-drive-connect-pill {
+    padding: 0 8px;
+    height: 30px;
+  }
+
+  .header-liquid-badge .badge-tag {
+    display: none;
+  }
+
+  .world-news-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* ── Smartphone Refinements (max-width: 768px) ── */
+@media (max-width: 768px) {
+  /* Header Touch Targets & Compact Layout */
+  .header-right {
+    gap: 3px;
+  }
+
+  .btn-live-voice,
+  .btn-live-news,
+  .btn-header-add-source,
+  .btn-drive-connect-pill,
+  .btn-icon {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Compact Spotlight Search Trigger */
+  .spotlight-trigger {
+    height: 32px;
+    padding: 0 8px;
+  }
+
+  .spotlight-kbd {
+    display: none !important;
+  }
+
+  /* Modals on Mobile Viewports */
+  .modal-backdrop {
+    padding: 10px;
+    align-items: center;
+  }
+
+  .modal-card {
+    max-width: 100%;
+    max-height: calc(100dvh - 30px);
+    overflow-y: auto;
+    padding: var(--space-4) 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    margin-bottom: var(--space-3);
+  }
+
+  .modal-title-group h2 {
+    font-size: var(--text-base);
+  }
+
+  /* Form Elements Touch Usability */
+  .form-input,
+  .form-textarea {
+    font-size: 15px; /* Prevents unwanted iOS auto-zoom */
+    padding: 8px 10px;
+  }
+
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .folder-theme-picker {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .theme-option {
+    padding: 6px 4px;
+    font-size: 10.5px;
+  }
+
+  /* World News on Smartphone */
+  .world-news-container {
+    padding: 10px 8px 60px 8px;
+  }
+
+  .world-news-header {
+    margin-bottom: 12px;
+  }
+
+  .world-news-title {
+    font-size: 20px;
+  }
+
+  .world-news-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 4px 0 24px 0;
+  }
+
+  .news-card {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .news-filters-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .news-filters-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Toast Stack on Mobile */
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: calc(var(--mobile-nav-height, 56px) + 12px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-width: none;
+  }
+
+  .toast {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .folder-theme-picker {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1233,3 +1233,46 @@
 .sidepanel-collapsed .liquid-notes-bubble {
   right: 28px !important;
 }
+
+/* ── Mobile Adaptations for Liquid Notes ── */
+@media (max-width: 768px) {
+  .liquid-notes-bubble {
+    right: 16px !important;
+    bottom: calc(var(--mobile-nav-height, 56px) + 14px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 46px;
+    height: 46px;
+  }
+
+  .notes-expandable-card {
+    width: calc(100vw - 16px) !important;
+    height: calc(100dvh - 32px) !important;
+    margin: 8px auto !important;
+    border-radius: 16px;
+  }
+
+  .notes-expandable-banner {
+    padding: 12px 14px;
+  }
+
+  .notes-expandable-title {
+    font-size: 16px;
+  }
+
+  .notes-expandable-toolbar {
+    padding: 6px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .notes-expandable-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .notes-expandable-footer {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

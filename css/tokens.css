@@ -92,6 +92,13 @@
   --sidebar-width:    280px;
   --sidepanel-width:  380px;
   --measure-prose:    65ch;
+  --mobile-nav-height: 56px;
+
+  /* Safe Area Insets for Mobile / Notches */
+  --sat:              env(safe-area-inset-top, 0px);
+  --sar:              env(safe-area-inset-right, 0px);
+  --sab:              env(safe-area-inset-bottom, 0px);
+  --sal:              env(safe-area-inset-left, 0px);
 
   /* Transitions (Strict 100-180ms ease, zero bouncy transforms) */
   --transition-fast:    100ms ease;

@@ -11,7 +11,7 @@ import { renderSources, updateCanvasView, viewDocument, loadDefaultWorkspaceSour
 import { saveCustomFolder } from './glass-folder-cards.js';
 import { initChat, sendQuickPrompt, clearChatStream, generateAudioOverview } from './chat.js';
 import { initLiveVoice } from './live-voice.js';
-import { initNotes } from './notes.js';
+import { initNotes, toggleNotesCard } from './notes.js';
 import { startupScreen } from './startup-screen.js';
 import { initLiquidGlass } from './liquid-glass.js';
 import { initBackgroundBeams } from './background-beams.js';
@@ -360,7 +360,8 @@ function bindGlobalEvents() {
 
   // Restore saved open/collapsed state (Remember where user left off)
   const savedPanelState = localStorage.getItem('nbl_chat_panel_state');
-  if (savedPanelState === 'collapsed') {
+  const isMobileInitial = window.innerWidth <= 768;
+  if (savedPanelState === 'collapsed' || (!savedPanelState && isMobileInitial)) {
     shell.classList.add('sidepanel-collapsed');
     if (btnToggleStudio) {
       btnToggleStudio.classList.add('is-collapsed');
@@ -497,6 +498,76 @@ function bindGlobalEvents() {
   if (btnCloseStudio) {
     btnCloseStudio.onclick = () => toggleStudio(false);
   }
+
+  const btnMobileStudioBack = document.getElementById('btn-mobile-studio-back');
+  if (btnMobileStudioBack) {
+    btnMobileStudioBack.onclick = () => toggleStudio(false);
+  }
+
+  // ── Mobile Bottom Navigation Bar Controller (< 768px) ──
+  const initMobileNavigation = () => {
+    const mobileNav = document.getElementById('mobile-bottom-nav');
+    if (!mobileNav) return;
+
+    const navButtons = mobileNav.querySelectorAll('.mobile-nav-btn');
+
+    const updateMobileNavActive = (activeKey) => {
+      navButtons.forEach(btn => {
+        const tab = btn.getAttribute('data-mobile-tab');
+        if (tab === activeKey) {
+          btn.classList.add('is-active');
+        } else {
+          btn.classList.remove('is-active');
+        }
+      });
+    };
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-mobile-tab');
+        if (tab === 'chat') {
+          toggleStudio(true);
+          updateMobileNavActive('chat');
+        } else if (tab === 'notes') {
+          const originEl = document.getElementById('btn-notes-bubble') || btn;
+          toggleNotesCard(originEl);
+        } else {
+          // Close studio on mobile when user switches to a canvas tab
+          if (!shell.classList.contains('sidepanel-collapsed')) {
+            toggleStudio(false);
+          }
+          if (tab === 'folders') {
+            navigateBackToFolders();
+          } else if (tab === 'reader') {
+            switchCanvasMode('reader');
+          } else if (tab === 'news') {
+            switchCanvasMode('news');
+          }
+          updateMobileNavActive(tab);
+        }
+      });
+    });
+
+    // Update active tab when state viewMode changes
+    state.subscribe('viewMode', (mode) => {
+      if (shell.classList.contains('sidepanel-collapsed')) {
+        updateMobileNavActive(mode);
+      }
+    });
+
+    // Observe open/close transitions of the sidepanel to keep bottom nav in sync
+    const observer = new MutationObserver(() => {
+      const isChatOpen = !shell.classList.contains('sidepanel-collapsed');
+      if (isChatOpen) {
+        updateMobileNavActive('chat');
+      } else {
+        updateMobileNavActive(state.get('viewMode') || 'folders');
+      }
+    });
+    observer.observe(shell, { attributes: true, attributeFilter: ['class'] });
+  };
+
+  initMobileNavigation();
 
   // ── Drag & Reposition Handler for the Research Chat Pill ──
   if (btnReopenStudio) {

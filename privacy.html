@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Privacy Policy for Research Lab (NBLMimic) — Client-side privacy architecture, Google OAuth2 data handling, and Limited Use disclosures.">
+  <meta name="theme-color" content="#0b0b0d">
+  <title>Privacy Policy — Research Lab (NBLMimic)</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    .policy-nav {
+      position: sticky;
+      top: 0;
+      z-index: var(--z-header);
+      background-color: var(--bg-canvas);
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .policy-nav-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: var(--space-3) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+
+    .brand-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1-5);
+      padding: var(--space-1-5) var(--space-3);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    /* Main Article Container */
+    .policy-wrapper {
+      flex: 1;
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: var(--space-10) var(--space-6) var(--space-12);
+    }
+
+    .policy-header {
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .policy-kicker {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-2);
+    }
+
+    .policy-title {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text-primary);
+      line-height: 1.2;
+      margin-bottom: var(--space-3);
+    }
+
+    .policy-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    /* Editorial Prose Styling */
+    .prose-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .prose-section h2 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .prose-section p {
+      font-family: var(--font-prose);
+      font-size: var(--text-prose);
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+    }
+
+    .prose-section ul {
+      margin-left: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+
+    .prose-section li {
+      font-family: var(--font-prose);
+      font-size: var(--text-prose);
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .prose-section strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Callout & Disclosure Box */
+    .callout-box {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin: var(--space-6) 0;
+    }
+
+    .callout-box.highlight {
+      border-color: var(--border-focus);
+      background-color: var(--bg-elevated);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .callout-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--citation);
+      margin-bottom: var(--space-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1-5);
+    }
+
+    .callout-body {
+      font-family: var(--font-prose);
+      font-size: var(--text-base);
+      line-height: 1.65;
+      color: var(--text-primary);
+    }
+
+    /* Code Pills & Badges */
+    .scope-pill {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      padding: 2px 6px;
+      border-radius: var(--radius-xs);
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    /* Footer */
+    .policy-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: var(--space-6) var(--space-6);
+      text-align: center;
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+
+    .policy-footer a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .policy-footer a:hover {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="policy-nav">
+    <div class="policy-nav-inner">
+      <a href="index.html" class="brand-group" aria-label="Research Lab Home">
+        <div class="brand-mark">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+            <path d="M6 6h10"/>
+            <path d="M6 10h10"/>
+          </svg>
+        </div>
+        <span class="brand-title">Research Lab (NBLMimic)</span>
+      </a>
+
+      <div class="nav-actions">
+        <button id="theme-toggle-btn" class="nav-btn" type="button" aria-label="Toggle theme">
+          <svg id="theme-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="m4.93 4.93 1.41 1.41"/>
+            <path d="m17.66 17.66 1.41 1.41"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+            <path d="m6.34 17.66-1.41 1.41"/>
+            <path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <span id="theme-label">Theme</span>
+        </button>
+        <a href="terms.html" class="nav-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          <span>Terms of Service</span>
+        </a>
+        <a href="index.html" class="nav-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+          <span>Return to Workspace</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Document Body -->
+  <main class="policy-wrapper">
+    <header class="policy-header">
+      <div class="policy-kicker">Legal &amp; Privacy Compliance</div>
+      <h1 class="policy-title">Privacy Policy</h1>
+      <div class="policy-meta">
+        <span>Application: Research Lab (NBLMimic)</span>
+        <span>&bull;</span>
+        <span>Effective Date: November 4, 2026</span>
+        <span>&bull;</span>
+        <span>Architecture: Zero-Tracker / Client-Side</span>
+      </div>
+    </header>
+
+    <!-- Section 1: Overview -->
+    <section class="prose-section">
+      <h2>1. Overview and Core Philosophy</h2>
+      <p>
+        <strong>Research Lab (NBLMimic)</strong> is a privacy-first, self-hosted research and knowledge workspace inspired by Google NotebookLM. Our software is engineered around client-side cryptography, local storage primitives, and user-owned cloud services.
+      </p>
+      <p>
+        We believe that your personal notes, research artifacts, academic inquiries, and cloud files belong exclusively to you. The application operates directly in your browser and communicates with Google APIs using your explicit authorization. We run no centralized tracking servers, collect no telemetry, and do not profile or monetize your personal information.
+      </p>
+    </section>
+
+    <!-- Section 2: Google User Data -->
+    <section class="prose-section">
+      <h2>2. Information We Access and Collect</h2>
+      <p>
+        When you choose to connect your Google account to Research Lab, the application requests access to specific Google services via Google Identity Services (OAuth 2.0). We access only the permissions strictly required to execute user-initiated actions:
+      </p>
+      <ul>
+        <li>
+          <strong>Google Account Identity:</strong> When authenticating via Google Identity Services, we receive basic profile attributes (name, email address, and profile picture avatar) strictly to display your active identity in the workspace header.
+        </li>
+        <li>
+          <strong>Google Drive Read Access (<code class="scope-pill">drive.readonly</code>):</strong> Allows you to browse, search, and import your own documents (PDFs, Google Docs, text files) into your active research session as reference sources.
+        </li>
+        <li>
+          <strong>Google Drive App File Creation (<code class="scope-pill">drive.file</code>):</strong> Allows the application to save, synchronize, and update your research notes, lab archives, and generated notebooks directly in your personal Google Drive storage.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 3: How We Use Information -->
+    <section class="prose-section">
+      <h2>3. How We Use Google User Data</h2>
+      <p>
+        Information accessed from Google APIs is processed exclusively within your local browser session for the following explicit purposes:
+      </p>
+      <ul>
+        <li>Parsing document text to provide contextual grounding for research inquiries and multi-source summaries.</li>
+        <li>Writing and maintaining your personal research notebook backups in your designated Google Drive folder.</li>
+        <li>Maintaining your authenticated session across browser reloads without requiring centralized login credentials.</li>
+      </ul>
+      <p>
+        <strong>We never sell, rent, monetize, or transfer your Google user data to data brokers, ad exchanges, or external commercial databases.</strong>
+      </p>
+    </section>
+
+    <!-- Section 4: Limited Use Policy (Mandatory Google Disclosure) -->
+    <section class="prose-section">
+      <h2>4. Google API Services User Data Policy Compliance</h2>
+      <div class="callout-box highlight">
+        <div class="callout-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          Google Limited Use Disclosure
+        </div>
+        <div class="callout-body">
+          Research Lab (NBLMimic)'s use and transfer to any other app of information received from Google APIs will adhere to the 
+          <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" style="color: var(--citation); text-decoration: underline;">Google API Services User Data Policy</a>, 
+          including the Limited Use requirements.
+        </div>
+      </div>
+      <p>
+        Specifically:
+      </p>
+      <ul>
+        <li>We only use access to user data to provide or improve user-facing features that are prominent in the user interface.</li>
+        <li>We do not transfer Google user data to any third party, unless necessary to provide or improve features in accordance with your consent or as required by law.</li>
+        <li>We never use or transfer Google user data for serving advertisements, including personalized, re-targeted, or interest-based advertising.</li>
+        <li>We do not allow humans to read your private user data unless you have given explicit consent for troubleshooting, it is necessary for security reasons, or to comply with applicable law.</li>
+      </ul>
+    </section>
+
+    <!-- Section 5: Data Storage and Security -->
+    <section class="prose-section">
+      <h2>5. Data Storage, Cryptography, and Security</h2>
+      <p>
+        NBLMimic implements strict hardware-bound and client-side encryption standards:
+      </p>
+      <ul>
+        <li>
+          <strong>Client-Side Hardware Vaults:</strong> Sensitive credentials, encryption salts, and tokens are protected using the native <strong>Web Crypto API</strong> (<code class="scope-pill">AES-GCM-256</code>) with non-extractable keys bound to your browser session.
+        </li>
+        <li>
+          <strong>Zero Central Database:</strong> Research Lab operates without an application database server. Your research materials exist only in your browser's local sandbox (<code class="scope-pill">IndexedDB</code> / <code class="scope-pill">localStorage</code>) and in your personal Google Drive account.
+        </li>
+        <li>
+          <strong>Secure Direct Transports:</strong> All network exchanges with Google APIs occur over TLS/HTTPS encrypted connections directly between your client browser and Google's authenticated endpoints (<code class="scope-pill">https://www.googleapis.com</code>).
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 6: AI Integration -->
+    <section class="prose-section">
+      <h2>6. Artificial Intelligence &amp; Model Processing</h2>
+      <p>
+        When you submit an analytical prompt or query your research sources, the relevant document excerpts and your prompt are transmitted directly to the Google Gemini API (via your configured API Key or local loopback proxy) to generate responses.
+      </p>
+      <p>
+        Your data is governed by the Google Cloud Gemini Terms of Service. Under standard API usage, data passed via Google API endpoints is not used to train or refine foundation models without authorization.
+      </p>
+    </section>
+
+    <!-- Section 7: User Control and Data Revocation -->
+    <section class="prose-section">
+      <h2>7. User Control, Data Deletion, and Revocation</h2>
+      <p>
+        You retain total authority over your access credentials and stored research at all times:
+      </p>
+      <ul>
+        <li>
+          <strong>In-App Disconnection:</strong> Clicking <em>Disconnect Google Drive</em> or signing out instantly purges all OAuth tokens, active session headers, and cached user profile data from your browser memory and cryptographic vault.
+        </li>
+        <li>
+          <strong>Google Account Revocation:</strong> You can permanently revoke NBLMimic's access to your Google account at any time through Google's central security console: 
+          <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer" style="color: var(--citation); text-decoration: underline;">https://myaccount.google.com/permissions</a>.
+        </li>
+        <li>
+          <strong>Drive File Management:</strong> All files created by Research Lab in your Google Drive remain completely under your ownership and can be downloaded, exported, or deleted directly through the standard Google Drive web interface.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 8: Changes and Contact -->
+    <section class="prose-section">
+      <h2>8. Policy Updates and Contact Information</h2>
+      <p>
+        We may update this Privacy Policy periodically to reflect changes in legal requirements or updates to our local architecture. Changes will be posted to this URL with a revised effective date.
+      </p>
+      <p>
+        If you have questions, feedback, or security concerns regarding this Privacy Policy or your data handling within Research Lab (NBLMimic), please contact the developer via:
+      </p>
+      <ul>
+        <li><strong>Project Repository:</strong> <a href="https://github.com" target="_blank" rel="noopener noreferrer" style="color: var(--citation); text-decoration: underline;">NBLMimic Issue Tracker / Repository</a></li>
+        <li><strong>Email:</strong> <a href="mailto:support@example.com" style="color: var(--citation); text-decoration: underline;">support@example.com</a> <em>(Update with your public support email)</em></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="policy-footer">
+    <div class="policy-footer-inner">
+      <p>&copy; 2026 Research Lab (NBLMimic). Built with privacy-first client-side architecture.</p>
+    </div>
+  </footer>
+
+  <!-- Theme Synchronization Script -->
+  <script>
+    (function() {
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('theme-toggle-btn');
+      const themeLabel = document.getElementById('theme-label');
+
+      // Initialize theme from localStorage or system preference
+      const savedTheme = localStorage.getItem('nbl_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        root.setAttribute('data-theme', savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        root.setAttribute('data-theme', 'light');
+      }
+
+      function updateButtonLabel() {
+        const current = root.getAttribute('data-theme') || 'dark';
+        if (themeLabel) {
+          themeLabel.textContent = current === 'dark' ? 'Light Mode' : 'Dark Mode';
+        }
+      }
+
+      updateButtonLabel();
+
+      if (themeBtn) {
+        themeBtn.addEventListener('click', function() {
+          const current = root.getAttribute('data-theme') || 'dark';
+          const next = current === 'dark' ? 'light' : 'dark';
+          root.setAttribute('data-theme', next);
+          try {
+            localStorage.setItem('nbl_theme', next);
+          } catch (e) {}
+          updateButtonLabel();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
   "name": "nblmimic-workspace",
   "version": "1.0.0",
   "description": "NBLMimic project workspace with Aceternity UI and 21st component library",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"

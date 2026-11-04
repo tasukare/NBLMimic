@@ -1120,3 +1120,5 @@ server.listen(PORT, HOST, () => {
   console.log(`Gemini API Key: ${hasKey ? 'LOADED from .env' : 'NOT SET in .env (add to .env)'}`);
   console.log('====================================================');
 });
+
+module.exports = server;

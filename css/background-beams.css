@@ -64,7 +64,6 @@
 .beam-active {
   stroke-dasharray: 280 1120;
   animation: beamSweep 16s ease-in-out infinite;
-  will-change: stroke-dashoffset;
 }
 
 /* Ensure canvas content sits directly on top of the moving light beams */
@@ -83,8 +82,12 @@
   z-index: 2;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce), (max-width: 1024px), (pointer: coarse) {
   .beam-active {
     animation: none !important;
   }
+}
+
+.low-power-mode .beam-active {
+  animation: none !important;
 }

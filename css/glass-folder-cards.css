@@ -193,7 +193,6 @@
 .gf-tilt {
   position: absolute;
   inset: 0;
-  will-change: transform;
   transform-style: preserve-3d;
   transform: perspective(1400px) rotateX(calc(var(--gf-py) * -3deg)) rotateY(calc(var(--gf-px) * 4deg));
   transition: transform .9s var(--gf-ease);
@@ -314,7 +313,6 @@ canvas.gf-art[data-ready] {
     0 0 0 1px rgba(0, 0, 0, .08),
     0 12px 28px -6px rgba(10, 12, 20, .26);
   transform-origin: 50% 100%;
-  will-change: transform, opacity;
   transform:
     translate3d(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)), calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1), 0)
     rotate(calc(var(--gf-jr) + var(--gf-slot) * var(--gf-fan)));
@@ -527,8 +525,8 @@ canvas.gf-art[data-ready] {
   height: 202px;
   z-index: 3;
   pointer-events: none;
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  backdrop-filter: blur(6px) saturate(1.2);
   transform-origin: 50% 100%;
   transform: perspective(760px) rotateX(var(--gf-hinge));
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
@@ -538,11 +536,11 @@ canvas.gf-art[data-ready] {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, .12) 0%, rgba(255, 255, 255, .32) 42%, rgba(252, 252, 252, .78) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, .25) 0%, rgba(255, 255, 255, .45) 42%, rgba(252, 252, 252, .88) 100%);
 }
 
 .gf-root[data-tone="dark"] .gf-tint {
-  background: linear-gradient(180deg, rgba(20, 20, 24, .14) 0%, rgba(16, 16, 20, .42) 46%, rgba(10, 10, 12, .84) 100%);
+  background: linear-gradient(180deg, rgba(24, 24, 30, .35) 0%, rgba(18, 18, 22, .65) 46%, rgba(10, 10, 12, .92) 100%);
 }
 
 .gf-spec {
@@ -1635,6 +1633,47 @@ canvas.gf-art[data-ready] {
     transform: none !important;
     margin: 0 !important;
   }
+}
+
+/* ── Hardware-Accelerated 60-120fps Scroll & Low-Power Engine ── */
+body.is-scrolling .gf-front {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .gf-front {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transform: none !important;
+  }
+  .gf-root[data-tone="dark"] .gf-tint {
+    background: linear-gradient(180deg, rgba(26, 26, 32, .75) 0%, rgba(18, 18, 22, .90) 46%, rgba(10, 10, 12, .98) 100%) !important;
+  }
+  .gf-root[data-tone="light"] .gf-tint {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .78) 0%, rgba(248, 248, 250, .92) 42%, rgba(240, 240, 244, .98) 100%) !important;
+  }
+  .gf-tilt {
+    transform: none !important;
+  }
+  .gf-spec {
+    display: none !important;
+  }
+  .gf-gallery-grid {
+    perspective: none !important;
+  }
+}
+
+.low-power-mode .gf-front {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transform: none !important;
+}
+.low-power-mode .gf-spec {
+  display: none !important;
+}
+.low-power-mode .gf-tilt {
+  transform: none !important;
 }
 
 /* ── 2-Column Breakpoint for Medium Tablets & iPads (max-width: 1140px) ── */

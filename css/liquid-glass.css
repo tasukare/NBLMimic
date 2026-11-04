@@ -10,7 +10,6 @@
   pointer-events: none;
   border-radius: 9999px;
   z-index: 0;
-  will-change: transform;
 }
 
 .ambient-glow-top {
@@ -18,8 +17,7 @@
   left: 28%;
   width: 440px;
   height: 440px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(79, 70, 229, 0.08) 45%, rgba(0, 0, 0, 0) 70%);
-  filter: blur(110px);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.16) 0%, rgba(79, 70, 229, 0.05) 35%, rgba(0, 0, 0, 0) 65%);
 }
 
 .ambient-glow-bottom {
@@ -27,18 +25,25 @@
   right: 22%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.06) 45%, rgba(0, 0, 0, 0) 70%);
-  filter: blur(110px);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, rgba(217, 119, 6, 0.04) 35%, rgba(0, 0, 0, 0) 65%);
 }
 
 [data-theme="light"] .ambient-glow-top {
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(79, 70, 229, 0.04) 50%, rgba(255, 255, 255, 0) 70%);
-  filter: blur(90px);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.10) 0%, rgba(79, 70, 229, 0.03) 40%, rgba(255, 255, 255, 0) 65%);
 }
 
 [data-theme="light"] .ambient-glow-bottom {
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.03) 50%, rgba(255, 255, 255, 0) 70%);
-  filter: blur(90px);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.02) 40%, rgba(255, 255, 255, 0) 65%);
+}
+
+/* Zero GPU Blur on Mobile/Tablet and Low-Power Devices */
+@media (max-width: 1024px), (pointer: coarse) {
+  .ambient-glow {
+    display: none !important;
+  }
+}
+.low-power-mode .ambient-glow {
+  display: none !important;
 }
 
 /* ── Liquid Glass Component Base ── */

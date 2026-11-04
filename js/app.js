@@ -17,6 +17,32 @@ import { initLiquidGlass } from './liquid-glass.js';
 import { initBackgroundBeams } from './background-beams.js';
 import { initLiquidNavbar, initLiquidSearchBar } from './liquid-navbar.js';
 
+// ── Hardware-Adaptive Performance Engine (Zero Thermal / 60-120fps Scroll) ──
+const isTouchDevice = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
+const isSmallDevice = typeof window !== 'undefined' && window.innerWidth <= 1024;
+const isLowCore = typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+const isLowMem = typeof navigator !== 'undefined' && navigator.deviceMemory && navigator.deviceMemory <= 4;
+const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+if (isTouchDevice || isSmallDevice || isLowCore || isLowMem || prefersReducedMotion) {
+  document.documentElement.classList.add('low-power-mode');
+}
+
+// ── Ultra-Smooth 60-120fps Scroll Throttling ──
+let scrollTimer = null;
+const handleScrollThrottling = () => {
+  if (!document.body.classList.contains('is-scrolling')) {
+    document.body.classList.add('is-scrolling');
+  }
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    document.body.classList.remove('is-scrolling');
+  }, 120);
+};
+
+window.addEventListener('scroll', handleScrollThrottling, { passive: true });
+document.addEventListener('scroll', handleScrollThrottling, { capture: true, passive: true });
+
 document.addEventListener('DOMContentLoaded', async () => {
   // 0. Launch Liquid Glass Startup Screen immediately
   startupScreen.init(async () => {

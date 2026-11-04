@@ -123,6 +123,15 @@ void main(){
 /* ── WebGL Context Initializer ── */
 function initGL(canvas) {
   try {
+    const isTouch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
+    const isSmallScreen = typeof window !== 'undefined' && window.innerWidth <= 1024;
+    const isLowPower = typeof navigator !== 'undefined' && (
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+      (navigator.deviceMemory && navigator.deviceMemory <= 4)
+    );
+    if (isTouch || isSmallScreen || isLowPower) {
+      return null;
+    }
     const gl = canvas.getContext('webgl', {
       premultipliedAlpha: true,
       alpha: true,
@@ -450,7 +459,7 @@ export function initLiquidWaterline(container, options = {}) {
       step(dt, now);
       draw();
       const busy = s.moving || s.rips.length || s.sats.length || s.mouse.s > 0.01;
-      if (s.visible && (!s.reduce || busy)) {
+      if (s.visible && busy && !s.reduce && !document.hidden) {
         s.raf = requestAnimationFrame(tick);
       } else {
         s.raf = 0;
@@ -602,7 +611,12 @@ export function initLiquidWaterline(container, options = {}) {
 
   const onVisChange = () => {
     s.visible = document.visibilityState === 'visible';
-    if (s.visible) loop();
+    if (s.visible) {
+      loop();
+    } else if (s.raf) {
+      cancelAnimationFrame(s.raf);
+      s.raf = 0;
+    }
   };
   document.addEventListener('visibilitychange', onVisChange);
 
@@ -739,7 +753,7 @@ export function initLiquidSearchBar(searchElement, options = {}) {
       step(dt);
       draw();
       const busy = s.rips.length || s.mouse.s > 0.01;
-      if (s.visible && (!s.reduce || busy)) {
+      if (s.visible && busy && !s.reduce && !document.hidden) {
         s.raf = requestAnimationFrame(tick);
       } else {
         s.raf = 0;
@@ -804,6 +818,17 @@ export function initLiquidSearchBar(searchElement, options = {}) {
     if (s.visible) loop();
   });
   io.observe(searchElement);
+
+  const onSearchVisChange = () => {
+    s.visible = document.visibilityState === 'visible';
+    if (s.visible) {
+      loop();
+    } else if (s.raf) {
+      cancelAnimationFrame(s.raf);
+      s.raf = 0;
+    }
+  };
+  document.addEventListener('visibilitychange', onSearchVisChange);
 
   requestAnimationFrame(() => measure());
   setTimeout(() => measure(), 120);

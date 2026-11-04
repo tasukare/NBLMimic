@@ -291,16 +291,35 @@ export async function getArtCanvas(recipe, seed, width, height) {
     return artCanvasCache.get(key);
   }
 
+  // Adaptive Resolution Scaling:
+  // Render procedural liquid noise at half resolution on low-power or mobile devices,
+  // or 0.65 scale on desktop. Bilinear canvas upscale produces a gorgeous soft liquid effect
+  // while cutting CPU noise computation by 60% to 75%!
+  const isLowTier = typeof navigator !== 'undefined' && (
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+    (typeof window !== 'undefined' && (window.innerWidth <= 1024 || window.matchMedia?.('(pointer: coarse)').matches))
+  );
+  const scale = isLowTier ? 0.5 : 0.65;
+  const genW = Math.max(64, Math.round(width * scale));
+  const genH = Math.max(64, Math.round(height * scale));
+
+  const job = createArtJob(genW, genH, recipe, seed);
+  while (!job.step(genH * 2)) {}
+
+  const offscreen = document.createElement("canvas");
+  offscreen.width = genW;
+  offscreen.height = genH;
+  const offCtx = offscreen.getContext("2d");
+  const imgData = new ImageData(job.pixels, genW, genH);
+  offCtx.putImageData(imgData, 0, 0);
+
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-
-  const job = createArtJob(width, height, recipe, seed);
-  // Execute sync until complete
-  while (!job.step(height * 2)) {}
-  const imgData = new ImageData(job.pixels, width, height);
-  ctx.putImageData(imgData, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(offscreen, 0, 0, width, height);
 
   artCanvasCache.set(key, canvas);
   return canvas;
@@ -1224,7 +1243,7 @@ export function createGlassFolderCard({
   // Parallax Pointer Tracking
   let rafId = 0;
   root.addEventListener("pointermove", (e) => {
-    if (e.pointerType === "touch") return;
+    if (e.pointerType === "touch" || document.body.classList.contains("is-scrolling") || document.documentElement.classList.contains("low-power-mode")) return;
     const rect = root.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const py = ((e.clientY - rect.top) / rect.height) * 2 - 1;

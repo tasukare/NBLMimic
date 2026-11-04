@@ -724,7 +724,7 @@ async function fetchLiveNewsFeed(force = false) {
   return finalArticles;
 }
 
-const server = http.createServer(async (req, res) => {
+async function appHandler(req, res) {
   const origin = req.headers.origin;
   const host = req.headers.host;
 
@@ -1102,24 +1102,27 @@ const server = http.createServer(async (req, res) => {
 
   // 3. Static File Server (Hardened against Traversal, Dotfiles, and Sensitive Source Leaks)
   serveStaticFile(req, res, pathname);
-});
+}
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    // Port is already in use by an existing NBLMimic background instance; exit silently
-    process.exit(0);
-  }
-  console.error('Server error:', err.message);
-  process.exit(1);
-});
+const server = http.createServer(appHandler);
 
-server.listen(PORT, HOST, () => {
-  const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
-  console.log('====================================================');
-  console.log('🔬 NBLMimic Server running');
-  console.log(`🌐 Host: ${HOST} | Port: ${PORT}`);
-  console.log(`Gemini API Key: ${hasKey ? 'LOADED from .env' : 'NOT SET in .env (add to .env)'}`);
-  console.log('====================================================');
-});
+if (require.main === module || !process.env.VERCEL) {
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      process.exit(0);
+    }
+    console.error('Server error:', err.message);
+    process.exit(1);
+  });
 
-module.exports = server;
+  server.listen(PORT, HOST, () => {
+    const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
+    console.log('====================================================');
+    console.log('🔬 NBLMimic Server running');
+    console.log(`🌐 Host: ${HOST} | Port: ${PORT}`);
+    console.log(`Gemini API Key: ${hasKey ? 'LOADED from .env' : 'NOT SET in .env (add to .env)'}`);
+    console.log('====================================================');
+  });
+}
+
+module.exports = appHandler;

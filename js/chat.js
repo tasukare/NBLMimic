@@ -8,6 +8,7 @@ import { state } from './state.js';
 import { getIcon, escapeHtml, showToast } from './ui.js';
 import { viewDocument } from './sources-reader.js';
 import { fetchDriveDocumentContent } from './auth-drive.js';
+import { runAgentSession } from './agent.js';
 
 let isDictating = false;
 let speechRecognizer = null;
@@ -59,6 +60,63 @@ export function initChat() {
       }
     });
   }
+}
+
+
+export function getOrCreateAgentStepsContainer() {
+  const stream = document.getElementById('chat-messages-stream');
+  if (!stream) return null;
+
+  let container = stream.querySelector('.agent-steps-active');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'agent-steps-wrapper agent-steps-active';
+    stream.appendChild(container);
+    stream.scrollTop = stream.scrollHeight;
+  }
+  return container;
+}
+
+export function renderAgentStep(step) {
+  const container = getOrCreateAgentStepsContainer();
+  if (!container) return;
+
+  let pill = container.querySelector(`[data-step-id="${step.id}"]`);
+  const isRunning = step.status === 'running';
+
+  let displayDesc = '';
+  if (step.name === 'save_to_notes') {
+    displayDesc = step.args?.title ? `Saving "${step.args.title}" to Lab Notes` : 'Saving findings to Lab Notes';
+  } else if (step.name === 'search_workspace_sources') {
+    displayDesc = step.args?.query ? `Searching sources for "${step.args.query}"` : 'Searching workspace sources';
+  } else if (step.name === 'read_source_document') {
+    displayDesc = step.args?.source_title_or_id ? `Reading document "${step.args.source_title_or_id}"` : 'Reading source document';
+  } else if (step.name === 'get_live_world_news') {
+    displayDesc = step.args?.category_or_topic ? `Checking live news for "${step.args.category_or_topic}"` : 'Querying real-time world news';
+  } else if (step.name === 'read_lab_notes') {
+    displayDesc = 'Reading researcher Lab Notes';
+  } else {
+    displayDesc = `Executing ${step.name}`;
+  }
+
+  if (!pill) {
+    pill = document.createElement('div');
+    pill.dataset.stepId = step.id;
+    container.appendChild(pill);
+  }
+
+  pill.className = `agent-step-pill ${isRunning ? 'is-running' : 'is-completed'}`;
+  pill.innerHTML = `
+    <div class="agent-step-icon">
+      ${isRunning ? getIcon('refresh-cw', 12, 'spin-slow') : getIcon('check', 12)}
+    </div>
+    <span class="agent-step-badge">${escapeHtml(step.name.replace(/_/g, ' '))}</span>
+    <span class="agent-step-desc">${escapeHtml(displayDesc)}</span>
+    <span class="agent-step-status">${isRunning ? 'Executing...' : 'Done'}</span>
+  `;
+
+  const stream = document.getElementById('chat-messages-stream');
+  if (stream) stream.scrollTop = stream.scrollHeight;
 }
 
 export async function handleChatSubmit(e) {
@@ -113,93 +171,25 @@ Help the researcher brainstorm, explore concepts, summarize information, and pla
   const primaryKey = parsedKeys[0] || null;
 
   try {
-    let reply = '';
-    let proxyFailed = false;
+    const reply = await runAgentSession({
+      userPrompt: text,
+      context,
+      model,
+      primaryKey,
+      parsedKeys,
+      onStep: renderAgentStep
+    });
 
-    // 1. Primary: Local Proxy (/api/chat) with multi-key pool rotation
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          apiKey: primaryKey,
-          apiKeys: parsedKeys.length > 0 ? parsedKeys : undefined,
-          system_instruction: { parts: [{ text: systemInstruction }] },
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: activeSources.length > 0 ? `SOURCES:\n${context}\n\nQUESTION:\n${text}` : text }]
-            }
-          ]
-        })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
-      } else {
-        const err = await res.json().catch(() => ({}));
-        reply = `Error: ${err.error?.message || 'Server error occurred'}`;
-      }
-    } catch (fetchErr) {
-      proxyFailed = true;
-    }
-
-    // 2. Direct Fallback with Client-Side Key-Ring Failover if proxy unreachable
-    if (proxyFailed) {
-      if (parsedKeys.length === 0) {
-        removeThinkingIndicator(thinkingId);
-        appendAiBrief('Connection error: Server proxy is offline and no Gemini API Key is configured. Please enter your key in Settings (BYOK).');
-        return;
-      }
-
-      let directSuccess = false;
-      for (let i = 0; i < parsedKeys.length; i++) {
-        const candidateKey = parsedKeys[i];
-        const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(candidateKey)}`;
-        try {
-          const directRes = await fetch(directUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: systemInstruction }] },
-              contents: [
-                { role: 'user', parts: [{ text: activeSources.length > 0 ? `SOURCES:\n${context}\n\nQUESTION:\n${text}` : text }] }
-              ]
-            })
-          });
-
-          if (directRes.ok) {
-            const data = await directRes.json();
-            reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
-            directSuccess = true;
-            break;
-          } else if (directRes.status === 429 || directRes.status === 503) {
-            console.warn(`[Direct BYOK] Key slot #${i + 1} hit ${directRes.status}. Trying next key...`);
-            continue;
-          } else {
-            const err = await directRes.json().catch(() => ({}));
-            reply = `Google API Error (${directRes.status}): ${err.error?.message || 'Direct call failed'}`;
-            directSuccess = true;
-            break;
-          }
-        } catch (directErr) {
-          console.warn(`[Direct BYOK] Error on key slot #${i + 1}:`, directErr);
-        }
-      }
-
-      if (!directSuccess && !reply) {
-        reply = 'All available Gemini API keys in the client ring were exhausted or rate-limited.';
-      }
+    const stream = document.getElementById('chat-messages-stream');
+    if (stream) {
+      stream.querySelectorAll('.agent-steps-active').forEach(el => el.classList.remove('agent-steps-active'));
     }
 
     removeThinkingIndicator(thinkingId);
     appendAiBrief(reply);
-
   } catch (err) {
     removeThinkingIndicator(thinkingId);
-    appendAiBrief(`Connection error: ${err.message}`);
+    appendAiBrief(`Agent encountered an issue: ${err.message}`);
   }
 }
 

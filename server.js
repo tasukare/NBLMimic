@@ -1000,15 +1000,18 @@ async function appHandler(req, res) {
           const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(keyToUse)}`;
 
           try {
+            const reqBody = {
+              contents: payload.contents,
+              generationConfig: payload.generationConfig
+            };
+            if (payload.system_instruction) reqBody.system_instruction = payload.system_instruction;
+            if (payload.tools) reqBody.tools = payload.tools;
+
             const geminiRes = await fetch(geminiUrl, {
               method: 'POST',
               signal: controller.signal,
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                system_instruction: payload.system_instruction,
-                contents: payload.contents,
-                generationConfig: payload.generationConfig
-              })
+              body: JSON.stringify(reqBody)
             });
             clearTimeout(timer);
             const text = await geminiRes.text();

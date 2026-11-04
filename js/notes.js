@@ -457,3 +457,41 @@ window.downloadNotes = downloadNotes;
 window.initNotes = initNotes;
 window.openNotesCard = openNotesCard;
 window.toggleNotesCard = toggleNotesCard;
+
+export async function appendLabNote({ title, content, tags = [] }) {
+  const current = state.get('notesContent') || '';
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+
+  let block = `\n\n---\n### ${title || 'Agent Research Finding'} · ${dateStr} ${timeStr}\n`;
+  if (Array.isArray(tags) && tags.length > 0) {
+    block += tags.map(t => '#' + String(t).replace(/^#/, '').trim()).join(' ') + '\n\n';
+  }
+  block += String(content).trim() + '\n';
+
+  const updated = current.trim() ? (current.trim() + block) : block.trim();
+  state.set('notesContent', updated);
+  sessionStorage.setItem('nbl_lab_notes', updated);
+  try {
+    await CryptoVault.setSecureItem('nbl_lab_notes', updated);
+  } catch (e) {}
+  updateBubbleBadge(true);
+
+  // Update live textarea if card is open
+  const openTextarea = document.querySelector('.notes-expandable-textarea');
+  if (openTextarea) {
+    openTextarea.value = updated;
+    openTextarea.dispatchEvent(new Event('input'));
+  }
+
+  if (state.get('isDriveConnected')) {
+    syncCurrentNotesToDrive(true);
+  }
+  showToast(`Saved to Lab Notes: "${title || 'Research Finding'}"`);
+  return { success: true, message: `Successfully appended "${title || 'Finding'}" to Lab Notes.` };
+}
+
+export function getLabNotes() {
+  return state.get('notesContent') || '';
+}

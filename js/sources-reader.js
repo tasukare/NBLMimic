@@ -1880,3 +1880,62 @@ window.loadDefaultWorkspaceSources = loadDefaultWorkspaceSources;
 window.fetchWorldNews = fetchWorldNews;
 window.renderWorldNewsView = renderWorldNewsView;
 window.importNewsArticleToSources = importNewsArticleToSources;
+
+export async function searchWorkspaceSources(query) {
+  const sources = state.get('sources') || [];
+  const q = String(query).toLowerCase().trim();
+  if (!q) return [];
+
+  const results = [];
+  for (const src of sources) {
+    let body = src.content || src.excerpt || '';
+    if (!src.content && src.driveFileId && state.get('driveToken')) {
+      try {
+        src.content = await fetchDriveDocumentContent(src);
+        body = src.content || '';
+      } catch (e) {}
+    }
+    const titleMatch = (src.title || '').toLowerCase().includes(q);
+    const contentMatch = body.toLowerCase().includes(q);
+
+    if (titleMatch || contentMatch) {
+      let snippet = src.excerpt || '';
+      if (contentMatch) {
+        const idx = body.toLowerCase().indexOf(q);
+        const start = Math.max(0, idx - 80);
+        const end = Math.min(body.length, idx + 260);
+        snippet = (start > 0 ? '...' : '') + body.slice(start, end).trim() + (end < body.length ? '...' : '');
+      }
+      results.push({
+        id: src.id,
+        title: src.title,
+        source: src.source,
+        category: src.category,
+        snippet: snippet
+      });
+    }
+  }
+  return results.slice(0, 5);
+}
+
+export async function readWorkspaceDocument(sourceTitleOrId) {
+  const sources = state.get('sources') || [];
+  const target = String(sourceTitleOrId).toLowerCase().trim();
+
+  let match = sources.find(s => String(s.id).toLowerCase() === target || String(s.title).toLowerCase().includes(target));
+  if (!match) return { error: `Source "${sourceTitleOrId}" not found in workspace.` };
+
+  if (!match.content && match.driveFileId && state.get('driveToken')) {
+    try {
+      match.content = await fetchDriveDocumentContent(match);
+    } catch (e) {}
+  }
+
+  return {
+    id: match.id,
+    title: match.title,
+    source: match.source,
+    category: match.category,
+    content: (match.content || match.excerpt || '').slice(0, 15000)
+  };
+}

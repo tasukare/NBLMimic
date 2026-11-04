@@ -18,9 +18,9 @@
 
 .gf-gallery-header {
   width: 100%;
-  max-width: 100%;
-  margin-bottom: var(--space-8);
-  padding: 0 var(--space-4);
+  max-width: 1060px;
+  margin: 0 auto var(--space-6) auto;
+  padding: 0 var(--space-2);
 }
 
 .gf-gallery-kicker {
@@ -129,11 +129,12 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   justify-items: center;
   align-items: end;
-  gap: 36px 28px;
-  max-width: 100%;
+  gap: 28px 24px;
+  max-width: 1060px;
   width: 100%;
+  margin: 0 auto;
   perspective: 1400px;
-  padding-bottom: var(--space-12);
+  padding-bottom: 90px;
 }
 
 .gf-root {
@@ -752,9 +753,10 @@ canvas.gf-art[data-ready] {
 
 /* ── Interactive + Add Folder Card in Grid ── */
 .gf-add-folder-card {
-  width: 350px;
-  height: 335px;
-  border-radius: 24px;
+  width: 300px;
+  max-width: 100%;
+  height: 272px;
+  border-radius: 20px;
   border: 1.5px dashed var(--border-strong);
   background: var(--bg-surface);
   display: flex;
@@ -764,7 +766,7 @@ canvas.gf-art[data-ready] {
   gap: var(--space-2);
   cursor: pointer;
   user-select: none;
-  padding: var(--space-6);
+  padding: var(--space-4);
   text-align: center;
   transition: all var(--transition-tactile);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -1610,23 +1612,39 @@ canvas.gf-art[data-ready] {
    Responsive Adaptations for 3D Glass Folders (Tablet & Mobile)
    ========================================================================== */
 
-/* ── Tablet Refinements (max-width: 1024px) ── */
-@media (max-width: 1024px) {
-  .gf-gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px 24px;
-    max-width: 800px;
-    margin: 0 auto;
+/* ── Tablet & Laptop Refinements (max-width: 1366px) ── */
+@media (max-width: 1366px) {
+  .gf-gallery-container {
+    padding: var(--space-4) var(--space-4) 90px;
   }
 
-  .sidepanel-collapsed .gf-gallery-grid {
-    max-width: 840px;
-    gap: 32px 24px;
+  .gf-gallery-header {
+    margin-bottom: var(--space-4);
+    max-width: 1040px;
+  }
+
+  .gf-gallery-title {
+    font-size: 22px;
+  }
+
+  .gf-gallery-desc {
+    font-size: 13px;
   }
 
   .sidepanel-collapsed .gf-root {
     transform: none !important;
     margin: 0 !important;
+  }
+}
+
+/* ── 2-Column Breakpoint for Medium Tablets & iPads (max-width: 1140px) ── */
+@media (max-width: 1140px) {
+  .gf-gallery-grid,
+  .sidepanel-collapsed .gf-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 28px 24px !important;
+    max-width: 720px !important;
+    margin: 0 auto !important;
   }
 }
 
@@ -1673,23 +1691,26 @@ canvas.gf-art[data-ready] {
     display: none;
   }
 
-  .gf-gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    max-width: 360px;
-    margin: 0 auto;
-    perspective: none;
+  .gf-gallery-grid,
+  .sidepanel-collapsed .gf-gallery-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    perspective: none !important;
   }
 
-  .gf-root {
-    width: min(340px, calc(100vw - 32px));
-    height: auto;
+  .gf-root,
+  .gf-add-folder-card {
+    width: min(340px, calc(100vw - 32px)) !important;
+    height: auto !important;
     aspect-ratio: 340 / 272;
     transform: none !important;
     margin: 0 auto !important;
   }
 
-  .sidepanel-collapsed .gf-root {
+  .sidepanel-collapsed .gf-root,
+  .sidepanel-collapsed .gf-add-folder-card {
     transform: none !important;
     margin: 0 auto !important;
   }

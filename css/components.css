@@ -1348,14 +1348,14 @@
    Responsive Adaptations for Components (Smartphones & Tablets)
    ========================================================================== */
 
-/* ── Tablet Refinements (max-width: 1024px) ── */
-@media (max-width: 1024px) {
+/* ── Tablet & Laptop Refinements (max-width: 1366px) ── */
+@media (max-width: 1366px) {
   /* Hide verbose text labels in header buttons */
   .btn-live-voice span:not(.indicator-pulse-dot),
   .btn-live-news span:not(.indicator-pulse-dot),
   .btn-header-add-source span,
   .btn-drive-connect-pill #label-header-drive {
-    display: none;
+    display: none !important;
   }
 
   .btn-live-voice,
@@ -1367,7 +1367,7 @@
   }
 
   .header-liquid-badge .badge-tag {
-    display: none;
+    display: none !important;
   }
 
   .world-news-grid {

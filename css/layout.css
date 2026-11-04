@@ -317,7 +317,7 @@ svg {
 }
 
 /* ── Responsive Adaptations ── */
-@media (max-width: 1024px) {
+@media (max-width: 1366px) {
   :root {
     --sidepanel-width: 340px;
     --sidebar-width: 260px;
@@ -329,9 +329,43 @@ svg {
     min-width: 0;
     gap: var(--space-2);
   }
+  .header-liquid-badge .badge-tag {
+    display: none !important;
+  }
+  .header-breadcrumb .breadcrumb-separator,
+  .header-breadcrumb #btn-breadcrumb-view {
+    display: none !important;
+  }
   .header-center {
-    max-width: 320px;
-    margin: 0 var(--space-2);
+    max-width: 360px;
+    margin: 0 var(--space-3);
+    min-width: 160px;
+  }
+  /* Dock chat pill at bottom-right instead of middle of screen */
+  .btn-dock-open-chat,
+  .sidepanel-collapsed .btn-dock-open-chat {
+    top: auto !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    transform: none !important;
+    border-radius: 9999px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    padding: 8px 14px 8px 12px !important;
+  }
+  [data-theme="light"] .btn-dock-open-chat,
+  [data-theme="light"] .sidepanel-collapsed .btn-dock-open-chat {
+    border-right: 1px solid rgba(0, 0, 0, 0.14) !important;
+  }
+  .dock-chat-kbd {
+    display: none !important;
+  }
+  .btn-dock-open-chat:hover:not(.is-dragging) {
+    transform: translateY(-2px) !important;
+  }
+  .liquid-notes-bubble {
+    bottom: 80px !important;
+    right: 24px !important;
   }
 }
 
@@ -577,22 +611,22 @@ svg {
 }
 
 .sidepanel-collapsed .gf-gallery-container {
-  padding-left: var(--space-8);
-  padding-right: var(--space-8);
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
 }
 
 .sidepanel-collapsed .gf-gallery-header {
-  max-width: 1540px;
+  max-width: 1060px;
 }
 
 .sidepanel-collapsed .gf-gallery-grid {
-  max-width: 1540px;
-  gap: 52px 38px;
+  max-width: 1060px;
+  gap: 28px 24px;
 }
 
 .sidepanel-collapsed .gf-root {
-  transform: scale(1.18);
-  margin: 18px 22px;
+  transform: none !important;
+  margin: 0 !important;
 }
 
 .gf-gallery-grid,

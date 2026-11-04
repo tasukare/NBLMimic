@@ -1234,9 +1234,18 @@
   right: 28px !important;
 }
 
+@media (max-width: 1366px) {
+  .liquid-notes-bubble,
+  .sidepanel-collapsed .liquid-notes-bubble {
+    right: 24px !important;
+    bottom: 80px !important;
+  }
+}
+
 /* ── Mobile Adaptations for Liquid Notes ── */
 @media (max-width: 768px) {
-  .liquid-notes-bubble {
+  .liquid-notes-bubble,
+  .sidepanel-collapsed .liquid-notes-bubble {
     right: 16px !important;
     bottom: calc(var(--mobile-nav-height, 56px) + 14px + env(safe-area-inset-bottom, 0px)) !important;
     width: 46px;

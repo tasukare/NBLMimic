@@ -43,6 +43,7 @@ const ALLOWED_ORIGINS = new Set([
   `http://localhost:${PORT}`,
   `http://127.0.0.1:${PORT}`,
   ...(process.env.RENDER_EXTERNAL_URL ? [process.env.RENDER_EXTERNAL_URL.trim().replace(/\/+$/, '')] : []),
+  ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL.trim().replace(/\/+$/, '')}`] : []),
   ...(process.env.PUBLIC_URL ? [process.env.PUBLIC_URL.trim().replace(/\/+$/, '')] : []),
   ...(process.env.SERVER_URL ? [process.env.SERVER_URL.trim().replace(/\/+$/, '')] : []),
   ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim().replace(/\/+$/, '')) : [])
@@ -275,7 +276,8 @@ const FORBIDDEN_FILES = new Set([
   'package-lock.json',
   'security_report.md',
   'styleguide.md',
-  'agents.md'
+  'agents.md',
+  'vercel.json'
 ]);
 
 function applySecurityHeaders(res) {
@@ -291,7 +293,7 @@ function applySecurityHeaders(res) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://generativelanguage.googleapis.com https://www.googleapis.com https://accounts.google.com wss://generativelanguage.googleapis.com",
+      "connect-src 'self' https://generativelanguage.googleapis.com https://www.googleapis.com https://accounts.google.com wss://generativelanguage.googleapis.com https://*.onrender.com https://*.vercel.app",
       "frame-src 'self' https://accounts.google.com https://drive.google.com",
       "object-src 'none'",
       "base-uri 'self'"
@@ -726,7 +728,7 @@ const server = http.createServer(async (req, res) => {
   const host = req.headers.host;
 
   // 1. Host Header Validation (Anti-DNS Rebinding - VULN-02 / Domain A)
-  const isCloudHost = Boolean(process.env.RENDER || process.env.RENDER_EXTERNAL_URL || process.env.RENDER_EXTERNAL_HOSTNAME);
+  const isCloudHost = Boolean(process.env.RENDER || process.env.RENDER_EXTERNAL_URL || process.env.RENDER_EXTERNAL_HOSTNAME || process.env.VERCEL || process.env.VERCEL_URL);
   const validHostPatterns = [
     `localhost:${PORT}`,
     `127.0.0.1:${PORT}`,
@@ -735,7 +737,7 @@ const server = http.createServer(async (req, res) => {
     ...(process.env.RENDER_EXTERNAL_HOSTNAME ? [process.env.RENDER_EXTERNAL_HOSTNAME] : []),
     ...(process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',').map(s => s.trim()) : [])
   ];
-  if (host && !isCloudHost && !validHostPatterns.includes(host) && !host.endsWith('.onrender.com')) {
+  if (host && !isCloudHost && !validHostPatterns.includes(host) && !host.endsWith('.onrender.com') && !host.endsWith('.vercel.app')) {
     res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ error: { message: 'Invalid Host header. Access denied.' } }));
     return;
@@ -743,8 +745,8 @@ const server = http.createServer(async (req, res) => {
 
   // 2. Strict Origin Matching (No Wildcard CORS - VULN-07)
   if (origin) {
-    const isRenderOrigin = origin.startsWith('https://') && origin.endsWith('.onrender.com');
-    if (ALLOWED_ORIGINS.has(origin) || isRenderOrigin) {
+    const isTrustedCloudOrigin = origin.startsWith('https://') && (origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app'));
+    if (ALLOWED_ORIGINS.has(origin) || isTrustedCloudOrigin) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader('Vary', 'Origin');

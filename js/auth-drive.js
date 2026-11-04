@@ -106,7 +106,7 @@ export async function handleStartupDemoLogin() {
 }
 
 /**
- * Research Lab (NBLMimic) — Google Identity & Drive Cloud Vault
+ * NBLMimic — Google Identity & Drive Cloud Vault
  * Unified 1-Click OAuth2 Token Client (Drive + UserProfile Scopes),
  * Drive v3 CRUD, Quota Sync, and Secure Local Persistence.
  */
@@ -866,7 +866,7 @@ export async function ensureDriveAppFolder() {
   }
 
   try {
-    const q = encodeURIComponent("name = 'Research Lab (NBLMimic)' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+    const q = encodeURIComponent("name = 'NBLMimic' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
     const searchRes = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
     if (searchRes.ok) {
       const data = await searchRes.json();
@@ -886,7 +886,7 @@ export async function ensureDriveAppFolder() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        name: 'Research Lab (NBLMimic)',
+        name: 'NBLMimic',
         mimeType: 'application/vnd.google-apps.folder'
       })
     });
@@ -921,7 +921,7 @@ export async function syncCurrentNotesToDrive(silent = false) {
 
   try {
     const folderId = await ensureDriveAppFolder();
-    const content = state.get('notesContent') || '# Research Lab Notes\n\nNo notes recorded yet.';
+    const content = state.get('notesContent') || '# NBLMimic Notes\n\nNo notes recorded yet.';
     const fileName = 'Research_Notes.md';
 
     let existingFileId = null;

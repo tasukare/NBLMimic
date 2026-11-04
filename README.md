@@ -1,4 +1,4 @@
-# 🔬 NBLMimic (Research Lab)
+# 🔬 NBLMimic
 
 > A private, distraction-free knowledge management and research notebook inspired by Google NotebookLM — featuring real-time AI reasoning, Gemini 3.8 Live Voice, 3D Glass Research Folders, Aceternity UI Liquid Glass, and native Google Account authentication.
 

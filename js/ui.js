@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — UI Subsystem & Icon Library
+ * NBLMimic — UI Subsystem & Icon Library
  * Crisp 1.5px stroke Lucide/Feather SVGs, Theme Manager, Modal Controller, and Toast Stack.
  * ZERO EMOJIS in UI.
  */

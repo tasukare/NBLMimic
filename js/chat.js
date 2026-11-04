@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Grounded Research Chat & Synthesis Subsystem
+ * NBLMimic — Grounded Research Chat & Synthesis Subsystem
  * Editorial research briefs, interactive superscript citation chips, Raycast composer, and speech dictation.
  * ZERO EMOJIS in UI.
  */
@@ -96,11 +96,11 @@ export async function handleChatSubmit(e) {
   }
 
   const systemInstruction = activeSources.length > 0
-    ? `You are an elite research partner inside Research Lab (NBLMimic).
+    ? `You are an elite research partner inside NBLMimic.
 Synthesize and answer questions accurately grounded in the active sources provided below.
 Cite your specific claims with strict numbered bracket notation like [1], [2], corresponding to the source number.
 If information is not contained in the sources, state that clearly, then provide context based on general scientific knowledge.`
-    : `You are an elite research partner inside Research Lab (NBLMimic).
+    : `You are an elite research partner inside NBLMimic.
 Help the researcher brainstorm, explore concepts, summarize information, and plan experiments with rigorous depth.`;
 
   const thinkingId = appendThinkingIndicator();
@@ -323,7 +323,7 @@ export function clearChatStream() {
       <div class="message-row-ai">
         <div class="message-ai-header">
           ${getIcon('sparkles', 12)}
-          <span>Research Lab</span>
+          <span>NBLMimic</span>
         </div>
         <div class="message-ai-brief">
           <p>Session cleared. Ask questions, compare findings, or synthesize research across your grounded sources.</p>

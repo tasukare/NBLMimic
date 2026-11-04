@@ -1129,7 +1129,7 @@ export function GlassRevealNBLMimic({ tuning, ...props }: GlassRevealNBLMimicPro
   return (
     <GlassIconReveal
       logo={MARK_NBLMIMIC}
-      label="NBLMimic Research Lab"
+      label="NBLMimic"
       look="dark"
       background="#09090b"
       plateColor="#111827"

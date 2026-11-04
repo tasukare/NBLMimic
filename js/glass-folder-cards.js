@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Glass Folder Cards Module
+ * NBLMimic — Glass Folder Cards Module
  * Native ES6 Port of @kedhareswer/glass-folder-cards (21st.dev / shadcn)
  * Pure Canvas 2D liquid procedural art & CSS 3D frosted-glass folder cards.
  */
@@ -554,7 +554,7 @@ export function openExpandableFolderCard({
       const title = file.title || file.name || "Untitled Document";
       const sizeMeta = file.sizeFormatted || file.meta || "Document";
       const isDrive = file.source === "Google Drive" || !!file.driveFileId;
-      const sourceLabel = isDrive ? "Google Drive" : (file.source || "Research Lab");
+      const sourceLabel = isDrive ? "Google Drive" : (file.source || "NBLMimic");
       const date = file.date || "Recent";
       const formatType = classifyFileFormat(file);
       const tag = (file.badge || (
@@ -970,7 +970,7 @@ export function createGlassFolderCard({
     const title = file.title || file.name || "Untitled Document";
     const meta = file.sizeFormatted || file.meta || "Doc";
     const isDrive = file.source === "Google Drive" || !!file.driveFileId;
-    const sourceLabel = isDrive ? "Google Drive" : (file.source || (file.category ? `${file.category} Archive` : "Research Lab"));
+    const sourceLabel = isDrive ? "Google Drive" : (file.source || (file.category ? `${file.category} Archive` : "NBLMimic"));
     const date = file.date || "Recent";
     const formatType = classifyFileFormat(file);
     const tag = (file.badge || (
@@ -1418,7 +1418,7 @@ export const DEFAULT_FORMAT_FOLDERS = [
       {
         id: 'starter-gemini-spec',
         title: 'Gemini 1.5 Pro: Multimodal Architecture Spec.docx',
-        source: 'Research Lab · Specs',
+        source: 'NBLMimic · Specs',
         category: 'Docs',
         topic: 'ai',
         sizeFormatted: '1.4 MB',
@@ -1970,7 +1970,7 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
       {
         id: `custom-doc-${cf.id || idx}-1`,
         title: `${cf.label} Working Brief`,
-        source: "Research Lab · Custom",
+        source: "NBLMimic · Custom",
         category: "Notes",
         topic: "ai",
         sizeFormatted: "1.8 KB",

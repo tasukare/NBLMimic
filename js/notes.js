@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Lab Notes Subsystem (Aceternity UI Expandable Card)
+ * NBLMimic — Notes Subsystem (Aceternity UI Expandable Card)
  * High-performance 60 FPS Web Animations API (WAAPI) shared-element FLIP morph.
  * Smoothly expands from and collapses back into the bottom-right pen bubble.
  */

@@ -38,10 +38,14 @@ function loadEnv() {
 loadEnv();
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 const ALLOWED_ORIGINS = new Set([
   `http://localhost:${PORT}`,
-  `http://127.0.0.1:${PORT}`
+  `http://127.0.0.1:${PORT}`,
+  ...(process.env.RENDER_EXTERNAL_URL ? [process.env.RENDER_EXTERNAL_URL.trim().replace(/\/+$/, '')] : []),
+  ...(process.env.PUBLIC_URL ? [process.env.PUBLIC_URL.trim().replace(/\/+$/, '')] : []),
+  ...(process.env.SERVER_URL ? [process.env.SERVER_URL.trim().replace(/\/+$/, '')] : []),
+  ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim().replace(/\/+$/, '')) : [])
 ]);
 
 // ════════════════════════════════════════════════
@@ -722,13 +726,16 @@ const server = http.createServer(async (req, res) => {
   const host = req.headers.host;
 
   // 1. Host Header Validation (Anti-DNS Rebinding - VULN-02 / Domain A)
+  const isCloudHost = Boolean(process.env.RENDER || process.env.RENDER_EXTERNAL_URL || process.env.RENDER_EXTERNAL_HOSTNAME);
   const validHostPatterns = [
     `localhost:${PORT}`,
     `127.0.0.1:${PORT}`,
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    ...(process.env.RENDER_EXTERNAL_HOSTNAME ? [process.env.RENDER_EXTERNAL_HOSTNAME] : []),
+    ...(process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',').map(s => s.trim()) : [])
   ];
-  if (host && !validHostPatterns.includes(host)) {
+  if (host && !isCloudHost && !validHostPatterns.includes(host) && !host.endsWith('.onrender.com')) {
     res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ error: { message: 'Invalid Host header. Access denied.' } }));
     return;
@@ -736,7 +743,8 @@ const server = http.createServer(async (req, res) => {
 
   // 2. Strict Origin Matching (No Wildcard CORS - VULN-07)
   if (origin) {
-    if (ALLOWED_ORIGINS.has(origin)) {
+    const isRenderOrigin = origin.startsWith('https://') && origin.endsWith('.onrender.com');
+    if (ALLOWED_ORIGINS.has(origin) || isRenderOrigin) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader('Vary', 'Origin');
@@ -1105,10 +1113,8 @@ server.on('error', (err) => {
 server.listen(PORT, HOST, () => {
   const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
   console.log('====================================================');
-  console.log('NBLMimic (Research Lab) Server running');
-  console.log(`Primary URL: http://localhost:${PORT}`);
-  console.log(`Loopback IP: http://${HOST}:${PORT}`);
-  console.log(`Security: Explicit Loopback (${HOST}) - Zero External Exposure`);
+  console.log('🔬 NBLMimic Server running');
+  console.log(`🌐 Host: ${HOST} | Port: ${PORT}`);
   console.log(`Gemini API Key: ${hasKey ? 'LOADED from .env' : 'NOT SET in .env (add to .env)'}`);
   console.log('====================================================');
 });

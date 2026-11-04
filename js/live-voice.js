@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Gemini 3.8 Live Spoken Assistant
+ * NBLMimic — Gemini 3.8 Live Spoken Assistant
  * Real-time WebSocket (BidiGenerateContent), 16kHz PCM capture, 24kHz gapless playback & waveform visualizer.
  * Sleek floating audio bar inside workspace with transcript drawer. ZERO EMOJIS.
  */
@@ -235,7 +235,7 @@ export async function connectGeminiLive() {
         context += `[Source ${idx + 1}: "${s.title}"]\n${(s.content || s.excerpt || '').slice(0, 1000)}\n\n`;
       });
 
-      const instruction = `You are a real-time, highly intelligent research partner inside Research Lab (NBLMimic).
+      const instruction = `You are a real-time, highly intelligent research partner inside NBLMimic.
 Keep your spoken responses natural, concise (1-3 spoken sentences), and direct.
 If the researcher asks about their documents, refer to the active research context:
 ${context || 'No specific sources are active right now.'}`;

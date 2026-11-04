@@ -207,7 +207,7 @@ const newFunc = `export function openExpandableFolderCard({
       const title = file.title || file.name || "Untitled Document";
       const sizeMeta = file.sizeFormatted || file.meta || "Document";
       const isDrive = file.source === "Google Drive" || !!file.driveFileId;
-      const sourceLabel = isDrive ? "Google Drive" : (file.source || "Research Lab");
+      const sourceLabel = isDrive ? "Google Drive" : (file.source || "NBLMimic");
       const date = file.date || "Recent";
       const formatType = classifyFileFormat(file);
       const tag = (file.badge || (

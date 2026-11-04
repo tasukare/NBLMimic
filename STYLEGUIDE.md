@@ -1,4 +1,4 @@
-# Research Lab — Design Style Guide
+# NBLMimic — Design Style Guide
 
 > A private, self-hosted research and knowledge management interface inspired by Google NotebookLM, Linear, and Readwise Reader. Privacy-first. Typography-driven. Built to last.
 

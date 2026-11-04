@@ -181,7 +181,7 @@ export async function morphFileCardToReader(file, sheetEl) {
 
   const title = file.title || 'Untitled Document';
   const meta = file.sizeFormatted || file.meta || 'Doc';
-  const sourceLabel = file.source || 'Research Lab';
+  const sourceLabel = file.source || 'NBLMimic';
 
   portal.innerHTML = \`
     <div class="file-morph-inner">

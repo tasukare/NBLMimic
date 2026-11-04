@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Main Entry Point (ES6 Module)
+ * NBLMimic — Main Entry Point (ES6 Module)
  * Orchestrates reactive state, UI bindings, keyboard shortcuts, resizable splitters, and subsystem lifecycle.
  */
 
@@ -669,7 +669,7 @@ function bindGlobalEvents() {
           {
             id: `doc-${Date.now()}-1`,
             title: `${label} Overview Brief`,
-            source: "Research Lab · Custom",
+            source: "NBLMimic · Custom",
             category: "Docs",
             topic: "ai",
             sizeFormatted: "2.1 KB",

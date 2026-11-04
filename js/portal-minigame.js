@@ -189,7 +189,7 @@ export function startPortalMiniGame(options = {}) {
 
   monolith.innerHTML = `
     ${avatarMarkup}
-    <div class="corridor-monolith-title">Welcome to Research Lab, ${userName}</div>
+    <div class="corridor-monolith-title">Welcome to NBLMimic, ${userName}</div>
     <div class="corridor-monolith-desc">Multimodal Knowledge Vault Synced & Grounded · Ready for Exploration</div>
     <button class="portal-enter-btn" id="btn-corridor-enter" type="button">
       <span>Enter the Portal</span>

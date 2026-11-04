@@ -1,7 +1,7 @@
 # NBLMimic Security Audit & Hardening Report
 
 ## Executive Summary
-This document provides an exhaustive security audit of the **NBLMimic** (Research Lab) codebase, conducted by the Red-Hat Recon auditor. The audit analyzed all HTTP endpoints, background scripts, client-side modules, state storage mechanisms, cryptographic implementations, and access control policies across the local proxy server (`server.js`), Google Apps Script butler (`drive_butler_v2.js`), and frontend architecture (`js/`, `index.html`).
+This document provides an exhaustive security audit of the **NBLMimic** codebase, conducted by the Red-Hat Recon auditor. The audit analyzed all HTTP endpoints, background scripts, client-side modules, state storage mechanisms, cryptographic implementations, and access control policies across the local proxy server (`server.js`), Google Apps Script butler (`drive_butler_v2.js`), and frontend architecture (`js/`, `index.html`).
 
 A total of **22 distinct vulnerabilities** were identified across three main architectural layers:
 1. **Local Proxy Perimeter & Network Interface (`server.js`)**: 10 vulnerabilities including critical plaintext API key leakage, unintended network interface binding, unauthenticated static file disclosure (`.env`), unbounded body denial of service, and global wildcard CORS.
@@ -49,7 +49,7 @@ A total of **22 distinct vulnerabilities** were identified across three main arc
   server.listen(PORT, () => {
     const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
     console.log('====================================================');
-    console.log('NBLMimic (Research Lab) Server running');
+    console.log('NBLMimic Server running');
     console.log(`Primary URL: http://localhost:${PORT}`);
     console.log(`Loopback IP: http://127.0.0.1:${PORT}`);
     console.log('Security: Loopback only (127.0.0.1) - Zero External Leakage');

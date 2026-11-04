@@ -1,6 +1,6 @@
 # AGENTS.md — AI Developer & Agent Guidelines
 
-Welcome, AI coding assistant! This repository contains **NBLMimic** (Research Lab), a private, self-hosted research and knowledge management interface mimicking Google NotebookLM, using Google Drive as a personal database and storage layer.
+Welcome, AI coding assistant! This repository contains **NBLMimic**, a private, self-hosted research and knowledge management interface mimicking Google NotebookLM, using Google Drive as a personal database and storage layer.
 
 Please read and adhere strictly to the conventions and rules described in this file.
 

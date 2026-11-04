@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Source Library & Reader Subsystem
+ * NBLMimic — Source Library & Reader Subsystem
  * File tree with grounding checkboxes, segmented filtering, prose parser, and Drive iframe preview.
  * Pre-populates rich starter research papers and connects live RSS research feed (/api/news).
  */
@@ -112,7 +112,7 @@ We demonstrate computational supremacy using a programmable superconducting quan
   {
     id: 'starter-gemini-spec',
     title: 'Gemini 1.5 Pro: Multimodal Architecture Spec.docx',
-    source: 'Research Lab · Specs',
+    source: 'NBLMimic · Specs',
     category: 'Docs',
     mimeType: 'application/vnd.google-apps.document',
     topic: 'ai',

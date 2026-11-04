@@ -1,5 +1,5 @@
 /**
- * Research Lab (NBLMimic) — Centralized Reactive State Store
+ * NBLMimic — Centralized Reactive State Store
  * Manages in-memory workspace data, session persistence, and pub-sub events.
  */
 

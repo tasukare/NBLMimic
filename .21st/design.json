@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project": {
-    "name": "NBLMimic Research Lab",
+    "name": "NBLMimic",
     "productType": "Multimodal AI Knowledge Workspace",
     "stack": [
       "html5",

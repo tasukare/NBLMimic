@@ -465,7 +465,14 @@ export function initLiquidNavbar(container, options = {}) {
     if (s.raf) return;
     s.last = performance.now();
     const tick = (now) => {
-      const dt = Math.min((now - s.last) / 1000, 1 / 30);
+      const dtMs = now - s.last;
+      if (dtMs < 33) {
+        if (s.visible && !document.hidden && !s.reduce) {
+          s.raf = requestAnimationFrame(tick);
+        }
+        return;
+      }
+      const dt = Math.min(dtMs / 1000, 1 / 30);
       s.last = now;
       step(dt, now);
       draw();
@@ -510,11 +517,14 @@ export function initLiquidNavbar(container, options = {}) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const W = s.w + PAD * 2;
       const Hh = s.h + PAD * 2;
-      if (canvasEl.width !== Math.round(W * dpr) || canvasEl.height !== Math.round(Hh * dpr)) {
-        canvasEl.width = Math.round(W * dpr);
-        canvasEl.height = Math.round(Hh * dpr);
+      const targetW = Math.round(W * dpr);
+      const targetH = Math.round(Hh * dpr);
+      if (canvasEl.width !== targetW || canvasEl.height !== targetH) {
+        canvasEl.width = targetW;
+        canvasEl.height = targetH;
         canvasEl.style.width = `${W}px`;
         canvasEl.style.height = `${Hh}px`;
+        draw();
       }
     }
     loop();
@@ -742,7 +752,14 @@ export function initLiquidSearchBar(searchElement, options = {}) {
     if (s.raf) return;
     s.last = performance.now();
     const tick = (now) => {
-      const dt = Math.min((now - s.last) / 1000, 1 / 30);
+      const dtMs = now - s.last;
+      if (dtMs < 33) {
+        if (s.visible && !document.hidden && !s.reduce) {
+          s.raf = requestAnimationFrame(tick);
+        }
+        return;
+      }
+      const dt = Math.min(dtMs / 1000, 1 / 30);
       s.last = now;
       step(dt);
       draw();
@@ -763,11 +780,14 @@ export function initLiquidSearchBar(searchElement, options = {}) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const W = s.w + PAD * 2;
       const Hh = s.h + PAD * 2;
-      if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(Hh * dpr)) {
-        canvas.width = Math.round(W * dpr);
-        canvas.height = Math.round(Hh * dpr);
+      const targetW = Math.round(W * dpr);
+      const targetH = Math.round(Hh * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
         canvas.style.width = `${W}px`;
         canvas.style.height = `${Hh}px`;
+        draw();
       }
     }
     loop();

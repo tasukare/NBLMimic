@@ -285,7 +285,7 @@ export function createArtJob(width, height, recipe, seed) {
 
 const artCanvasCache = new Map();
 
-export async function getArtCanvas(recipe, seed, width, height) {
+export function getArtCanvas(recipe, seed, width, height) {
   const key = `${JSON.stringify(recipe)}_${seed}_${width}_${height}`;
   if (artCanvasCache.has(key)) {
     return artCanvasCache.get(key);
@@ -415,13 +415,18 @@ export function openExpandableFolderCard({
 
   const updateBannerArt = (artKey) => {
     const recipe = typeof artKey === "string" ? (ART_PRESETS[artKey] || ART_PRESETS.aurora) : artKey;
-    getArtCanvas(recipe, seed, 680, 180).then((renderedCanvas) => {
-      const ctx = bannerCanvas.getContext("2d");
-      if (ctx) {
+    const res = getArtCanvas(recipe, seed, 680, 180);
+    const ctx = bannerCanvas.getContext("2d");
+    if (!ctx) return;
+    if (res instanceof Promise) {
+      res.then(rc => {
         ctx.clearRect(0, 0, 680, 180);
-        ctx.drawImage(renderedCanvas, 0, 0, 680, 180);
-      }
-    });
+        ctx.drawImage(rc, 0, 0, 680, 180);
+      });
+    } else if (res) {
+      ctx.clearRect(0, 0, 680, 180);
+      ctx.drawImage(res, 0, 0, 680, 180);
+    }
   };
   updateBannerArt(currentArt);
 
@@ -848,6 +853,7 @@ export function createGlassFolderCard({
   const root = document.createElement("div");
   root.className = "gf-root";
   root.setAttribute("data-tone", tone);
+  root.setAttribute("data-format", format || "doc");
   root.setAttribute("data-entered", "true");
   root.setAttribute("data-place", "bottom-left");
   root.style.width = `${width}px`;
@@ -878,11 +884,17 @@ export function createGlassFolderCard({
   canvasArt.style.height = `${H + 24}px`;
 
   const recipe = typeof art === "string" ? (ART_PRESETS[art] || ART_PRESETS.aurora) : art;
-  getArtCanvas(recipe, seed, W + 24, H + 24).then((renderedCanvas) => {
-    const ctx = canvasArt.getContext("2d");
-    ctx.drawImage(renderedCanvas, 0, 0);
+  const rendered = getArtCanvas(recipe, seed, W + 24, H + 24);
+  const ctx = canvasArt.getContext("2d");
+  if (rendered instanceof Promise) {
+    rendered.then((rc) => {
+      ctx.drawImage(rc, 0, 0);
+      canvasArt.setAttribute("data-ready", "true");
+    });
+  } else if (rendered) {
+    ctx.drawImage(rendered, 0, 0);
     canvasArt.setAttribute("data-ready", "true");
-  });
+  }
 
   const sheen = document.createElement("div");
   sheen.className = "gf-back-sheen";
@@ -1225,8 +1237,9 @@ export function createGlassFolderCard({
     }
   };
 
-  hitBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
+  // Root click toggles open/close (excluding interactive keys and popovers)
+  root.addEventListener("click", (e) => {
+    if (e.target.closest('.gf-key') || e.target.closest('.gf-folder-popover-menu')) return;
     if (format === 'news' && typeof window.switchCanvasMode === 'function') {
       window.switchCanvasMode('news');
       return;
@@ -1234,16 +1247,10 @@ export function createGlassFolderCard({
     toggleOpen();
   });
 
-  // Clicking anywhere on the card toggles open/close (excluding interactive keys and sheets)
-  root.addEventListener("click", (e) => {
-    if (e.target.closest('.gf-sheet') || e.target.closest('.gf-key') || e.target.closest('.gf-hit') || e.target.closest('.gf-folder-popover-menu')) return;
-    toggleOpen();
-  });
-
   // Parallax Pointer Tracking
   let rafId = 0;
   root.addEventListener("pointermove", (e) => {
-    if (e.pointerType === "touch" || document.documentElement.classList.contains("low-power-mode")) return;
+    if (e.pointerType === "touch" || window.matchMedia('(hover: none), (pointer: coarse)').matches || document.documentElement.classList.contains("low-power-mode")) return;
     const rect = root.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const py = ((e.clientY - rect.top) / rect.height) * 2 - 1;
@@ -1695,11 +1702,86 @@ export function saveCustomFolder(folderData) {
 }
 
 /**
+ * Updates an already-mounted Glass Folder Gallery in-place without destroying DOM or canvases.
+ */
+export function updateGlassFolderGalleryInPlace(wrapper, sources = []) {
+  if (!wrapper) return;
+  const sourcesByFormat = {
+    pdf: [],
+    doc: [],
+    sheet: [],
+    slide: [],
+    note: [],
+    news: [],
+    other: []
+  };
+
+  sources.forEach(s => {
+    const fmt = classifyFileFormat(s);
+    if (sourcesByFormat[fmt]) {
+      sourcesByFormat[fmt].push(s);
+    } else {
+      sourcesByFormat.other.push(s);
+    }
+  });
+
+  const formatCounts = {
+    all: 0,
+    pdf: sourcesByFormat.pdf.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'pdf')?.defaultFiles.length || 0),
+    doc: sourcesByFormat.doc.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'doc')?.defaultFiles.length || 0),
+    sheet: sourcesByFormat.sheet.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'sheet')?.defaultFiles.length || 0),
+    slide: sourcesByFormat.slide.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'slide')?.defaultFiles.length || 0),
+    note: sourcesByFormat.note.length || (DEFAULT_FORMAT_FOLDERS.find(f => f.format === 'note')?.defaultFiles.length || 0),
+    news: sourcesByFormat.news?.length || 43,
+    other: sourcesByFormat.other.length
+  };
+  formatCounts.all = formatCounts.pdf + formatCounts.doc + formatCounts.sheet + formatCounts.slide + formatCounts.note + formatCounts.other;
+
+  // Update counts on filter pills
+  wrapper.querySelectorAll('.gf-filter-pill').forEach(pill => {
+    const fmt = pill.dataset.format;
+    const countEl = pill.querySelector('.gf-filter-count');
+    if (countEl && fmt && formatCounts[fmt] !== undefined) {
+      if (fmt === 'news') {
+        countEl.textContent = '72h';
+      } else {
+        countEl.textContent = formatCounts[fmt];
+      }
+    }
+  });
+
+  // Update meta on cards
+  DEFAULT_FORMAT_FOLDERS.forEach(folderDef => {
+    const matching = sourcesByFormat[folderDef.format] || [];
+    const totalCount = matching.length > 0 ? matching.length : folderDef.defaultFiles.length;
+    const driveCount = matching.filter(s => s.source === "Google Drive" || !s.driveFileId).length;
+    let metaText = `${totalCount} ${totalCount === 1 ? 'document' : 'documents'}`;
+    if (driveCount > 0) {
+      metaText = `${totalCount} documents · ${driveCount} from Drive`;
+    }
+    const card = wrapper.querySelector(`[data-format="${folderDef.format}"]`);
+    if (card) {
+      const metaEl = card.querySelector('.gf-meta');
+      if (metaEl && metaEl.textContent !== metaText) {
+        metaEl.textContent = metaText;
+      }
+    }
+  });
+}
+
+/**
  * Renders the Glass Folder Cards Gallery into the target container.
  * Auto-sorts all documents by format into dedicated collections.
  */
 export function renderGlassFolderGallery(container, sources = [], onSelectDocument, onAddSource) {
   if (!container) return;
+
+  const existingWrapper = container.querySelector(".gf-gallery-container");
+  if (existingWrapper) {
+    updateGlassFolderGalleryInPlace(existingWrapper, sources);
+    return;
+  }
+
   container.innerHTML = "";
 
   const wrapper = document.createElement("div");
@@ -1732,7 +1814,10 @@ export function renderGlassFolderGallery(container, sources = [], onSelectDocume
   const overrides = getFolderOverrides();
   const hiddenFormats = getHiddenFormatFolders();
 
-  const handleRefreshGallery = () => {
+  const handleRefreshGallery = (force = true) => {
+    if (force) {
+      container.innerHTML = "";
+    }
     renderGlassFolderGallery(container, sources, onSelectDocument, onAddSource);
   };
 

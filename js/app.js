@@ -18,13 +18,13 @@ import { initBackgroundBeams } from './background-beams.js';
 import { initLiquidNavbar, initLiquidSearchBar } from './liquid-navbar.js';
 
 // ── Hardware-Adaptive Performance Engine (Zero Thermal / 60-120fps Scroll) ──
-const isTouchDevice = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
-const isSmallDevice = typeof window !== 'undefined' && window.innerWidth <= 1024;
-const isLowCore = typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
-const isLowMem = typeof navigator !== 'undefined' && navigator.deviceMemory && navigator.deviceMemory <= 4;
-const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+export const isLowPowerMode = typeof window !== 'undefined' && (
+  window.matchMedia('(max-width: 768px), (hover: none), (prefers-reduced-motion: reduce)').matches ||
+  (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+  (navigator.deviceMemory && navigator.deviceMemory <= 4)
+);
 
-if (isTouchDevice || isSmallDevice || isLowCore || isLowMem || prefersReducedMotion) {
+if (isLowPowerMode) {
   document.documentElement.classList.add('low-power-mode');
 }
 
@@ -935,10 +935,13 @@ function bindGlobalEvents() {
 
   // Canvas Mode Switcher: Folders vs Reader vs Split vs Preview vs News
   document.querySelectorAll('.canvas-mode-btn').forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = (e) => {
+      e.preventDefault();
       const mode = btn.getAttribute('data-mode') || 'folders';
-      if (mode === 'folders' && state.get('viewMode') !== 'folders') {
-        navigateBackToFolders(true);
+      if (mode === 'folders') {
+        if (state.get('viewMode') !== 'folders') {
+          navigateBackToFolders(true);
+        }
       } else {
         switchCanvasMode(mode);
       }

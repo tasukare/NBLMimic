@@ -11,6 +11,9 @@
   align-items: stretch;
   justify-content: center;
   width: 100%;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ── 3D Card Body (3D Tilt Transform Canvas) ── */
@@ -31,6 +34,9 @@
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
   user-select: none;
   min-height: 290px;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 [data-theme="light"] .card-3d-body {
@@ -349,20 +355,15 @@
   }
   .card-3d-body {
     transform-style: flat !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: var(--bg-surface) !important;
   }
   .card-3d-item {
     transform-style: flat !important;
   }
 }
 
-.low-power-mode .card-3d-body {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: var(--bg-surface) !important;
-}
 .low-power-mode .card-3d-container {
   perspective: none !important;
+}
+.low-power-mode .card-3d-body {
+  transform-style: flat !important;
 }

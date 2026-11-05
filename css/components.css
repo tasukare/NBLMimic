@@ -1430,10 +1430,16 @@
     font-size: var(--text-base);
   }
 
-  /* Form Elements Touch Usability */
+  /* Form Elements Touch Usability (16px minimum prevents iOS/Android auto-zoom) */
+  #global-search-input,
+  #chat-textarea,
   .form-input,
-  .form-textarea {
-    font-size: 15px; /* Prevents unwanted iOS auto-zoom */
+  .form-textarea,
+  .spotlight-text,
+  .spotlight-search-input,
+  .composer-liquid-input,
+  .composer-textarea {
+    font-size: 16px !important;
     padding: 8px 10px;
   }
 

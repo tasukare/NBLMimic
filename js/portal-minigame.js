@@ -446,6 +446,9 @@ export function startPortalMiniGame(options = {}) {
           startup.style.display = 'none';
           startup.style.opacity = '0';
           startup.style.pointerEvents = 'none';
+          import('./startup-screen.js').then(({ startupScreen }) => {
+            startupScreen.dismiss(true);
+          }).catch(() => {});
         }, 360);
       }
 

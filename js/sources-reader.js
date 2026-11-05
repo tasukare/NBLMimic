@@ -791,7 +791,7 @@ export function getSafeDocumentStreamUrl(doc) {
 window.getSafeDocumentStreamUrl = getSafeDocumentStreamUrl;
 
 export function switchCanvasMode(mode) {
-  if (mode === 'reader' && !state.get('selectedDocId')) {
+  if ((mode === 'reader' || mode === 'split' || mode === 'preview') && !state.get('selectedDocId')) {
     const sources = state.get('sources') || [];
     if (sources.length > 0) {
       state.set('selectedDocId', sources[0].id, true);
@@ -1017,8 +1017,8 @@ export function updateCanvasView() {
   const selectedDocId = state.get('selectedDocId');
   const sources = state.get('sources');
 
-  // 1. Folders View OR No Document Selected -> Render 3D Glass Folder Cards Gallery
-  if (viewMode === 'folders' || !selectedDocId) {
+  // 1. Folders View -> Render 3D Glass Folder Cards Gallery
+  if (viewMode === 'folders') {
     if (canvasBackBtn) canvasBackBtn.style.display = 'none';
     if (breadcrumbView) breadcrumbView.textContent = 'Collections';
     if (metaBar && metaLeft) {
@@ -1055,10 +1055,39 @@ export function updateCanvasView() {
     return;
   }
 
+  // 2. Reader / Split / Preview View Modes with No Selected Document
+  if (!selectedDocId) {
+    if (sources && sources.length > 0) {
+      state.set('selectedDocId', sources[0].id, true);
+      updateCanvasView();
+      return;
+    }
+    if (canvasBackBtn) canvasBackBtn.style.display = 'inline-flex';
+    if (breadcrumbView) breadcrumbView.textContent = 'No Document';
+    if (metaBar) metaBar.style.display = 'none';
+    if (externalLinkBtn) externalLinkBtn.style.display = 'none';
+    container.innerHTML = `
+      <div class="reader-empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-height:360px; color:var(--text-tertiary); text-align:center; padding:40px 20px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:16px; opacity:0.6;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <h3 style="font-family:var(--font-serif); font-size:18px; color:var(--text-primary); margin-bottom:8px;">No Document Selected</h3>
+        <p style="font-size:13px; max-width:380px; line-height:1.6; margin-bottom:20px;">Select a file from Collections or add a new source to read and analyze.</p>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-secondary btn-sm" onclick="window.switchCanvasMode('folders')">Open Collections</button>
+          <button class="btn btn-primary btn-sm" onclick="window.openModal('add-source-modal')">Add Source</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   // 3. Document Selected State
-  const doc = sources.find(s => s.id === selectedDocId);
+  const doc = sources?.find(s => s.id === selectedDocId);
   if (!doc) {
-    state.set('selectedDocId', null);
+    if (sources && sources.length > 0) {
+      state.set('selectedDocId', sources[0].id, true);
+    } else {
+      state.set('selectedDocId', null, true);
+    }
     updateCanvasView();
     return;
   }

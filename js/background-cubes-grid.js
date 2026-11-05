@@ -89,10 +89,15 @@ export class BackgroundCubesGrid {
     const w = Math.max(320, rect.width || window.innerWidth);
     const h = Math.max(320, rect.height || window.innerHeight);
 
+    const targetW = Math.round(w * this.dpr);
+    const targetH = Math.round(h * this.dpr);
+    if (this.canvas.width !== targetW || this.canvas.height !== targetH) {
+      this.canvas.width = targetW;
+      this.canvas.height = targetH;
+    }
+
     this.width = w;
     this.height = h;
-    this.canvas.width = Math.round(w * this.dpr);
-    this.canvas.height = Math.round(h * this.dpr);
 
     const S = this.cubeSpacing;
     const isoX = S * 0.8660254; // cos(30)
@@ -123,6 +128,9 @@ export class BackgroundCubesGrid {
     this.vignetteGradient.addColorStop(0, 'rgba(11, 11, 13, 0)');
     this.vignetteGradient.addColorStop(0.62, 'rgba(11, 11, 13, 0.42)');
     this.vignetteGradient.addColorStop(1, 'rgba(11, 11, 13, 0.98)');
+
+    // Synchronously paint one clean frame immediately
+    this.draw();
   }
 
   _onResize() {

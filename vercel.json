@@ -1,6 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
+  "functions": {
+    "server.js": {
+      "includeFiles": "{css/**,js/**,avatars/**,components/**,*.html,*.svg,*.png,*.ico,*.json}"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -22,15 +26,6 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/(css|js|avatars|components)/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, stale-while-revalidate=604800"
         }
       ]
     }

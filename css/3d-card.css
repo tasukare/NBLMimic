@@ -343,12 +343,6 @@
   color: #059669;
 }
 
-/* ── Hardware-Accelerated 60-120fps Scroll & Low-Power Engine ── */
-body.is-scrolling .card-3d-body {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
 @media (max-width: 1024px), (pointer: coarse) {
   .card-3d-container {
     perspective: none !important;

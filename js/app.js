@@ -28,21 +28,6 @@ if (isTouchDevice || isSmallDevice || isLowCore || isLowMem || prefersReducedMot
   document.documentElement.classList.add('low-power-mode');
 }
 
-// ── Ultra-Smooth 60-120fps Scroll Throttling ──
-let scrollTimer = null;
-const handleScrollThrottling = () => {
-  if (!document.body.classList.contains('is-scrolling')) {
-    document.body.classList.add('is-scrolling');
-  }
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(() => {
-    document.body.classList.remove('is-scrolling');
-  }, 120);
-};
-
-window.addEventListener('scroll', handleScrollThrottling, { passive: true });
-document.addEventListener('scroll', handleScrollThrottling, { capture: true, passive: true });
-
 document.addEventListener('DOMContentLoaded', async () => {
   // 0. Launch Liquid Glass Startup Screen immediately
   startupScreen.init(async () => {

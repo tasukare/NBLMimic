@@ -1243,7 +1243,7 @@ export function createGlassFolderCard({
   // Parallax Pointer Tracking
   let rafId = 0;
   root.addEventListener("pointermove", (e) => {
-    if (e.pointerType === "touch" || document.body.classList.contains("is-scrolling") || document.documentElement.classList.contains("low-power-mode")) return;
+    if (e.pointerType === "touch" || document.documentElement.classList.contains("low-power-mode")) return;
     const rect = root.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const py = ((e.clientY - rect.top) / rect.height) * 2 - 1;

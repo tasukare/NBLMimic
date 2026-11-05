@@ -613,23 +613,6 @@ svg {
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   Ultra-Smooth 60-120fps Scroll Performance Engine
-   ══════════════════════════════════════════════════════════════════════════ */
-body.is-scrolling * {
-  pointer-events: none !important;
-}
-
-body.is-scrolling .gf-front,
-body.is-scrolling .card-3d-body,
-body.is-scrolling .command-header,
-body.is-scrolling .btn-dock-open-chat,
-body.is-scrolling .mobile-bottom-nav {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-
 /* ── Floating Reopen Research Chat Tab (Draggable & Aceternity Expandable) ── */
 .btn-dock-open-chat {
   position: fixed !important;

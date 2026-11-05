@@ -26,11 +26,10 @@
   justify-content: space-between;
   border-radius: 20px;
   padding: 22px 24px;
-  background: rgba(18, 18, 24, 0.94);
+  background: rgba(18, 18, 24, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  contain: layout paint;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
   user-select: none;
   min-height: 290px;

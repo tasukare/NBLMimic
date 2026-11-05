@@ -535,12 +535,11 @@ canvas.gf-art[data-ready] {
   height: 202px;
   z-index: 3;
   pointer-events: none !important;
-  -webkit-backdrop-filter: blur(6px) saturate(1.2);
-  backdrop-filter: blur(6px) saturate(1.2);
   transform-origin: 50% 100%;
   transform: translate3d(0, 0, 0) perspective(760px) rotateX(var(--gf-hinge));
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  contain: layout paint;
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
@@ -549,11 +548,11 @@ canvas.gf-art[data-ready] {
   inset: 0;
   pointer-events: none !important;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, .25) 0%, rgba(255, 255, 255, .45) 42%, rgba(252, 252, 252, .88) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, .78) 0%, rgba(248, 248, 252, .88) 38%, rgba(238, 240, 246, .96) 100%);
 }
 
 .gf-root[data-tone="dark"] .gf-tint {
-  background: linear-gradient(180deg, rgba(24, 24, 30, .35) 0%, rgba(18, 18, 22, .65) 46%, rgba(10, 10, 12, .92) 100%);
+  background: linear-gradient(180deg, rgba(32, 34, 42, .72) 0%, rgba(20, 22, 28, .88) 38%, rgba(12, 13, 16, .96) 100%);
 }
 
 .gf-spec {
@@ -568,7 +567,7 @@ canvas.gf-art[data-ready] {
 
 .gf-root[data-tone="dark"] .gf-spec {
   mix-blend-mode: screen;
-  opacity: .16;
+  opacity: .22;
 }
 
 .gf-front-rim {
@@ -708,9 +707,7 @@ canvas.gf-art[data-ready] {
 
 .gf-key--more {
   color: #111113;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .92) 0%, rgba(226, 226, 230, .82) 100%);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .96) 0%, rgba(235, 235, 240, .92) 100%);
   box-shadow:
     inset 0 1px 0 #fff,
     inset 0 -2px 4px rgba(0, 0, 0, .06),
@@ -720,7 +717,7 @@ canvas.gf-art[data-ready] {
 
 .gf-root[data-tone="dark"] .gf-key--more {
   color: #f5f5f7;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, .06) 100%);
+  background: linear-gradient(180deg, rgba(40, 40, 48, 0.95) 0%, rgba(24, 24, 30, 0.95) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 0 0 1px rgba(255, 255, 255, .1), 0 10px 18px -8px rgba(0, 0, 0, .6);
 }
 
@@ -861,8 +858,9 @@ canvas.gf-art[data-ready] {
   gap: 3px;
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
   transform: translateY(8px) scale(0.95);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
   user-select: none;
 }
 
@@ -875,6 +873,7 @@ canvas.gf-art[data-ready] {
 .gf-folder-popover-menu.is-open {
   opacity: 1;
   pointer-events: auto !important;
+  visibility: visible;
   transform: translateY(0) scale(1);
 }
 

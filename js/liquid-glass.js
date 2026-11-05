@@ -217,22 +217,8 @@ export async function applyLiquidGlass(el, options = {}) {
   const width = Math.max(2, Math.round(rect.width));
   const height = Math.max(2, Math.round(rect.height));
 
-  // Adaptive Glass: zero blur overhead on mobile/tablets/low-power, moderate 10px on desktop
-  const isLowTier = typeof window !== 'undefined' && (
-    document.documentElement.classList.contains('low-power-mode') ||
-    window.innerWidth <= 1024 ||
-    window.matchMedia?.('(pointer: coarse)').matches
-  );
-
-  if (isLowTier) {
-    el.style.backdropFilter = 'none';
-    el.style.webkitBackdropFilter = 'none';
-    el.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.35)';
-  } else {
-    el.style.backdropFilter = 'blur(10px) saturate(1.4)';
-    el.style.webkitBackdropFilter = 'blur(10px) saturate(1.4)';
-    el.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
-  }
+  // Preserve CSS stylesheet-defined backdrop-filter and box-shadow without inline destruction.
+  // CSS custom properties in css/liquid-glass.css handle hardware-accelerated frosted glass.
 
   // Setup ResizeObserver if not already attached
   if (!instance.observer && window.ResizeObserver) {

@@ -80,8 +80,8 @@
 }
 
 .nimbus-nav[data-refract="on"] .nimbus-glass {
-  -webkit-backdrop-filter: url(#nimbus-refract) blur(2px) saturate(1.2) brightness(1.08);
-  backdrop-filter: url(#nimbus-refract) blur(2px) saturate(1.2) brightness(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.25) brightness(1.06);
+  backdrop-filter: blur(12px) saturate(1.25) brightness(1.06);
 }
 
 /* WebGL Water Shader Canvas (Bleeds outside by --n-pad to render ripple waves) */

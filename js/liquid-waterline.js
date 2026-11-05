@@ -179,9 +179,8 @@ function initGL(canvas) {
 
 /** Check if SVG backdrop filter is supported */
 function supportsRefraction() {
-  if (typeof window === 'undefined' || typeof CSS === 'undefined') return false;
-  const ua = navigator.userAgent;
-  return /Chrome\/|Chromium\/|Edg\//.test(ua) && !/Firefox\//.test(ua) && !!CSS.supports?.('backdrop-filter', 'url(#a)');
+  // Use pure hardware-accelerated GPU Gaussian blur instead of CPU-heavy SVG displacement filters
+  return false;
 }
 
 /** Web Audio Soft Synthesized Water "Plip" (Zero external assets) */

@@ -787,58 +787,12 @@ async function appHandler(req, res) {
     return;
   }
 
-  // 1b. Live API Config & Ephemeral Token Endpoint (Shielded - Fixes VULN-01)
+  // 1b. Live API Config Endpoint (Shielded - Fixes VULN-01)
   if (pathname === '/api/live-config' && req.method === 'GET') {
     const activeKey = serverKeyRotator.getActiveKey()?.key || '';
-    if (!activeKey) {
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ hasServerKey: false, liveModel: 'gemini-3.8-live' }));
-      return;
-    }
-
-    const hostHeader = (req.headers.host || '').toLowerCase();
-    const isLoopback = hostHeader.startsWith('localhost') || hostHeader.startsWith('127.0.0.1');
-
-    try {
-      const now = new Date();
-      const expireTime = new Date(now.getTime() + 30 * 60 * 1000).toISOString();
-      const newSessionExpireTime = new Date(now.getTime() + 2 * 60 * 1000).toISOString();
-
-      const tokenRes = await fetch('https://generativelanguage.googleapis.com/v1beta/auth_tokens', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': activeKey
-        },
-        body: JSON.stringify({
-          uses: 1,
-          expireTime,
-          newSessionExpireTime
-        }),
-        signal: AbortSignal.timeout(3500)
-      });
-
-      if (tokenRes.ok) {
-        const tokenData = await tokenRes.json();
-        const ephemeralToken = tokenData.name || tokenData.token;
-        if (ephemeralToken) {
-          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({
-            hasServerKey: true,
-            ephemeralToken,
-            liveModel: 'gemini-3.8-live'
-          }));
-          return;
-        }
-      }
-    } catch (e) {
-      // Loopback fallback
-    }
-
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
-      hasServerKey: true,
-      apiKey: isLoopback ? activeKey : undefined,
+      hasServerKey: Boolean(activeKey),
       liveModel: 'gemini-3.8-live'
     }));
     return;

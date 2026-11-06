@@ -99,22 +99,6 @@ export function toggleLiveTranscriptDrawer() {
 }
 
 // ── Audio Helpers ──
-
-function downsampleTo16k(inputFloats, inputRate) {
-  if (!inputRate || inputRate === 16000) {
-    return float32To16BitPCM(inputFloats);
-  }
-  const ratio = inputRate / 16000;
-  const newLength = Math.round(inputFloats.length / ratio);
-  const result = new Int16Array(newLength);
-  for (let i = 0; i < newLength; i++) {
-    const srcIndex = Math.min(Math.floor(i * ratio), inputFloats.length - 1);
-    const s = Math.max(-1, Math.min(1, inputFloats[srcIndex]));
-    result[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-  }
-  return result;
-}
-
 function float32To16BitPCM(float32Array) {
   const pcm16 = new Int16Array(float32Array.length);
   for (let i = 0; i < float32Array.length; i++) {
@@ -211,21 +195,17 @@ export function interruptLivePlayback() {
 // ── WebSocket Connection to Gemini 3.8 Live ──
 export async function connectGeminiLive() {
   let apiKey = state.get('geminiApiKey');
-  let ephemeralToken = null;
-
   if (!apiKey) {
     try {
       const cfg = await fetch('/api/live-config').then(r => r.json());
-      if (cfg.ephemeralToken) {
-        ephemeralToken = cfg.ephemeralToken;
-      } else if (cfg.apiKey) {
+      if (cfg.apiKey) {
         apiKey = cfg.apiKey;
         state.set('geminiApiKey', apiKey, true);
       }
     } catch (e) {}
   }
 
-  if (!apiKey && !ephemeralToken) {
+  if (!apiKey) {
     setLiveStatus('API Key required in Settings (BYOK)');
     appendTranscript('System', 'To connect Gemini 3.8 Live, add GEMINI_API_KEY to your local .env or configure in Settings.');
     return;
@@ -237,10 +217,7 @@ export async function connectGeminiLive() {
 
   setLiveStatus('Connecting to Gemini 3.8 Live...');
 
-  const wsAuth = ephemeralToken
-    ? `access_token=${encodeURIComponent(ephemeralToken)}`
-    : `key=${encodeURIComponent(apiKey)}`;
-  const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?${wsAuth}`;
+  const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`;
 
   try {
     liveWs = new WebSocket(wsUrl);
@@ -271,9 +248,7 @@ ${context || 'No specific sources are active right now.'}`;
           },
           systemInstruction: {
             parts: [{ text: instruction }]
-          },
-          inputAudioTranscription: {},
-          outputAudioTranscription: {}
+          }
         }
       };
 
@@ -334,11 +309,9 @@ ${context || 'No specific sources are active right now.'}`;
     };
 
     liveWs.onclose = () => {
-      setLiveStatus('Session closed. Tap to reconnect.');
+      setLiveStatus('Disconnected. Tap to reconnect.');
       stopLiveAudioPlayback();
-      if (!isLiveSessionOpen) {
-        stopMicCapture();
-      }
+      stopMicCapture();
     };
 
   } catch (err) {
@@ -348,9 +321,9 @@ ${context || 'No specific sources are active right now.'}`;
 
 export async function startMicCapture() {
   try {
-    // Relaxed audio constraints - avoid OverconstrainedError on 48kHz/44.1kHz sound cards
     liveMicStream = await navigator.mediaDevices.getUserMedia({
       audio: {
+        sampleRate: 16000,
         channelCount: 1,
         echoCancellation: true,
         noiseSuppression: true,
@@ -358,16 +331,7 @@ export async function startMicCapture() {
       }
     });
 
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    try {
-      liveInAudioCtx = new AudioContextClass({ sampleRate: 16000 });
-    } catch (e) {
-      liveInAudioCtx = new AudioContextClass();
-    }
-    if (liveInAudioCtx.state === 'suspended') {
-      await liveInAudioCtx.resume();
-    }
-
+    liveInAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
     liveInAnalyser = liveInAudioCtx.createAnalyser();
     liveInAnalyser.fftSize = 64;
 
@@ -380,7 +344,7 @@ export async function startMicCapture() {
       if (!liveWs || liveWs.readyState !== WebSocket.OPEN) return;
 
       const inputFloats = e.inputBuffer.getChannelData(0);
-      const pcm16 = downsampleTo16k(inputFloats, liveInAudioCtx.sampleRate);
+      const pcm16 = float32To16BitPCM(inputFloats);
       const b64 = bufferToBase64(pcm16.buffer);
 
       liveWs.send(JSON.stringify({
@@ -434,15 +398,14 @@ export function stopMicCapture() {
   setLiveStatus('Microphone muted');
 }
 
-export async function toggleLiveMic() {
+export function toggleLiveMic() {
   if (isLiveMicActive) {
     stopMicCapture();
   } else {
-    // Start mic immediately within user gesture tick
-    await startMicCapture();
     if (!liveWs || liveWs.readyState !== WebSocket.OPEN) {
-      await connectGeminiLive();
+      connectGeminiLive();
     }
+    startMicCapture();
   }
 }
 

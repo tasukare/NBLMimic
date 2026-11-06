@@ -413,12 +413,23 @@ export function toggleDictation() {
       }
     };
 
-    speechRecognizer.onerror = () => {
+    speechRecognizer.onerror = (e) => {
+      // Non-fatal silence: keep listening when user is pausing
+      if (e && (e.error === 'no-speech' || e.error === 'aborted')) {
+        return;
+      }
       isDictating = false;
       if (micBtn) micBtn.classList.remove('is-recording');
     };
 
     speechRecognizer.onend = () => {
+      // Auto-restart if user has not explicitly clicked to stop
+      if (isDictating && speechRecognizer) {
+        try {
+          speechRecognizer.start();
+          return;
+        } catch (restartErr) {}
+      }
       isDictating = false;
       if (micBtn) micBtn.classList.remove('is-recording');
     };

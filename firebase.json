@@ -1,0 +1,25 @@
+{
+  "apphosting": {
+    "backendId": "nblmimic",
+    "rootDir": "/",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "NBLMimic",
+        "supportEmail": "jane.vance.research@gmail.com",
+        "authorizedRedirectUris": [
+          "https://static-webbing-512407-b3.firebaseapp.com/__/auth/handler",
+          "http://localhost:3000",
+          "https://nblmimic.onrender.com"
+        ]
+      }
+    }
+  }
+}

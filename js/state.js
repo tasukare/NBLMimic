@@ -12,6 +12,9 @@ class StateStore {
       user: null,
       isSignUpMode: false,
       googleClientId: '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
+      firebaseConfig: null,
+      firebaseUser: null,
+      isFirebaseAuthActive: false,
 
       // Research Sources & Grounding
       sources: [],

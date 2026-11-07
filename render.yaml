@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: nblmimic
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 10000
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        value: static-webbing-512407-b3
+      - key: FIREBASE_AUTH_DOMAIN
+        value: static-webbing-512407-b3.firebaseapp.com
+      - key: FIREBASE_STORAGE_BUCKET
+        value: static-webbing-512407-b3.firebasestorage.app
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "809750403592"

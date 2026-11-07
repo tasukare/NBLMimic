@@ -4,6 +4,8 @@
  */
 
 import { state } from './state.js';
+import { initFirebaseAuthConfig, initFirebaseAuthListener } from './firebase-auth.js';
+import { renderAuthUI } from './auth-drive.js';
 import { initTheme, toggleTheme, openModal, closeModal, closeAllModals, togglePopover, closePopover, showToast } from './ui.js';
 import { CryptoVault } from './crypto-vault.js';
 import { initUserSession, initDriveSession, triggerGoogleSignIn, handleStartupEmailLogin, handleStartupDemoLogin, fetchServerAuthConfig, fetchServerDriveConfig, loadGoogleDriveFiles, signOutUser, switchAccount, loginDemoAccount, handleDirectAuthSubmit, connectGoogleDrive, saveDriveWebAppUrl, getTokenTimeRemainingSec, revokeTokenAndDisconnect } from './auth-drive.js';
@@ -65,6 +67,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 3. Connect Server Configurations & Run Verification
   startupScreen.setStatus('Verifying Gemini API key pool & server health...', 'loading');
   fetchServerAuthConfig();
+  initFirebaseAuthListener(() => {
+    renderAuthUI();
+  });
+  CryptoVault.getSecureItem('nbl_firebase_api_key').then(savedFbKey => {
+    if (savedFbKey) {
+      const cfg = state.get('firebaseConfig') || {
+        projectId: 'static-webbing-512407-b3',
+        authDomain: 'static-webbing-512407-b3.firebaseapp.com'
+      };
+      cfg.apiKey = savedFbKey;
+      state.set('firebaseConfig', cfg);
+      initFirebaseAuthConfig(cfg).catch(() => {});
+    }
+  }).catch(() => {});
   fetchServerDriveConfig();
   const health = await runStartupVerification();
 
@@ -193,6 +209,24 @@ let settingsTelemetryTimer = null;
 async function refreshKeyTelemetry() {
   const poolEl = document.getElementById('setting-server-pool-status');
   const tokenEl = document.getElementById('setting-oauth-token-status');
+  const fbStatusEl = document.getElementById('setting-firebase-auth-status');
+  if (fbStatusEl) {
+    const isFbActive = state.get('isFirebaseAuthActive');
+    const fbCfg = state.get('firebaseConfig');
+    if (isFbActive) {
+      fbStatusEl.textContent = 'Active (Google)';
+      fbStatusEl.style.color = 'var(--success)';
+    } else if (fbCfg?.apiKey) {
+      fbStatusEl.textContent = 'Ready (' + fbCfg.projectId + ')';
+      fbStatusEl.style.color = 'var(--text-secondary)';
+    } else if (fbCfg?.projectId) {
+      fbStatusEl.textContent = 'Configured (Awaiting Key)';
+      fbStatusEl.style.color = 'var(--text-tertiary)';
+    } else {
+      fbStatusEl.textContent = 'Unconfigured';
+      fbStatusEl.style.color = 'var(--text-tertiary)';
+    }
+  }
   const vaultEl = document.getElementById('setting-vault-health-status');
   const revokeBtn = document.getElementById('btn-setting-revoke-token');
 
@@ -263,6 +297,20 @@ async function refreshKeyTelemetry() {
 
 function startSettingsTelemetryWatch() {
   stopSettingsTelemetryWatch();
+  const fbKeyBadge = document.getElementById('setting-firebase-key-badge');
+  const fbConfig = state.get('firebaseConfig');
+  if (fbKeyBadge) {
+    if (fbConfig?.apiKey) {
+      fbKeyBadge.textContent = 'Active';
+      fbKeyBadge.style.background = 'var(--success-subtle)';
+      fbKeyBadge.style.color = 'var(--success)';
+    } else {
+      fbKeyBadge.textContent = 'Optional';
+      fbKeyBadge.style.background = 'var(--bg-muted)';
+      fbKeyBadge.style.color = 'var(--text-tertiary)';
+    }
+  }
+
   refreshKeyTelemetry();
   settingsTelemetryTimer = setInterval(() => {
     const modal = document.getElementById('settings-modal');
@@ -770,7 +818,14 @@ function bindGlobalEvents() {
 
   // Header Settings Button
   const btnHeaderSettings = document.getElementById('btn-header-settings');
-  if (btnHeaderSettings) btnHeaderSettings.onclick = () => {
+  if (btnHeaderSettings) btnHeaderSettings.onclick = async () => {
+    const fbKeyInput = document.getElementById('setting-firebase-key');
+    if (fbKeyInput && !fbKeyInput.value) {
+      const savedFbKey = await CryptoVault.getSecureItem('nbl_firebase_api_key').catch(() => null);
+      const curCfg = state.get('firebaseConfig');
+      if (savedFbKey) fbKeyInput.value = savedFbKey;
+      else if (curCfg?.apiKey) fbKeyInput.value = curCfg.apiKey;
+    }
     updateSettingsUI();
     openModal('settings-modal');
     startSettingsTelemetryWatch();

@@ -1,4 +1,12 @@
 
+import {
+  initFirebaseAuthConfig,
+  isFirebaseConfigured,
+  signInWithGoogleFirebase,
+  signOutFirebase,
+  initFirebaseAuthListener
+} from './firebase-auth.js';
+
 export function purgeLegacyCleartextTokens() {
   try {
     localStorage.removeItem('nbl_drive_token_raw');
@@ -23,7 +31,7 @@ export function hideStartupLoginLoading() {
   if (overlay) overlay.classList.remove('is-active');
 }
 
-export function triggerGoogleSignIn() {
+export async function triggerGoogleSignIn() {
   if (window.location.hostname === '127.0.0.1') {
     showToast('Redirecting to http://localhost:3000 for Google OAuth origin policy...');
     setTimeout(() => {
@@ -33,6 +41,27 @@ export function triggerGoogleSignIn() {
   }
 
   showStartupLoginLoading('Connecting to Google...');
+
+  // 1. Try Firebase Authentication with Google Sign-in if configured
+  if (isFirebaseConfigured()) {
+    try {
+      const fbResult = await signInWithGoogleFirebase();
+      if (fbResult && fbResult.user) {
+        await handleSuccessfulGoogleAuth({
+          user: fbResult.user,
+          driveToken: fbResult.driveToken,
+          expiresIn: 3600
+        });
+        return;
+      }
+    } catch (fbErr) {
+      console.warn('[Google Auth] Firebase Google Sign-in error or cancelled:', fbErr);
+      hideStartupLoginLoading();
+      if (fbErr?.code === 'auth/popup-closed-by-user' || fbErr?.code === 'auth/unauthorized-domain') {
+        return;
+      }
+    }
+  }
 
   if (!driveTokenClient) {
     initDriveOAuth();
@@ -141,6 +170,10 @@ export async function fetchServerAuthConfig() {
         state.set('googleClientId', data.clientId);
         initDriveOAuth();
       }
+      if (data?.firebase) {
+        state.set('firebaseConfig', data.firebase);
+        initFirebaseAuthConfig(data.firebase).catch(() => {});
+      }
     }
   } catch (e) {
     console.warn('[Auth Config] Failed to fetch server auth config:', e);
@@ -230,6 +263,7 @@ export function renderAuthUI() {
 }
 
 export function signOutUser() {
+  signOutFirebase().catch(() => {});
   state.set('user', null);
   disconnectGoogleDrive();
   CryptoVault.removeSecureItem('nbl_user_session');
@@ -505,9 +539,7 @@ export function initDriveOAuth() {
         if (tokenResponse && tokenResponse.access_token) {
           const driveToken = tokenResponse.access_token;
           const expiresIn = parseInt(tokenResponse.expires_in, 10) || 3600;
-          const driveTokenExpires = Date.now() + expiresIn * 1000;
 
-          // Audience verification
           const isValidAudience = await verifyTokenAudience(driveToken);
           if (!isValidAudience) {
             console.error('[Drive Auth] Token rejected due to invalid audience.');
@@ -516,101 +548,7 @@ export function initDriveOAuth() {
             return;
           }
 
-          // 1. Save token & connection state
-          state.update({
-            driveToken,
-            driveTokenExpires,
-            isDriveConnected: true
-          });
-
-          // Start Watchdog
-          startOAuthWatchdog();
-
-          // Resolve pending silent refresh promise
-          if (resolveActiveRefresh) {
-            resolveActiveRefresh(driveToken);
-          }
-
-          // 2. Fetch user profile and storageQuota in single call
-          let userObj = null;
-          let storageQuotaObj = null;
-          try {
-            const aboutRes = await fetch('https://www.googleapis.com/drive/v3/about?fields=storageQuota,user', {
-              headers: { Authorization: `Bearer ${driveToken}` }
-            });
-            if (aboutRes.ok) {
-              const data = await aboutRes.json();
-              if (data?.user) {
-                userObj = {
-                  name: data.user.displayName || 'Google User',
-                  email: data.user.emailAddress || '',
-                  picture: data.user.photoLink || ''
-                };
-                state.set('user', userObj);
-              }
-              if (data?.storageQuota) {
-                storageQuotaObj = data.storageQuota;
-                state.set('driveStorage', storageQuotaObj);
-              }
-            }
-          } catch (err) {
-            console.warn('[Drive Auth] Error fetching about info:', err);
-          }
-
-          // 3. Persist securely to CryptoVault & sessionStorage (Zero plaintext token in localStorage - Fixes VULN-17)
-          if (userObj) {
-            await CryptoVault.setSecureItem('nbl_user_session', userObj);
-            try {
-              sessionStorage.setItem('nbl_user_session', JSON.stringify(userObj));
-            } catch (e) {}
-          }
-          await CryptoVault.setSecureItem('nbl_drive_token', driveToken, expiresIn * 1000);
-          await CryptoVault.setSecureItem('nbl_drive_token_expires', driveTokenExpires, expiresIn * 1000);
-          try {
-            sessionStorage.setItem('nbl_drive_token_session', driveToken);
-            sessionStorage.setItem('nbl_drive_token_expires_session', String(driveTokenExpires));
-            purgeLegacyCleartextTokens();
-          } catch (e) {}
-
-          // 4. Close modals immediately
-          closeModal('auth-modal');
-          closeModal('drive-modal');
-
-          // 5. Update header avatar & storage meter
-          renderAuthUI();
-          updateDriveUI();
-          showToast(userObj?.name ? `Signed in as ${userObj.name}` : 'Google Drive connected');
-
-          // If startup screen is still active (Stage 1 login), bloom logo reveal and advance through portal
-          const startupEl = document.getElementById('startup-screen');
-          if (startupEl && startupEl.style.display !== 'none' && !startupScreen.isDismissed) {
-            hideStartupLoginLoading();
-            startupScreen.hideLoginStage();
-            await startupScreen.markReadyAndDismiss(
-              userObj?.name ? `Authenticated as ${userObj.name} · Loading Drive vault...` : 'Drive Vault Connected · Loading...'
-            );
-          }
-
-          // 6. Ensure app folder and sync notes
-          await ensureDriveAppFolder();
-          syncCurrentNotesToDrive(true);
-
-          // 7. Immediately load Drive files into source list
-          await loadGoogleDriveFiles(true);
-
-          // 8. Update center canvas out of sign-in screen
-          if (state.get('viewMode') === 'folders') {
-            if (typeof window.updateCanvasView === 'function') {
-              window.updateCanvasView();
-            }
-          } else {
-            const sources = state.get('sources');
-            if (sources && sources.length > 0 && typeof window.viewDocument === 'function') {
-              window.viewDocument(sources[0].id);
-            } else if (typeof window.updateCanvasView === 'function') {
-              window.updateCanvasView();
-            }
-          }
+          await handleSuccessfulGoogleAuth({ driveToken, expiresIn });
         } else if (tokenResponse && tokenResponse.error) {
           console.error('[Drive Auth Error]', tokenResponse);
           if (rejectActiveRefresh) rejectActiveRefresh(new Error(tokenResponse.error));

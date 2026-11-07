@@ -289,12 +289,12 @@ function applySecurityHeaders(res) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://accounts.google.com",
+      "script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.gstatic.com https://apis.google.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://generativelanguage.googleapis.com https://www.googleapis.com https://accounts.google.com wss://generativelanguage.googleapis.com https://*.onrender.com https://*.vercel.app",
-      "frame-src 'self' https://accounts.google.com https://drive.google.com",
+      "connect-src 'self' https://generativelanguage.googleapis.com https://www.googleapis.com https://accounts.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.onrender.com https://*.vercel.app",
+      "frame-src 'self' https://accounts.google.com https://drive.google.com https://*.firebaseapp.com",
       "object-src 'none'",
       "base-uri 'self'"
     ].join('; ')
@@ -855,7 +855,15 @@ async function appHandler(req, res) {
   if (pathname === '/api/auth/config') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
-      clientId: process.env.GOOGLE_CLIENT_ID || '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com'
+      clientId: process.env.GOOGLE_CLIENT_ID || '809750403592-tven0oabpuiq37oi8um5f102ck3lclkg.apps.googleusercontent.com',
+      firebase: {
+        apiKey: process.env.FIREBASE_API_KEY || '',
+        authDomain: process.env.FIREBASE_AUTH_DOMAIN || 'static-webbing-512407-b3.firebaseapp.com',
+        projectId: process.env.FIREBASE_PROJECT_ID || 'static-webbing-512407-b3',
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'static-webbing-512407-b3.firebasestorage.app',
+        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '809750403592',
+        appId: process.env.FIREBASE_APP_ID || ''
+      }
     }));
     return;
   }

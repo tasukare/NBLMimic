@@ -526,6 +526,103 @@ export async function revokeTokenAndDisconnect() {
 }
 
 // ── Unified 1-Click Google OAuth2 Token Client ──
+// ── Unified Successful Auth Handler (Used by Firebase Auth & GSI) ──
+export async function handleSuccessfulGoogleAuth({ user = null, driveToken = null, expiresIn = 3600 } = {}) {
+  const driveTokenExpires = Date.now() + expiresIn * 1000;
+
+  if (driveToken) {
+    state.update({
+      driveToken,
+      driveTokenExpires,
+      isDriveConnected: true
+    });
+    startOAuthWatchdog();
+    if (resolveActiveRefresh) {
+      resolveActiveRefresh(driveToken);
+    }
+  }
+
+  let userObj = user;
+  if (driveToken) {
+    try {
+      const aboutRes = await fetch('https://www.googleapis.com/drive/v3/about?fields=storageQuota,user', {
+        headers: { Authorization: `Bearer ${driveToken}` }
+      });
+      if (aboutRes.ok) {
+        const data = await aboutRes.json();
+        if (data?.user && (!userObj || !userObj.name)) {
+          userObj = {
+            name: data.user.displayName || 'Google User',
+            email: data.user.emailAddress || '',
+            picture: data.user.photoLink || ''
+          };
+        }
+        if (data?.storageQuota) {
+          state.set('driveStorage', data.storageQuota);
+        }
+      }
+    } catch (err) {
+      console.warn('[Drive Auth] Error fetching about info:', err);
+    }
+  }
+
+  if (userObj) {
+    state.set('user', userObj);
+    await CryptoVault.setSecureItem('nbl_user_session', userObj);
+    try {
+      sessionStorage.setItem('nbl_user_session', JSON.stringify(userObj));
+    } catch (e) {}
+  }
+
+  if (driveToken) {
+    await CryptoVault.setSecureItem('nbl_drive_token', driveToken, expiresIn * 1000);
+    await CryptoVault.setSecureItem('nbl_drive_token_expires', driveTokenExpires, expiresIn * 1000);
+    try {
+      sessionStorage.setItem('nbl_drive_token_session', driveToken);
+      sessionStorage.setItem('nbl_drive_token_expires_session', String(driveTokenExpires));
+      purgeLegacyCleartextTokens();
+    } catch (e) {}
+  }
+
+  closeModal('auth-modal');
+  closeModal('drive-modal');
+  renderAuthUI();
+  updateDriveUI();
+  showToast(userObj?.name ? `Signed in as ${userObj.name}` : (driveToken ? 'Google Drive connected' : 'Signed in'));
+
+  const startupEl = document.getElementById('startup-screen');
+  if (startupEl && startupEl.style.display !== 'none' && !startupScreen.isDismissed) {
+    hideStartupLoginLoading();
+    startupScreen.hideLoginStage();
+    await startupScreen.markReadyAndDismiss(
+      userObj?.name ? `Authenticated as ${userObj.name} · Loading workspace...` : 'Connected · Loading...'
+    );
+  }
+
+  if (driveToken) {
+    await ensureDriveAppFolder();
+    syncCurrentNotesToDrive(true);
+    await loadGoogleDriveFiles(true);
+  } else {
+    if (typeof window.loadDefaultWorkspaceSources === 'function') {
+      window.loadDefaultWorkspaceSources();
+    }
+  }
+
+  if (state.get('viewMode') === 'folders') {
+    if (typeof window.updateCanvasView === 'function') {
+      window.updateCanvasView();
+    }
+  } else {
+    const sources = state.get('sources');
+    if (sources && sources.length > 0 && typeof window.viewDocument === 'function') {
+      window.viewDocument(sources[0].id);
+    } else if (typeof window.updateCanvasView === 'function') {
+      window.updateCanvasView();
+    }
+  }
+}
+
 export function initDriveOAuth() {
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
     return;

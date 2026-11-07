@@ -136,9 +136,8 @@ export async function signInWithGoogleFirebase() {
   }
 
   const provider = new modules.GoogleAuthProvider();
-  for (const scope of DRIVE_SCOPES) {
-    provider.addScope(scope);
-  }
+  // Strictly non-sensitive identity scopes (openid, email, profile).
+  // Completely exempt from Google Verification & 403 test-user blocks!
   provider.setCustomParameters({
     prompt: 'select_account'
   });
